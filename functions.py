@@ -18,6 +18,8 @@ def image_to_angle(image, overlay):
     x_location_avg=0
     horizontal_sum=0
     vertical_sum=0
+    num_horizontal_lines=0
+    num_vertical_lines=0
     if hough_lines is not None:
         for line in hough_lines:
             for x1,y1,x2,y2 in line:
@@ -36,12 +38,14 @@ def image_to_angle(image, overlay):
                 #if the line is horizontal or close to horizontal, only add length to horizontal sum
                 if line_angle_deg_mag>60:
                     horizontal_sum+=line_length
+                    num_horizontal_lines+=1
 
                     #add red line to overlay to represent horizontal stop line
                     cv2.line(overlay,(x1,y1),(x2,y2),(0,0,255),10)
 
                 # if lane is close to vertical, recognize it as a guide line
                 else: 
+                    num_vertical_lines+=1
                     #add green line to overlay to represent guide line
                     cv2.line(overlay,(x1,y1),(x2,y2),(0,255,0),10)
 
@@ -60,13 +64,15 @@ def image_to_angle(image, overlay):
         #compute average angle
         angle_avg_deg=angle_total_deg/total_length
         angle_avg_deg_rounded=round(angle_avg_deg,2)
-        x_location_avg=x_location_sum/(2*len(hough_lines))
+        x_location_avg=x_location_sum/(2*num_vertical_lines)
         horizontal_vertical_ratio=horizontal_sum/vertical_sum
 
         #display this average angle value on frame
         font = cv2.FONT_HERSHEY_SIMPLEX
-        Text=str(angle_avg_deg_rounded)+"\n"+str(x_location_avg)
-        cv2.putText(overlay, Text, (50, 50), font, 1, (255,255,255), 2)
+        angle_text=str(angle_avg_deg_rounded)
+        location_text=str(x_location_avg)
+        cv2.putText(overlay, angle_text, (50, 50), font, 1, (255,255,255), 2)
+        cv2.putText(overlay, location_text, (50, 100), font, 1, (255,255,255), 2)
 
         #return 4 variables: angle, x location of line, horizontal/vertical ratio, and lines_seen boolean
         return angle_avg_deg, x_location_avg, horizontal_vertical_ratio,True
