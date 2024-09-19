@@ -11,14 +11,17 @@ max_speed=90
 min_speed=60
 angle_p=1
 centering_p=0.15
-angle_i=0.05
+angle_i=0
+centering_i=0
 p_control=True
-i_control=False
+i_control=True
 ratio_limit=0.8
 
 vertical_lines_seen=False
 angle_error_sum=0
 angle_error_sum_max=400
+x_location_error_sum=0
+x_location_error_max=400
 num_stops=2
 num_turns=1
 stop_num=0
@@ -91,39 +94,38 @@ try:
 
 
         
-        #proportional control
+        #control section
         right_motor_speed=base_speed
         left_motor_speed=base_speed
+
+        #p control setup
+        angle_error=avg_angle_deg
         x_location_error=240-x_location_avg
+        
+        #i control setup
+        angle_error_sum+=angle_error
+        x_location_error_sum+=x_location_error
+        x_location_error_sum=clamp(x_location_error_sum,0,x_location_error_max)
+        angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
+        
+        #proportional control
         if p_control:
-            right_motor_speed+=int(avg_angle_deg*angle_p)
-            left_motor_speed-=int(avg_angle_deg*angle_p)
-            if (not vertical_lines_seen):
-                right_motor_speed+=int(x_location_error*centering_p)
-                left_motor_speed-=int(x_location_error*centering_p)
+            right_motor_speed+=int(angle_error*angle_p)
+            left_motor_speed-=int(angle_error*angle_p)
+            right_motor_speed+=int(x_location_error*centering_p)
+            left_motor_speed-=int(x_location_error*centering_p)
         
         #integral control
         if i_control:
             right_motor_speed+=int(angle_error_sum*angle_i)
             left_motor_speed-=int(angle_error_sum*angle_i)
-        
-        #spin motors backward if below threshold (only needed for sharp turns, pursuing different approach)
-        # if left_motor_speed<min_speed:
-        #     left_motor_speed=-min_speed-(min_speed-left_motor_speed)
-        # if right_motor_speed<min_speed:
-        #     right_motor_speed=-min_speed-(min_speed-right_motor_speed)
+            right_motor_speed+=int(x_location_error_sum*centering_i)
+            left_motor_speed-=int(x_location_error_sum*centering_i)
 
 
         # clamp motor speeds to max_speed
-        if right_motor_speed>max_speed:
-            right_motor_speed=max_speed
-        if right_motor_speed<-max_speed:
-            right_motor_speed=-max_speed
-
-        if left_motor_speed>max_speed:
-            left_motor_speed=max_speed
-        if left_motor_speed<-max_speed:
-            left_motor_speed=-max_speed
+        right_motor_speed=clamp(right_motor_speed,min_speed,max_speed)
+        left_motor_speed=clamp(left_motor_speed,min_speed,max_speed)
 
         #stop if no lines
         if (not lines_seen):
@@ -133,7 +135,7 @@ try:
 
 
         # if no horizontal lines in frame, drive as normal
-        if (horizontal_vertical_ratio<ratio_limit):
+        if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor("L",left_motor_speed,i2c_bus)
             drive_motor("R",right_motor_speed,i2c_bus)
             print(left_motor_speed,":",right_motor_speed)
@@ -149,7 +151,7 @@ try:
                 if turn_list[list_index]=="L":
                     left_turn(i2c_bus,1.6)
                 else:
-                    right_turn(i2c_bus,2)
+                    right_turn(i2c_bus,1.9)
                 list_index+=1
                 if list_index>=len(stop_list):
                     exit()
