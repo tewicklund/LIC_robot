@@ -87,4 +87,12 @@ def left_turn(bus,turn_time):
     drive_motor("L",0,bus)
     drive_motor("R",0,bus)
 
+def right_turn(bus,turn_time):
+    start_time=time.time()
+    while(time.time()-start_time<turn_time):
+        drive_motor("L",80,bus)
+        drive_motor("R",-80,bus)
+    drive_motor("L",0,bus)
+    drive_motor("R",0,bus)
+
         

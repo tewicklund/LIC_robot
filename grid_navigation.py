@@ -19,8 +19,10 @@ ratio_limit=0.8
 vertical_lines_seen=False
 angle_error_sum=0
 angle_error_sum_max=400
-num_stops=4
+num_stops=2
+num_turns=1
 stop_num=0
+turn_num=0
 stop_time=5
 
 
@@ -140,7 +142,12 @@ try:
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
             if stop_num>=num_stops:
-                exit()
+                left_turn(i2c_bus,1.6)
+                if turn_num>=num_turns:
+                    exit()
+                else:
+                    stop_num=0
+                turn_num+=1
             time.sleep(stop_time)
         
         # if old vertical lines still in frame, keep driving as usual till they are out of frame
