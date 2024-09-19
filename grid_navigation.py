@@ -149,7 +149,7 @@ try:
                 if turn_list[list_index]=="L":
                     left_turn(i2c_bus,1.6)
                 else:
-                    right_turn(i2c_bus,1.6)
+                    right_turn(i2c_bus,2)
                 list_index+=1
                 if list_index>=len(stop_list):
                     exit()
