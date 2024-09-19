@@ -6,11 +6,11 @@ from functions import *
 i2c_bus = smbus2.SMBus(1)
 
 # motor driving and PID variables
-base_speed=70
-max_speed=80
+base_speed=80
+max_speed=90
 min_speed=60
 angle_p=1
-centering_p=0.1
+centering_p=0.15
 angle_i=0.05
 p_control=True
 i_control=False
