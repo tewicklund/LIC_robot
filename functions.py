@@ -65,7 +65,7 @@ def image_to_angle(image, overlay):
 
         #display this average angle value on frame
         font = cv2.FONT_HERSHEY_SIMPLEX
-        Text=str(angle_avg_deg)
+        Text=str(angle_avg_deg_rounded)
         cv2.putText(overlay, Text, (50, 50), font, 1, (255,255,255), 2)
 
         #return 4 variables: angle, x location of line, horizontal/vertical ratio, and lines_seen boolean

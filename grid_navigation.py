@@ -92,6 +92,8 @@ try:
         # show the frame
         cv2.imshow('Hough Transform', canny_image)
 
+        cv2.imshow('Line Image',line_image)
+
 
         
         #control section
