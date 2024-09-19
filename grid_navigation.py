@@ -89,12 +89,10 @@ try:
         #print("Horizontal Ratio:",horizontal_vertical_ratio)
 
         # add overlay to frame
-        canny_image = cv2.addWeighted(canny_image, 0.8, line_image, 1, 0) 
+        output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        cv2.imshow('Hough Transform', canny_image)
-
-        cv2.imshow('Line Image',line_image)
+        cv2.imshow('Robot Vision', output_image)
 
 
         
