@@ -38,12 +38,12 @@ def image_to_angle(image, overlay):
                     horizontal_sum+=line_length
 
                     #add red line to overlay to represent horizontal stop line
-                    cv2.line(overlay,(x1,y1),(x2,y2),(0,255,255),10)
+                    cv2.line(overlay,(x1,y1),(x2,y2),(0,0,255),10)
 
                 # if lane is close to vertical, recognize it as a guide line
                 else: 
                     #add green line to overlay to represent guide line
-                    cv2.line(overlay,(x1,y1),(x2,y2),(60,255,255),10)
+                    cv2.line(overlay,(x1,y1),(x2,y2),(0,255,0),10)
 
                     line_angle_weighted=line_angle_deg*line_length
                     x_location_sum+=x1+x2
