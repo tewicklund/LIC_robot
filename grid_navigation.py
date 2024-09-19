@@ -25,6 +25,10 @@ stop_num=0
 turn_num=0
 stop_time=5
 
+stop_list=[5,2,5,2,5]
+turn_list=["L","L","R","R","L"]
+list_index=0
+
 
 # Initialize the RealSense pipeline
 pipeline = rs.pipeline()
@@ -141,13 +145,16 @@ try:
             vertical_lines_seen=True
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
-            if stop_num>=num_stops:
-                left_turn(i2c_bus,1.6)
-                if turn_num>=num_turns:
+            if stop_num>=stop_list[list_index]:
+                if turn_list[list_index]=="L":
+                    left_turn(i2c_bus,1.6)
+                else:
+                    right_turn(i2c_bus,1.6)
+                list_index+=1
+                if list_index>=len(stop_list):
                     exit()
                 else:
                     stop_num=0
-                turn_num+=1
             time.sleep(stop_time)
         
         # if old vertical lines still in frame, keep driving as usual till they are out of frame
