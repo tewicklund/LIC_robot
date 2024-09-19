@@ -33,14 +33,14 @@ def image_to_angle(image, overlay):
                 #convert line angle to degrees
                 line_angle_deg=line_angle*180/np.pi
                 line_angle_deg_mag=abs(line_angle_deg)
+                line_length=np.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
 
                 #if the line is horizontal or close to horizontal, only add length to horizontal sum
                 if line_angle_deg_mag>60:
                     horizontal_sum+=line_length
 
                 # if lane is close to vertical, recognize it as a guide line
-                else:
-                    line_length=np.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
+                else: 
                     line_angle_weighted=line_angle_deg*line_length
                     x_location_sum+=x1+x2
                     vertical_sum+=line_length
