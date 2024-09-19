@@ -54,9 +54,9 @@ def image_to_angle(image, overlay):
         font = cv2.FONT_HERSHEY_SIMPLEX
         Text=str(angle_avg_deg)
         cv2.putText(overlay, Text, (50, 50), font, 1, (255,255,255), 2)
-        return angle_avg_deg, x_location_avg, horizontal_vertical_ratio
+        return angle_avg_deg, x_location_avg, horizontal_vertical_ratio,True
     else:
-        return 0,240,0.1
+        return 0,240,0.1,False
 
 def drive_motor(side,speed,bus):
     i2c_address=0x08
