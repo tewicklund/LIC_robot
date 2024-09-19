@@ -79,7 +79,9 @@ try:
         #bottom_canny_image=canny_image[240:480,:]
 
         # create copy of frame to overlay angle and hough lines
-        line_image=np.copy(canny_image)*0
+        line_image=np.copy(hsv_image)*0
+
+        # set line_image
 
         [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image)
         #print("Average Angle:",avg_angle_deg)
