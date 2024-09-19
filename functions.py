@@ -80,9 +80,10 @@ def drive_motor(side,speed,bus):
         time.sleep(0.01)  # Small delay between bytes for stability
 
 def left_turn(bus):
-    drive_motor("L",-80,bus)
-    drive_motor("R",80,bus)
-    time.sleep(3)
+    start_time=time.time()
+    while(time.time()-start_time<3):
+        drive_motor("L",-80,bus)
+        drive_motor("R",80,bus)
     drive_motor("L",0,bus)
     drive_motor("R",0,bus)
 
