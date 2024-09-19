@@ -6,7 +6,7 @@ import time
 def image_to_angle(image, overlay):
     # parameters for hough lines transform
     min_intersections=10
-    min_line_length=10
+    min_line_length=5
     max_line_gap=5
     hough_lines = cv2.HoughLinesP(image, 1, np.pi / 180, min_intersections, np.array([]), min_line_length, max_line_gap)
 

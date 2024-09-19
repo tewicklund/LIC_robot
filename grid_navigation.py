@@ -37,6 +37,8 @@ list_index=0
 pipeline = rs.pipeline()
 
 # Configure the pipeline to stream the RGB camera at 640x480
+frame_width=640
+frame_height=480
 config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
@@ -75,8 +77,8 @@ try:
         canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
 
         #split image into top half (looks for stop line) and bottom half (looks for follow line)
-        #top_canny_image=canny_image[0:240,:]
-        #bottom_canny_image=canny_image[240:480,:]
+        #top_canny_image=canny_image[0:frame_height/2,:]
+        #bottom_canny_image=canny_image[frame_height/2:frame_height,:]
 
         # create copy of frame to overlay angle and hough lines
         line_image=np.copy(hsv_image)*0
@@ -102,7 +104,7 @@ try:
 
         #p control setup
         angle_error=avg_angle_deg
-        x_location_error=240-x_location_avg
+        x_location_error=(frame_width/2)-x_location_avg
         
         #i control setup
         angle_error_sum+=angle_error
