@@ -21,8 +21,6 @@ def image_to_angle(image, overlay):
     if hough_lines is not None:
         for line in hough_lines:
             for x1,y1,x2,y2 in line:
-                #add line to overlay for debugging
-                cv2.line(overlay,(x1,y1),(x2,y2),(255,0,0),10)
 
                 #determine line angle
                 if (y2!=y1):
@@ -39,8 +37,14 @@ def image_to_angle(image, overlay):
                 if line_angle_deg_mag>60:
                     horizontal_sum+=line_length
 
+                    #add red line to overlay to represent horizontal stop line
+                    cv2.line(overlay,(x1,y1),(x2,y2),(0,255,255),10)
+
                 # if lane is close to vertical, recognize it as a guide line
                 else: 
+                    #add green line to overlay to represent guide line
+                    cv2.line(overlay,(x1,y1),(x2,y2),(60,255,255),10)
+
                     line_angle_weighted=line_angle_deg*line_length
                     x_location_sum+=x1+x2
                     vertical_sum+=line_length
