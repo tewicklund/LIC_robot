@@ -79,9 +79,9 @@ def drive_motor(side,speed,bus):
         bus.write_byte(i2c_address, byte)
         time.sleep(0.01)  # Small delay between bytes for stability
 
-def left_turn(bus):
+def left_turn(bus,time):
     start_time=time.time()
-    while(time.time()-start_time<3):
+    while(time.time()-start_time<time):
         drive_motor("L",-80,bus)
         drive_motor("R",80,bus)
     drive_motor("L",0,bus)
