@@ -140,12 +140,13 @@ try:
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor("L",left_motor_speed,i2c_bus)
             drive_motor("R",right_motor_speed,i2c_bus)
-            print(left_motor_speed,":",right_motor_speed)
+            #print(left_motor_speed,":",right_motor_speed)
             vertical_lines_seen=False
 
         # if new vertical line encountered, stop for set amount of time
         elif(not vertical_lines_seen):
             stop_num+=1
+            print(stop_num)
             vertical_lines_seen=True
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
