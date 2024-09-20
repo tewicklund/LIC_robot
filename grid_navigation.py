@@ -26,7 +26,7 @@ num_stops=2
 num_turns=1
 stop_num=0
 turn_num=0
-stop_time=5
+stop_time=2
 
 stop_list=[5,2,5,2,5]
 turn_list=["L","L","R","R","L"]
@@ -44,8 +44,6 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
-
-time.sleep(5)
 
 try:
     while True:
