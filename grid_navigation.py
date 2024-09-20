@@ -28,7 +28,7 @@ stop_num=0
 turn_num=0
 stop_time=2
 
-stop_list=[5,2,5,2,5]
+stop_list=[6,2,5,2,5]
 turn_list=["L","L","R","R","L"]
 list_index=0
 first_loop=True
@@ -94,10 +94,6 @@ try:
 
         # show the frame
         cv2.imshow('Robot Vision', output_image)
-
-        if first_loop:
-            time.sleep(stop_time)
-            first_loop=False
 
 
         
