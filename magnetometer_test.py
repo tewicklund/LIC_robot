@@ -48,7 +48,7 @@ def read_bmm150(bus):
 
 def main():
     # Initialize I2C bus
-    bus = SMBus(1)  # Bus 1 is typically used for I2C on Jetson Nano
+    bus = SMBus(7)  # Bus 1 is typically used for I2C on Jetson Nano
 
     # Initialize the BMM150
     initialize_bmm150(bus)
