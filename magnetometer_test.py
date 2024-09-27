@@ -57,22 +57,39 @@ def read_bmm150(bus):
         print(f"Error reading BMM150 data: {e}")
         return 0, 0, 0
 
+def take_average_readings(bus, num_samples=100):
+    x_total, y_total, z_total = 0, 0, 0
+    
+    for _ in range(num_samples):
+        x, y, z = read_bmm150(bus)
+        x_total += x
+        y_total += y
+        z_total += z
+        time.sleep(0.01)  # Short delay between readings to avoid overwhelming the sensor
+
+    # Calculate the average for each axis
+    x_avg = x_total / num_samples
+    y_avg = y_total / num_samples
+    z_avg = z_total / num_samples
+
+    return x_avg, y_avg, z_avg
+
 def main():
     # Initialize I2C bus
-    bus = SMBus(7)  # Bus 1 is typically used for I2C on Jetson Nano
+    bus = SMBus(1)  # Bus 1 is typically used for I2C on Jetson Nano
 
     # Initialize the BMM150
     initialize_bmm150(bus)
 
     try:
         while True:
-            # Read the sensor data
-            x, y, z = read_bmm150(bus)
+            # Take average measurements from the sensor
+            x_avg, y_avg, z_avg = take_average_readings(bus, num_samples=100)
 
-            # Print the data
-            print(f"X: {x}, Y: {y}, Z: {z}")
+            # Print the average data
+            print(f"Averaged Readings -> X: {x_avg:.2f}, Y: {y_avg:.2f}, Z: {z_avg:.2f}")
 
-            # Wait a bit before the next reading
+            # Wait a bit before the next set of readings
             time.sleep(1)
     except KeyboardInterrupt:
         # Close the bus on exit
