@@ -13,9 +13,12 @@ BMM150_DATA_Z_LSB = 0x46
 BMM150_DATA_Z_MSB = 0x47
 BMM150_OPMODE_REG = 0x4C
 BMM150_POWER_CTRL_REG = 0x4B
+BMM150_PRESET_MODE_REG = 0x4E
 
-# Initialization values
-BMM150_SLEEP_MODE = 0x01
+# Preset Mode Constants
+BMM150_HIGH_ACCURACY_MODE = 0x02  # High accuracy mode setting for the OPMODE register
+
+# Power and mode settings
 BMM150_NORMAL_MODE = 0x00
 BMM150_POWER_ON = 0x01
 
@@ -24,9 +27,13 @@ def initialize_bmm150(bus):
     bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_POWER_CTRL_REG, BMM150_POWER_ON)
     time.sleep(0.01)  # Delay to allow power-up
     
-    # Set the device into normal mode (set OPMODE register)
+    # Set to normal mode (OPMODE register)
     bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_OPMODE_REG, BMM150_NORMAL_MODE)
-    time.sleep(0.01)  # Delay to allow sensor to stabilize
+    time.sleep(0.01)  # Allow sensor to stabilize
+
+    # Set sensor to high accuracy mode (Preset mode register)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_PRESET_MODE_REG, BMM150_HIGH_ACCURACY_MODE)
+    time.sleep(0.01)  # Allow sensor to stabilize in high accuracy mode
 
 def read_bmm150(bus):
     # Read magnetometer data for X, Y, and Z axis
