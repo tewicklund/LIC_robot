@@ -78,6 +78,8 @@ def main():
     # Initialize the BMM150
     initialize_bmm150(bus)
 
+    heading_list=[]
+
     try:
         while True:
             # Read the sensor data
@@ -85,12 +87,16 @@ def main():
 
             # Calculate compass heading in degrees
             heading = calculate_heading(x, y)
+            heading_list.append(heading)
 
+            if len(heading_list>=10):
             # Print the heading
-            print(f"Compass Heading: {heading:.2f}°")
+                heading_avg=sum(heading_list)/len(heading_list)
+                print(f"Compass Heading: {heading_avg:.2f}°")
+                heading_list=[]
 
             # Wait a bit before the next reading
-            time.sleep(1)
+            time.sleep(0.1)
     except KeyboardInterrupt:
         # Close the bus on exit
         bus.close()
