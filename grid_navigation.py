@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from functions import *
 
-i2c_bus = smbus2.SMBus(0)
+i2c_bus = smbus2.SMBus(1)
 
 # motor driving and PID variables
 base_speed=80
