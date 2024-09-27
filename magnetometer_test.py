@@ -13,10 +13,12 @@ BMM150_DATA_Z_LSB = 0x46
 BMM150_DATA_Z_MSB = 0x47
 BMM150_OPMODE_REG = 0x4C
 BMM150_POWER_CTRL_REG = 0x4B
-BMM150_PRESET_MODE_REG = 0x4E
+BMM150_XY_REP_REG = 0x51
+BMM150_Z_REP_REG = 0x52
 
 # Preset Mode Constants
-BMM150_HIGH_ACCURACY_MODE = 0x02  # High accuracy mode setting for the OPMODE register
+BMM150_HIGH_ACCURACY_XY = 0x17  # High accuracy mode setting for the OPMODE register
+BMM150_HIGH_ACCURACY_Z = 0x29  # High accuracy mode setting for the OPMODE register
 
 # Power and mode settings
 BMM150_NORMAL_MODE = 0x00
@@ -35,7 +37,8 @@ def initialize_bmm150(bus):
     time.sleep(0.01)  # Allow sensor to stabilize
 
     # Set sensor to high accuracy mode (Preset mode register)
-    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_PRESET_MODE_REG, BMM150_HIGH_ACCURACY_MODE)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_XY_REP_REG, BMM150_HIGH_ACCURACY_XY)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_Z_REP_REG, BMM150_HIGH_ACCURACY_Z)
     time.sleep(0.01)  # Allow sensor to stabilize in high accuracy mode
 
 def read_bmm150(bus):
