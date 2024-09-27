@@ -57,7 +57,7 @@ def read_bmm150(bus):
         print(f"Error reading BMM150 data: {e}")
         return 0, 0, 0
 
-def take_average_readings(bus, num_samples=100):
+def take_average_readings(bus, num_samples):
     x_total, y_total, z_total = 0, 0, 0
     
     for _ in range(num_samples):
@@ -84,7 +84,7 @@ def main():
     try:
         while True:
             # Take average measurements from the sensor
-            x_avg, y_avg, z_avg = take_average_readings(bus, num_samples=100)
+            x_avg, y_avg, z_avg = take_average_readings(bus, num_samples=10)
 
             # Print the average data
             print(f"Averaged Readings -> X: {x_avg:.2f}, Y: {y_avg:.2f}, Z: {z_avg:.2f}")
