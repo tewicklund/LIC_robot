@@ -82,18 +82,28 @@ def main():
     # Initialize the BMM150
     initialize_bmm150(bus)
 
+    x_min=1000
+    y_min=1000
+
     try:
         while True:
             # Read the sensor data
             x_raw, y_raw, z_raw = read_bmm150(bus)
 
-            bearing=math.atan2(y_raw,x_raw)*180/3.1416
+            if x_raw<x_min:
+                x_min=x_raw
+
+            if y_raw<y_min:
+                y_min=y_raw
+            
+
+            bearing=math.atan2(y_raw-y_min,x_raw-x_min)*180/3.1416
 
             # Print the data in microteslas
-            print(f"Bearing: {bearing:.2f} X Raw: {x_raw} Y Raw: {y_raw}")
+            print(f"Bearing: {bearing:.2f}   X Min:{x_min}    Y Min: {y_min}")
 
             # Wait a bit before the next reading
-            time.sleep(1)
+            time.sleep(0.2)
     except KeyboardInterrupt:
         # Close the bus on exit
         bus.close()
