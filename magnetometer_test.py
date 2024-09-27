@@ -89,7 +89,7 @@ def main():
             heading = calculate_heading(x, y)
             heading_list.append(heading)
 
-            if len(heading_list>=10):
+            if len(heading_list)>=10:
             # Print the heading
                 heading_avg=sum(heading_list)/len(heading_list)
                 print(f"Compass Heading: {heading_avg:.2f}°")
