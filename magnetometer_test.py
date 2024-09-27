@@ -1,4 +1,5 @@
 import time
+import math
 from smbus2 import SMBus
 
 # I2C address of the BMM150 (default 0x13)
@@ -29,8 +30,8 @@ def initialize_bmm150(bus):
     time.sleep(0.01)  # Delay to allow sensor to stabilize
 
 def read_bmm150(bus):
-    # Read magnetometer data for X, Y, and Z axis
     try:
+        # Read magnetometer data for X, Y, and Z axis
         x_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_LSB)
         x_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_MSB)
         y_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Y_LSB)
@@ -57,22 +58,18 @@ def read_bmm150(bus):
         print(f"Error reading BMM150 data: {e}")
         return 0, 0, 0
 
-def take_average_readings(bus, num_samples):
-    x_total, y_total, z_total = 0, 0, 0
-    
-    for _ in range(num_samples):
-        x, y, z = read_bmm150(bus)
-        x_total += x
-        y_total += y
-        z_total += z
-        time.sleep(0.01)  # Short delay between readings to avoid overwhelming the sensor
+def calculate_heading(x, y):
+    # Compute heading (angle) in radians
+    heading_radians = math.atan2(y, x)
 
-    # Calculate the average for each axis
-    x_avg = x_total / num_samples
-    y_avg = y_total / num_samples
-    z_avg = z_total / num_samples
+    # Convert radians to degrees
+    heading_degrees = math.degrees(heading_radians)
 
-    return x_avg, y_avg, z_avg
+    # Normalize the heading to 0 - 360 degrees
+    if heading_degrees < 0:
+        heading_degrees += 360
+
+    return heading_degrees
 
 def main():
     # Initialize I2C bus
@@ -83,13 +80,16 @@ def main():
 
     try:
         while True:
-            # Take average measurements from the sensor
-            x_avg, y_avg, z_avg = take_average_readings(bus, num_samples=10)
+            # Read the sensor data
+            x, y, z = read_bmm150(bus)
 
-            # Print the average data
-            print(f"Averaged Readings -> X: {x_avg:.2f}, Y: {y_avg:.2f}, Z: {z_avg:.2f}")
+            # Calculate compass heading in degrees
+            heading = calculate_heading(x, y)
 
-            # Wait a bit before the next set of readings
+            # Print the heading
+            print(f"Compass Heading: {heading:.2f}°")
+
+            # Wait a bit before the next reading
             time.sleep(1)
     except KeyboardInterrupt:
         # Close the bus on exit
