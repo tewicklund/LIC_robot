@@ -87,7 +87,7 @@ def main():
             # Read the sensor data
             x_raw, y_raw, z_raw = read_bmm150(bus)
 
-            bearing=math.atan2(y_raw/x_raw)*180/3.1416
+            bearing=math.atan2(y_raw,x_raw)*180/3.1416
 
             # Print the data in microteslas
             print(f"Bearing: {bearing:.2f}")
