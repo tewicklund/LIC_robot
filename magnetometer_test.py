@@ -22,6 +22,9 @@ BMM150_HIGH_ACCURACY_MODE = 0x02  # High accuracy mode setting for the OPMODE re
 BMM150_NORMAL_MODE = 0x00
 BMM150_POWER_ON = 0x01
 
+# Sensitivity factor for high accuracy mode (in µT per LSB)
+SENSITIVITY_FACTOR = 0.3  # µT per LSB in high accuracy mode
+
 def initialize_bmm150(bus):
     # Enable the power control bit
     bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_POWER_CTRL_REG, BMM150_POWER_ON)
@@ -64,6 +67,10 @@ def read_bmm150(bus):
         print(f"Error reading BMM150 data: {e}")
         return 0, 0, 0
 
+def convert_to_microtesla(raw_value):
+    """ Convert raw axis value to magnetic field strength in microteslas (µT) """
+    return raw_value * SENSITIVITY_FACTOR
+
 def main():
     # Initialize I2C bus
     bus = SMBus(7)  # Bus 1 is typically used for I2C on Jetson Nano
@@ -74,10 +81,15 @@ def main():
     try:
         while True:
             # Read the sensor data
-            x, y, z = read_bmm150(bus)
+            x_raw, y_raw, z_raw = read_bmm150(bus)
 
-            # Print the data
-            print(f"X: {x}, Y: {y}, Z: {z}")
+            # Convert raw data to microteslas
+            x_uT = convert_to_microtesla(x_raw)
+            y_uT = convert_to_microtesla(y_raw)
+            z_uT = convert_to_microtesla(z_raw)
+
+            # Print the data in microteslas
+            print(f"Magnetic Field Strength - X: {x_uT:.2f} µT, Y: {y_uT:.2f} µT, Z: {z_uT:.2f} µT")
 
             # Wait a bit before the next reading
             time.sleep(1)
