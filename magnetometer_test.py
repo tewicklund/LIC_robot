@@ -76,7 +76,7 @@ def take_average_readings(bus, num_samples=100):
 
 def main():
     # Initialize I2C bus
-    bus = SMBus(1)  # Bus 1 is typically used for I2C on Jetson Nano
+    bus = SMBus(7)  # Bus 1 is typically used for I2C on Jetson Nano
 
     # Initialize the BMM150
     initialize_bmm150(bus)
