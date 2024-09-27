@@ -103,22 +103,24 @@ def drive_motor(side,speed,bus):
         time.sleep(0.01)  # Small delay between bytes for stability
 
 #turning code, needs to be replaced when magnetometer comes in
-def left_turn(bus,turn_time):
-    start_time=time.time()
-    while(time.time()-start_time<turn_time):
-        drive_motor("L",-80,bus)
-        drive_motor("R",80,bus)
-    drive_motor("L",0,bus)
-    drive_motor("R",0,bus)
+def left_turn(bus,i2c_address):
+    message="Uturn:lV"
+    data_bytes = [ord(char) for char in message]
+
+    # Send each byte
+    for byte in data_bytes:
+        bus.write_byte(i2c_address, byte)
+        time.sleep(0.01)  # Small delay between bytes for stability
 
 #turning code, needs to be replaced when magnetometer comes in
-def right_turn(bus,turn_time):
-    start_time=time.time()
-    while(time.time()-start_time<turn_time):
-        drive_motor("L",80,bus)
-        drive_motor("R",-80,bus)
-    drive_motor("L",0,bus)
-    drive_motor("R",0,bus)
+def right_turn(bus,i2c_address):
+    message="Uturn:rV"
+    data_bytes = [ord(char) for char in message]
+
+    # Send each byte
+    for byte in data_bytes:
+        bus.write_byte(i2c_address, byte)
+        time.sleep(0.01)  # Small delay between bytes for stability
 
 
 def clamp(variable, min_value, max_value):
