@@ -90,7 +90,7 @@ def main():
             bearing=math.atan2(y_raw,x_raw)*180/3.1416
 
             # Print the data in microteslas
-            print(f"Bearing: {bearing:.2f}")
+            print(f"Bearing: {bearing:.2f} X Raw: {x_raw} Y Raw: {y_raw}")
 
             # Wait a bit before the next reading
             time.sleep(1)
