@@ -1,5 +1,6 @@
 import time
 from smbus2 import SMBus
+import math
 
 # I2C address of the BMM150 (default 0x13)
 BMM150_I2C_ADDRESS = 0x13
@@ -86,13 +87,10 @@ def main():
             # Read the sensor data
             x_raw, y_raw, z_raw = read_bmm150(bus)
 
-            # Convert raw data to microteslas
-            x_uT = convert_to_microtesla(x_raw)
-            y_uT = convert_to_microtesla(y_raw)
-            z_uT = convert_to_microtesla(z_raw)
+            bearing=math.atan2(y_raw/x_raw)*180/3.1416
 
             # Print the data in microteslas
-            print(f"Magnetic Field Strength - X: {x_uT:.2f} µT, Y: {y_uT:.2f} µT, Z: {z_uT:.2f} µT")
+            print(f"Bearing: {bearing:.2f}")
 
             # Wait a bit before the next reading
             time.sleep(1)
