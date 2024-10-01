@@ -90,17 +90,19 @@ def main():
             # Read the sensor data
             x_raw, y_raw, z_raw = read_bmm150(bus)
 
-            if x_raw<x_min:
-                x_min=x_raw
+            print(f"Z Raw: {z_raw}")
 
-            if y_raw<y_min:
-                y_min=y_raw
+            # if x_raw<x_min:
+            #     x_min=x_raw
+
+            # if y_raw<y_min:
+            #     y_min=y_raw
             
 
-            bearing=math.atan2(y_raw-y_min,x_raw-x_min)*180/3.1416
+            # bearing=math.atan2(y_raw-y_min,x_raw-x_min)*180/3.1416
 
-            # Print the data in microteslas
-            print(f"Bearing: {bearing:.2f}   X Min:{x_min}    Y Min: {y_min}")
+            # # Print the data in microteslas
+            # print(f"Bearing: {bearing:.2f}   X Min:{x_min}    Y Min: {y_min}")
 
             # Wait a bit before the next reading
             time.sleep(0.2)
