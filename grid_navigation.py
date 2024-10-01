@@ -154,7 +154,7 @@ try:
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
             if instruction_list[stop_num]!='S':
-                perform_turn(instruction_list[stop_num])
+                perform_turn(instruction_list[stop_num],i2c_bus)
             
             time.sleep(stop_time)
             stop_num+=1
