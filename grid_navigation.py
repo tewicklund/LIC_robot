@@ -5,6 +5,8 @@ from functions import *
 
 i2c_bus = smbus2.SMBus(7)
 
+initialize_bmm150(i2c_bus)
+
 # motor driving and PID variables
 base_speed=80
 max_speed=90
@@ -17,7 +19,7 @@ p_control=True
 i_control=True
 ratio_limit=0.8
 
-vertical_lines_seen=False
+horizontal_lines_acknowledged=False
 angle_error_sum=0
 angle_error_sum_max=400
 x_location_error_sum=0
@@ -28,8 +30,10 @@ stop_num=0
 turn_num=0
 stop_time=2
 
-stop_list=[6,2,5,2,5]
-turn_list=["L","L","R","R","L"]
+# list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
+instruction_list=['S','S','S','S','S','TL:130','S','TL:015','S','S','S','S','TR:130','S','TR:055','S','S','S','S']
+# stop_list=[6,2,5,2,5]
+# turn_list=["L","L","R","R","L"]
 list_index=0
 first_loop=True
 
@@ -142,26 +146,18 @@ try:
             drive_motor("L",left_motor_speed,i2c_bus)
             drive_motor("R",right_motor_speed,i2c_bus)
             #print(left_motor_speed,":",right_motor_speed)
-            vertical_lines_seen=False
+            horizontal_lines_acknowledged=False
 
-        # if new vertical line encountered, stop for set amount of time
-        elif(not vertical_lines_seen):
-            stop_num+=1
-            print(stop_num)
-            vertical_lines_seen=True
+        # if new horizontal line encountered, stop for set amount of time
+        elif(not horizontal_lines_acknowledged):
+            horizontal_lines_acknowledged=True
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
-            if stop_num>=stop_list[list_index]:
-                if turn_list[list_index]=="L":
-                    left_turn(i2c_bus,1.6)
-                else:
-                    right_turn(i2c_bus,1.9)
-                list_index+=1
-                if list_index>=len(stop_list):
-                    exit()
-                else:
-                    stop_num=0
+            if instruction_list[stop_num]!='S':
+                perform_turn(instruction_list[stop_num])
+            
             time.sleep(stop_time)
+            stop_num+=1
         
         # if old vertical lines still in frame, keep driving as usual till they are out of frame
         else:

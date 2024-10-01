@@ -122,7 +122,91 @@ def right_turn(bus,i2c_address):
         bus.write_byte(i2c_address, byte)
         time.sleep(0.01)  # Small delay between bytes for stability
 
+def perform_turn(turn_string,bus):
+    turn_direction=turn_string[1]
+    target_angle=int(turn_string[3:5])
+    print("Turning",turn_direction," till angle is",target_angle)
+    direction_reading=read_bmm150(bus)
 
+    while abs(direction_reading-target_angle)>10:
+        print(direction_reading)
+        if turn_direction=='L':
+            drive_motor('L',-80,bus)
+            drive_motor('R',80,bus)
+        elif turn_direction=='R':
+            drive_motor('L',80,bus)
+            drive_motor('R',-80,bus)
+        direction_reading=read_bmm150(bus)
+
+
+def initialize_bmm150(bus):
+    # I2C address of the BMM150 (default 0x13)
+    BMM150_I2C_ADDRESS = 0x13
+    BMM150_OPMODE_REG = 0x4C
+    BMM150_POWER_CTRL_REG = 0x4B
+    BMM150_XY_REP_REG = 0x51
+    BMM150_Z_REP_REG = 0x52
+
+    # Preset Mode Constants
+    BMM150_HIGH_ACCURACY_XY = 0x17  # High accuracy mode setting for the OPMODE register
+    BMM150_HIGH_ACCURACY_Z = 0x29  # High accuracy mode setting for the OPMODE register
+
+    # Power and mode settings
+    BMM150_NORMAL_MODE = 0x00
+    BMM150_POWER_ON = 0x01
+    # Enable the power control bit
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_POWER_CTRL_REG, BMM150_POWER_ON)
+    time.sleep(0.01)  # Delay to allow power-up
+    
+    # Set to normal mode (OPMODE register)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_OPMODE_REG, BMM150_NORMAL_MODE)
+    time.sleep(0.01)  # Allow sensor to stabilize
+
+    # Set sensor to high accuracy mode (Preset mode register)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_XY_REP_REG, BMM150_HIGH_ACCURACY_XY)
+    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_Z_REP_REG, BMM150_HIGH_ACCURACY_Z)
+    time.sleep(0.01)  # Allow sensor to stabilize in high accuracy mode
+
+def read_bmm150(bus):
+    # I2C address of the BMM150 (default 0x13)
+    BMM150_I2C_ADDRESS = 0x13
+
+    # Register addresses
+    BMM150_DATA_X_LSB = 0x42
+    BMM150_DATA_X_MSB = 0x43
+    BMM150_DATA_Y_LSB = 0x44
+    BMM150_DATA_Y_MSB = 0x45
+    BMM150_DATA_Z_LSB = 0x46
+    BMM150_DATA_Z_MSB = 0x47
+    
+    # Read magnetometer data for X, Y, and Z axis
+    try:
+        x_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_LSB)
+        x_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_MSB)
+        y_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Y_LSB)
+        y_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Y_MSB)
+        z_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Z_LSB)
+        z_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Z_MSB)
+
+        # Combine LSB and MSB to form 16-bit signed values
+        x = (x_msb << 8) | x_lsb
+        y = (y_msb << 8) | y_lsb
+        z = (z_msb << 8) | z_lsb
+
+        # Convert to signed 16-bit integers
+        if x > 32767:
+            x -= 65536
+        if y > 32767:
+            y -= 65536
+        if z > 32767:
+            z -= 65536
+
+        return z
+
+    except Exception as e:
+        print(f"Error reading BMM150 data: {e}")
+        return 0
+    
 def clamp(variable, min_value, max_value):
     if variable>=0:
         if variable>max_value:
