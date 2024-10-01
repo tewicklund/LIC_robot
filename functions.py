@@ -124,7 +124,7 @@ def right_turn(bus,i2c_address):
 
 def perform_turn(turn_string,bus):
     turn_direction=turn_string[1]
-    target_angle=int(turn_string[3:5])
+    target_angle=int(turn_string[3:6])
     print("Turning",turn_direction," till angle is",target_angle)
     direction_reading=read_bmm150(bus)
 
