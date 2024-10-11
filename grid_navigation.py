@@ -32,6 +32,7 @@ stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
 instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','L','S','L']
+arm_position_list=['A','B',"C"]
 # stop_list=[6,2,5,2,5]
 # turn_list=["L","L","R","R","L"]
 list_index=0
@@ -160,6 +161,9 @@ try:
                 right_turn(1.5,i2c_bus)
             elif instruction_list[stop_num]=='L':
                 left_turn(1.4,i2c_bus)
+
+            move_arm(arm_position_list[stop_num%3],i2c_bus)
+            move_arm('Z',i2c_bus)
 
             
             time.sleep(stop_time/2)

@@ -80,6 +80,12 @@ def image_to_angle(image, overlay):
     #if no lines seen, return some default values
     else:
         return 0,240,0.1,False
+    
+def move_arm(character,bus):
+    i2c_address=0x09
+    data_byte=ord(character)
+    bus.write_byte(i2c_address, data_byte)
+    time.sleep(1) #delay to allow arm time to move
 
 def drive_motor(side,speed,bus):
     i2c_address=0x08
