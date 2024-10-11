@@ -159,10 +159,14 @@ try:
             if instruction_list[stop_num]=='R':
                 right_turn(1.5,i2c_bus)
             elif instruction_list[stop_num]=='L':
-                left_turn(1.3,i2c_bus)
+                left_turn(1.4,i2c_bus)
+
             
             time.sleep(stop_time/2)
             stop_num+=1
+            if stop_num>=len(instruction_list):
+                print("Course Complete")
+                exit()
         
         # if old vertical lines still in frame, keep driving as usual till they are out of frame
         else:
