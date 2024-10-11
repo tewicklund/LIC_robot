@@ -3,8 +3,8 @@ from functions import *
 
 i2c_bus = smbus2.SMBus(7)
 
-left_turn(1.5,i2c_bus)
+left_turn(1.4,i2c_bus)
 time.sleep(2)
-right_turn(1.8,i2c_bus)
+right_turn(1.7,i2c_bus)
 
 i2c_bus.close()
