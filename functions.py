@@ -103,40 +103,36 @@ def drive_motor(side,speed,bus):
         time.sleep(0.01)  # Small delay between bytes for stability
 
 #turning code, needs to be replaced when magnetometer comes in
-def left_turn(bus,i2c_address):
-    message="Uturn:lV"
-    data_bytes = [ord(char) for char in message]
+def left_turn(turn_time,bus):
+    start_time=time.time()
 
-    # Send each byte
-    for byte in data_bytes:
-        bus.write_byte(i2c_address, byte)
-        time.sleep(0.01)  # Small delay between bytes for stability
+    while time.time()-start_time<turn_time:
+        drive_motor('L',-80,bus)
+        drive_motor('R',80,bus)
 
 #turning code, needs to be replaced when magnetometer comes in
-def right_turn(bus,i2c_address):
-    message="Uturn:rV"
-    data_bytes = [ord(char) for char in message]
+def right_turn(turn_time,bus):
+    start_time=time.time()
 
-    # Send each byte
-    for byte in data_bytes:
-        bus.write_byte(i2c_address, byte)
-        time.sleep(0.01)  # Small delay between bytes for stability
+    while time.time()-start_time<turn_time:
+        drive_motor('L',80,bus)
+        drive_motor('R',-80,bus)
 
-def perform_turn(turn_string,bus):
-    turn_direction=turn_string[1]
-    target_angle=int(turn_string[3:6])
-    print("Turning",turn_direction," till angle is",target_angle)
-    direction_reading=read_bmm150(bus)
+# def perform_turn(turn_string,bus):
+#     turn_direction=turn_string[1]
+#     target_angle=int(turn_string[3:6])
+#     print("Turning",turn_direction," till angle is",target_angle)
+#     direction_reading=read_bmm150(bus)
 
-    while abs(direction_reading-target_angle)>10:
-        print(direction_reading)
-        if turn_direction=='L':
-            drive_motor('L',-80,bus)
-            drive_motor('R',80,bus)
-        elif turn_direction=='R':
-            drive_motor('L',80,bus)
-            drive_motor('R',-80,bus)
-        direction_reading=read_bmm150(bus)
+#     while abs(direction_reading-target_angle)>10:
+#         print(direction_reading)
+#         if turn_direction=='L':
+#             drive_motor('L',-80,bus)
+#             drive_motor('R',80,bus)
+#         elif turn_direction=='R':
+#             drive_motor('L',80,bus)
+#             drive_motor('R',-80,bus)
+#         direction_reading=read_bmm150(bus)
 
 
 def initialize_bmm150(bus):

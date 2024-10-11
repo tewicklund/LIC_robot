@@ -153,10 +153,15 @@ try:
             horizontal_lines_acknowledged=True
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
-            if instruction_list[stop_num]!='S':
-                perform_turn(instruction_list[stop_num],i2c_bus)
+
+            time.sleep(stop_time/2)
+
+            if instruction_list[stop_num]=='R':
+                right_turn(1.6,i2c_bus)
+            elif instruction_list[stop_num]=='L':
+                left_turn(1.6,i2c_bus)
             
-            time.sleep(stop_time)
+            time.sleep(stop_time/2)
             stop_num+=1
         
         # if old vertical lines still in frame, keep driving as usual till they are out of frame
