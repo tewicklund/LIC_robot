@@ -157,9 +157,9 @@ try:
             time.sleep(stop_time/2)
 
             if instruction_list[stop_num]=='R':
-                right_turn(1.4,i2c_bus)
+                right_turn(1.5,i2c_bus)
             elif instruction_list[stop_num]=='L':
-                left_turn(1.2,i2c_bus)
+                left_turn(1.3,i2c_bus)
             
             time.sleep(stop_time/2)
             stop_num+=1
