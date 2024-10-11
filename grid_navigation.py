@@ -32,7 +32,7 @@ stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
 instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','L','S','L']
-arm_position_list=['A','B',"C"]
+arm_position_list=['a','b',"c"]
 # stop_list=[6,2,5,2,5]
 # turn_list=["L","L","R","R","L"]
 list_index=0
@@ -163,7 +163,7 @@ try:
                 left_turn(1.4,i2c_bus)
 
             move_arm(arm_position_list[stop_num%3],i2c_bus)
-            move_arm('Z',i2c_bus)
+            move_arm('z',i2c_bus)
 
             
             time.sleep(stop_time/2)
