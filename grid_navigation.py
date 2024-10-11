@@ -31,7 +31,7 @@ turn_num=0
 stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
-instruction_list=['S','S','S','S','S','TL:130','S','TL:015','S','S','S','S','TR:130','S','TR:055','S','S','S','S']
+instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','R','S','R','S','S','S','S']
 # stop_list=[6,2,5,2,5]
 # turn_list=["L","L","R","R","L"]
 list_index=0
