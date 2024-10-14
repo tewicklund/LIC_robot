@@ -156,7 +156,7 @@ def camera_assisted_turn(pipeline,direction,bus):
         lower_blue=np.array([90,140,0])
         upper_blue=np.array([150,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
-        cv2.imshow(blue_threshold)
+        cv2.imshow("blue mask",blue_threshold)
         
         # Get the height and width of the image/mask
         height, width = blue_threshold.shape
