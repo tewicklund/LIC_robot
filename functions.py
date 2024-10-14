@@ -175,6 +175,9 @@ def camera_assisted_turn(pipeline,direction,bus):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
+        drive_motor("L",0,bus)
+        drive_motor("R",0,bus)
+
 #turning code, needs to be replaced when magnetometer comes in
 def right_turn(turn_time,bus):
     start_time=time.time()
