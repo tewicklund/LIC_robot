@@ -163,9 +163,9 @@ try:
                 camera_assisted_turn(pipeline,'L',i2c_bus)
                 #left_turn(1.3,i2c_bus)
 
-            move_arm(arm_position_list[stop_num%3],i2c_bus)
-            time.sleep(1)
-            move_arm('z',i2c_bus)
+            #move_arm(arm_position_list[stop_num%3],i2c_bus)
+            #time.sleep(1)
+            #move_arm('z',i2c_bus)
 
             
             time.sleep(stop_time/2)
