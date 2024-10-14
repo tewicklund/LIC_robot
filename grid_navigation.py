@@ -71,8 +71,8 @@ try:
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
 
         # Apply thresholds to only get blue color
-        lower_blue=np.array([100,150,0])
-        upper_blue=np.array([140,255,255])
+        lower_blue=np.array([90,140,0])
+        upper_blue=np.array([150,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
 
         # Apply canny edge detection
