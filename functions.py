@@ -119,22 +119,22 @@ def left_turn(turn_time,bus):
 def camera_assisted_turn(pipeline,direction,bus):
     #start the turn with 1 second of blind turning
     start_time=time.time()
-    while time.time()-start_time<1:
+    while time.time()-start_time<0.5:
         if direction=='L':
-            drive_motor('L',-80,bus)
-            drive_motor('R',80,bus)
+            drive_motor('L',-70,bus)
+            drive_motor('R',70,bus)
         elif direction=='R':
-            drive_motor('L',80,bus)
-            drive_motor('R',-80,bus)
+            drive_motor('L',70,bus)
+            drive_motor('R',-70,bus)
 
     center_of_blue_threshold=False
     while not center_of_blue_threshold:
         if direction=='L':
-            drive_motor('L',-80,bus)
-            drive_motor('R',80,bus)
+            drive_motor('L',-70,bus)
+            drive_motor('R',70,bus)
         elif direction=='R':
-            drive_motor('L',80,bus)
-            drive_motor('R',-80,bus)
+            drive_motor('L',70,bus)
+            drive_motor('R',-70,bus)
         # Wait for a coherent set of frames: color frame
         frames = pipeline.wait_for_frames()
         color_frame = frames.get_color_frame()
