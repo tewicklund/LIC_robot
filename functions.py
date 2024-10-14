@@ -127,8 +127,8 @@ def camera_assisted_turn(pipeline,direction,bus):
             drive_motor('L',70,bus)
             drive_motor('R',-70,bus)
 
-    center_of_blue_threshold=False
-    while not center_of_blue_threshold:
+    line_straight=False
+    while not line_straight:
         if direction=='L':
             drive_motor('L',-70,bus)
             drive_motor('R',70,bus)
@@ -158,18 +158,26 @@ def camera_assisted_turn(pipeline,direction,bus):
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
         cv2.imshow("blue mask",blue_threshold)
         
-        # Get the height and width of the image/mask
-        height, width = blue_threshold.shape
+        # Apply canny edge detection
+        canny_low=200
+        canny_high=400
+        canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
 
-        # Calculate the center pixel coordinates
-        center_y = height // 2
-        center_x = width // 2
+        # create copy of frame to overlay angle and hough lines
+        line_image=np.copy(hsv_image)*0
 
-        # Get the value of the center pixel in the mask
-        center_pixel_value = blue_threshold[center_y, center_x]
+        [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image)
 
-        # Convert to a boolean (True if pixel is non-zero, False otherwise)
-        center_of_blue_threshold = center_pixel_value != 0
+        # add overlay to frame
+        output_image = cv2.addWeighted(color_image, 0.8, line_image, 1, 0) 
+
+        # show the frame
+        cv2.imshow('Robot Vision', output_image)
+
+        if avg_angle_deg>-10 and avg_angle_deg<10:
+            line_straight=True
+
+
 
         # Break loop with 'q' key
         if cv2.waitKey(1) & 0xFF == ord('q'):
