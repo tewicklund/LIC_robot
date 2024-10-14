@@ -116,6 +116,61 @@ def left_turn(turn_time,bus):
         drive_motor('L',-80,bus)
         drive_motor('R',80,bus)
 
+def camera_assisted_turn(pipeline,direction,bus):
+    #start the turn with 1 second of blind turning
+    start_time=time.time()
+    while time.time()-start_time<1:
+        if direction=='L':
+            drive_motor('L',-80,bus)
+            drive_motor('R',80,bus)
+        elif direction=='R':
+            drive_motor('L',80,bus)
+            drive_motor('R',-80,bus)
+
+    center_of_blue_threshold=False
+    while not center_of_blue_threshold:
+        if direction=='L':
+            drive_motor('L',-80,bus)
+            drive_motor('R',80,bus)
+        elif direction=='R':
+            drive_motor('L',80,bus)
+            drive_motor('R',-80,bus)
+        # Wait for a coherent set of frames: color frame
+        frames = pipeline.wait_for_frames()
+        color_frame = frames.get_color_frame()
+
+        if not color_frame:
+            continue
+
+        # Convert RealSense frame to numpy array (BGR format for OpenCV)
+        color_image = np.asanyarray(color_frame.get_data())
+
+        # Apply gaussian blur to image
+        kernel_size=(3,3)
+        gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
+
+        # Convert image to HSV
+        hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
+
+        # Apply thresholds to only get blue color
+        lower_blue=np.array([90,140,0])
+        upper_blue=np.array([150,255,255])
+        blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
+        cv2.imshow(blue_threshold)
+        
+        # Get the height and width of the image/mask
+        height, width = blue_threshold.shape
+
+        # Calculate the center pixel coordinates
+        center_y = height // 2
+        center_x = width // 2
+
+        # Get the value of the center pixel in the mask
+        center_pixel_value = blue_threshold[center_y, center_x]
+
+        # Convert to a boolean (True if pixel is non-zero, False otherwise)
+        center_of_blue_threshold = center_pixel_value != 0
+
 #turning code, needs to be replaced when magnetometer comes in
 def right_turn(turn_time,bus):
     start_time=time.time()

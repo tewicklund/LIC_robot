@@ -15,8 +15,6 @@ angle_p=1
 centering_p=0.1
 angle_i=0
 centering_i=0
-p_control=True
-i_control=True
 ratio_limit=0.8
 
 horizontal_lines_acknowledged=False
@@ -117,18 +115,18 @@ try:
         angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
         
         #proportional control
-        if p_control:
-            right_motor_speed+=int(angle_error*angle_p)
-            left_motor_speed-=int(angle_error*angle_p)
-            right_motor_speed+=int(x_location_error*centering_p)
-            left_motor_speed-=int(x_location_error*centering_p)
+
+        right_motor_speed+=int(angle_error*angle_p)
+        left_motor_speed-=int(angle_error*angle_p)
+        right_motor_speed+=int(x_location_error*centering_p)
+        left_motor_speed-=int(x_location_error*centering_p)
         
         #integral control
-        if i_control:
-            right_motor_speed+=int(angle_error_sum*angle_i)
-            left_motor_speed-=int(angle_error_sum*angle_i)
-            right_motor_speed+=int(x_location_error_sum*centering_i)
-            left_motor_speed-=int(x_location_error_sum*centering_i)
+
+        right_motor_speed+=int(angle_error_sum*angle_i)
+        left_motor_speed-=int(angle_error_sum*angle_i)
+        right_motor_speed+=int(x_location_error_sum*centering_i)
+        left_motor_speed-=int(x_location_error_sum*centering_i)
 
 
         # clamp motor speeds to max_speed
@@ -158,11 +156,14 @@ try:
             time.sleep(stop_time/2)
 
             if instruction_list[stop_num]=='R':
-                right_turn(1.4,i2c_bus)
+                #right_turn(1.4,i2c_bus)
+                camera_assisted_turn(pipeline,'R',i2c_bus)
             elif instruction_list[stop_num]=='L':
+                camera_assisted_turn(pipeline,'L',i2c_bus)
                 left_turn(1.3,i2c_bus)
 
             move_arm(arm_position_list[stop_num%3],i2c_bus)
+            time.sleep(1)
             move_arm('z',i2c_bus)
 
             
