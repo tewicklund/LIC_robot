@@ -79,7 +79,7 @@ def image_to_angle(image, overlay):
     
     #if no lines seen, return some default values
     else:
-        return 0,240,0.1,False
+        return 0.1234,240,0.1,False
     
 def move_arm(character,bus):
     i2c_address=0x09
@@ -174,7 +174,7 @@ def camera_assisted_turn(pipeline,direction,bus):
         # show the frame
         cv2.imshow('Robot Vision', output_image)
 
-        if avg_angle_deg>-10 and avg_angle_deg<10:
+        if avg_angle_deg>-10 and avg_angle_deg<10 and avg_angle_deg != 0.1234:
             line_straight=True
 
 
