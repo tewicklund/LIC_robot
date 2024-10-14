@@ -174,7 +174,7 @@ def camera_assisted_turn(pipeline,direction,bus):
         # show the frame
         cv2.imshow('Robot Vision', output_image)
 
-        if avg_angle_deg>-10 and avg_angle_deg<10 and avg_angle_deg != 0.1234:
+        if avg_angle_deg>-5 and avg_angle_deg<5 and avg_angle_deg != 0.1234:
             line_straight=True
 
 
