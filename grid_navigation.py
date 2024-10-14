@@ -29,8 +29,8 @@ turn_num=0
 stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
-instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','L','S','L']
-#instruction_list=['S','S','L']
+#instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','L','S','L']
+instruction_list=['S','S','L']
 arm_position_list=['a','b',"c"]
 # stop_list=[6,2,5,2,5]
 # turn_list=["L","L","R","R","L"]
@@ -157,11 +157,11 @@ try:
             time.sleep(stop_time/2)
 
             if instruction_list[stop_num]=='R':
-                right_turn(1.4,i2c_bus)
-                #camera_assisted_turn(pipeline,'R',i2c_bus)
+                #right_turn(1.4,i2c_bus)
+                camera_assisted_turn(pipeline,'R',i2c_bus)
             elif instruction_list[stop_num]=='L':
-                #camera_assisted_turn(pipeline,'L',i2c_bus)
-                left_turn(1.3,i2c_bus)
+                camera_assisted_turn(pipeline,'L',i2c_bus)
+                #left_turn(1.3,i2c_bus)
 
             move_arm(arm_position_list[stop_num%3],i2c_bus)
             time.sleep(1)
