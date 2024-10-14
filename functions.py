@@ -171,6 +171,10 @@ def camera_assisted_turn(pipeline,direction,bus):
         # Convert to a boolean (True if pixel is non-zero, False otherwise)
         center_of_blue_threshold = center_pixel_value != 0
 
+        # Break loop with 'q' key
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
 #turning code, needs to be replaced when magnetometer comes in
 def right_turn(turn_time,bus):
     start_time=time.time()
