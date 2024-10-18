@@ -30,7 +30,7 @@ stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
 instruction_list=['S','S','S','S','S','S','S','S','S','S','R','S','R',
-                  'S','S','S','S','S','S','S','S','S','L','S','L',
+                  'S','S','S','S','S','S','S','S','S','S','L','S','L',
                   'S','S','S','S','S','S','S','S','S','S','R','S','R']
 #instruction_list=['S','S','L']
 arm_position_list=['a','b',"c"]
