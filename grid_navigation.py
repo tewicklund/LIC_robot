@@ -5,7 +5,7 @@ from functions import *
 
 i2c_bus = smbus2.SMBus(7)
 
-initialize_bmm150(i2c_bus)
+#initialize_bmm150(i2c_bus)
 
 # motor driving and PID variables
 base_speed=80
