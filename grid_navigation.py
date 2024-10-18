@@ -111,16 +111,21 @@ try:
 
 
         
-        #control section
+        # set the base speed according to the time since last stop
         speed_up_time=0.5
         slow_down_time=1.5
         time_elapsed=time.time()-horiztonal_lines_time
-        if time_elapsed<speed_up_time:
-            right_motor_speed=base_speed+time_elapsed*20
-            left_motor_speed=base_speed+time_elapsed*20
-        elif time_elapsed<slow_down_time:
-            right_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
-            left_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
+
+        if instruction_list[stop_num]=='S':
+            if time_elapsed<speed_up_time:
+                right_motor_speed=base_speed+time_elapsed*20
+                left_motor_speed=base_speed+time_elapsed*20
+            elif time_elapsed<slow_down_time:
+                right_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
+                left_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
+            else:
+                right_motor_speed=base_speed-10
+                left_motor_speed=base_speed-10
         else:
             right_motor_speed=base_speed-10
             left_motor_speed=base_speed-10
