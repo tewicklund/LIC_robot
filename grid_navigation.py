@@ -8,8 +8,8 @@ i2c_bus = smbus2.SMBus(7)
 #initialize_bmm150(i2c_bus)
 
 # motor driving and PID variables
-base_speed=80
-max_speed=90
+base_speed=90
+max_speed=100
 min_speed=60
 angle_p=1
 centering_p=0.1
