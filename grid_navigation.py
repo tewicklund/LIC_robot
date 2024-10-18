@@ -153,6 +153,9 @@ try:
         # if new horizontal line encountered, stop for set amount of time
         elif(not horizontal_lines_acknowledged):
             horizontal_lines_acknowledged=True
+            drive_motor("L",-base_speed,i2c_bus)
+            drive_motor("R",-base_speed,i2c_bus)
+            time.sleep(0.1)
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
 
