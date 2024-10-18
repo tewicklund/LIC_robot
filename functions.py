@@ -118,7 +118,7 @@ def left_turn(turn_time,bus):
 
 def camera_assisted_turn(pipeline,direction,lower_blue,upper_blue,bus):
     #start the turn with 2 seconds of blind turning
-    turn_power=100
+    turn_power=80
     start_time=time.time()
     while time.time()-start_time<1:
         if direction=='L':
