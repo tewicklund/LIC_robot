@@ -158,9 +158,9 @@ try:
 
             if instruction_list[stop_num]=='R':
                 #right_turn(1.4,i2c_bus)
-                camera_assisted_turn(pipeline,'R',i2c_bus)
+                camera_assisted_turn(pipeline,'R',lower_blue,upper_blue,i2c_bus)
             elif instruction_list[stop_num]=='L':
-                camera_assisted_turn(pipeline,'L',i2c_bus)
+                camera_assisted_turn(pipeline,'L',lower_blue,upper_blue,i2c_bus)
                 #left_turn(1.3,i2c_bus)
 
             #move_arm(arm_position_list[stop_num%3],i2c_bus)

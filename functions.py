@@ -116,25 +116,26 @@ def left_turn(turn_time,bus):
         drive_motor('L',-80,bus)
         drive_motor('R',80,bus)
 
-def camera_assisted_turn(pipeline,direction,bus):
-    #start the turn with 1 second of blind turning
+def camera_assisted_turn(pipeline,direction,lower_blue,upper_blue,bus):
+    #start the turn with 2 seconds of blind turning
+    turn_power=100
     start_time=time.time()
     while time.time()-start_time<1:
         if direction=='L':
-            drive_motor('L',-70,bus)
-            drive_motor('R',70,bus)
+            drive_motor('L',-1*turn_power,bus)
+            drive_motor('R',turn_power,bus)
         elif direction=='R':
-            drive_motor('L',70,bus)
-            drive_motor('R',-70,bus)
+            drive_motor('L',turn_power,bus)
+            drive_motor('R',-1*turn_power,bus)
 
     line_straight=False
     while not line_straight:
         if direction=='L':
-            drive_motor('L',-70,bus)
-            drive_motor('R',70,bus)
+            drive_motor('L',-1*turn_power,bus)
+            drive_motor('R',turn_power,bus)
         elif direction=='R':
-            drive_motor('L',70,bus)
-            drive_motor('R',-70,bus)
+            drive_motor('L',turn_power,bus)
+            drive_motor('R',-1*turn_power,bus)
         # Wait for a coherent set of frames: color frame
         frames = pipeline.wait_for_frames()
         color_frame = frames.get_color_frame()
@@ -153,8 +154,6 @@ def camera_assisted_turn(pipeline,direction,bus):
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
 
         # Apply thresholds to only get blue color
-        lower_blue=np.array([90,140,0])
-        upper_blue=np.array([150,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
         cv2.imshow("blue mask",blue_threshold)
         
