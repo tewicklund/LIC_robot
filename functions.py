@@ -156,7 +156,7 @@ def camera_assisted_turn(pipeline,direction,lower_blue,upper_blue,bus):
 
         # Apply thresholds to only get blue color
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
-        cv2.imshow("blue mask",blue_threshold)
+        #cv2.imshow("blue mask",blue_threshold)
         
         # Apply canny edge detection
         canny_low=200
