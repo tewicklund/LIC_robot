@@ -29,7 +29,7 @@ turn_num=0
 stop_time=2
 
 # list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
-instruction_list=['S','S','S','S','S','L','S','L','S','S','S','S','L','S','L']
+instruction_list=['S','S','S','S','S','S','S','S','S','S']
 #instruction_list=['S','S','L']
 arm_position_list=['a','b',"c"]
 # stop_list=[6,2,5,2,5]
@@ -94,7 +94,7 @@ try:
         #print("Horizontal Ratio:",horizontal_vertical_ratio)
 
         # add overlay to frame
-        output_image = cv2.addWeighted(color_image, 0.8, line_image, 1, 0) 
+        output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
         cv2.imshow('Robot Vision', output_image)
