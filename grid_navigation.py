@@ -8,7 +8,7 @@ i2c_bus = smbus2.SMBus(7)
 #initialize_bmm150(i2c_bus)
 
 # motor driving and PID variables
-base_speed=90
+base_speed=80
 max_speed=100
 min_speed=60
 angle_p=1
@@ -52,6 +52,7 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
+horiztonal_lines_time=time.time()
 try:
     while True:
         # Wait for a coherent set of frames: color frame
@@ -104,8 +105,17 @@ try:
 
         
         #control section
-        right_motor_speed=base_speed
-        left_motor_speed=base_speed
+        full_speed_time=0.5
+        normal_speed_time=0.5
+        if time.time()-horiztonal_lines_time<full_speed_time:
+            right_motor_speed=base_speed*1.2
+            left_motor_speed=base_speed*1.2
+        elif time.time()-horiztonal_lines_time>full_speed_time and time.time()-horiztonal_lines_time<full_speed_time+normal_speed_time:
+            right_motor_speed=base_speed
+            left_motor_speed=base_speed
+        else:
+            right_motor_speed=base_speed/1.2
+            left_motor_speed=base_speed/1.2
 
         #p control setup
         angle_error=avg_angle_deg
@@ -175,6 +185,7 @@ try:
             
             time.sleep(stop_time/2)
             stop_num+=1
+            horiztonal_lines_time=time.time()
             if stop_num>=len(instruction_list):
                 print("Course Complete")
                 exit()
