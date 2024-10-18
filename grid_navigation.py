@@ -70,7 +70,7 @@ try:
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
 
         # Apply thresholds to only get blue color
-        lower_blue=np.array([50,110,0])
+        lower_blue=np.array([50,100,0])
         upper_blue=np.array([160,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
 
