@@ -3,41 +3,47 @@ import numpy as np
 import cv2
 from functions import *
 
+
 i2c_bus = smbus2.SMBus(7)
 
-#initialize_bmm150(i2c_bus)
 
-# motor driving and PID variables
+# motor speed range, change to make robot run course faster or slower
 base_speed=90
 max_speed=110
 min_speed=60
+
+#pi control variables, set to 0 to disable
 angle_p=1
 centering_p=0.1
 angle_i=0
 centering_i=0
-ratio_limit=0.8
 
-horizontal_lines_acknowledged=False
+# maximum errors for i control
 angle_error_sum=0
 angle_error_sum_max=400
 x_location_error_sum=0
 x_location_error_max=400
-num_stops=2
-num_turns=1
+
+# minimum ratio of horizontal lines to vertical lines that is recognized as a stop
+ratio_limit=0.8
+
+# boolean for loop logic, used for driving over previously acknowledged horizontal lines
+horizontal_lines_acknowledged=False
+
+
+# index variable for keeping track of stop in sequence
 stop_num=0
-turn_num=0
+
+# amount of time spent at each stop, in seconds
 stop_time=2
 
-# list of instructions, 'S' means stop at the line, and 'T' means turn at the line followed by the direction and the target magnetometer reading
+# list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
 instruction_list=['S','S','S','S','S','S','S','S','S','S','R','S','R',
                   'S','S','S','S','S','S','S','S','S','S','L','S','L',
                   'S','S','S','S','S','S','S','S','S','S','R','S','R']
-#instruction_list=['S','S','L']
-arm_position_list=['a','b',"c"]
-# stop_list=[6,2,5,2,5]
-# turn_list=["L","L","R","R","L"]
-list_index=0
-first_loop=True
+
+# list of arm positions to cycle through, just for demo purposes for now
+#arm_position_list=['a','b',"c"]
 
 
 # Initialize the RealSense pipeline
@@ -52,13 +58,18 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
+# Get timestamp for time since last stop
 horiztonal_lines_time=time.time()
+
+# Get timestamp for frame counter
+frame_time=time.time()
+
+# put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
         # Wait for a coherent set of frames: color frame
         frames = pipeline.wait_for_frames()
         color_frame = frames.get_color_frame()
-
         if not color_frame:
             continue
 
@@ -82,19 +93,15 @@ try:
         canny_high=400
         canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
 
-        #split image into top half (looks for stop line) and bottom half (looks for follow line)
-        #top_canny_image=canny_image[0:frame_height/2,:]
-        #bottom_canny_image=canny_image[frame_height/2:frame_height,:]
-
-        # create copy of frame to overlay angle and hough lines
+        # create a blank copy of frame to overlay angle and hough lines
         line_image=np.copy(hsv_image)*0
 
-        # set line_image
+        #get frame time to feed to image_to_angle function
+        frame_time_elapsed=time.time()-frame_time
+        frame_time=time.time()
 
-        [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image)
-        #print("Average Angle:",avg_angle_deg)
-        #print("Average X:",x_location_avg)
-        #print("Horizontal Ratio:",horizontal_vertical_ratio)
+        # interpret canny edges black and white image to return info about the angle and location of lines seen
+        [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
 
         # add overlay to frame
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
@@ -105,37 +112,33 @@ try:
 
         
         #control section
-        full_speed_time=0.5
-        normal_speed_time=0.5
-        if time.time()-horiztonal_lines_time<full_speed_time:
-            right_motor_speed=base_speed+10
-            left_motor_speed=base_speed+10
-        elif time.time()-horiztonal_lines_time>full_speed_time and time.time()-horiztonal_lines_time<full_speed_time+normal_speed_time:
-            right_motor_speed=base_speed
-            left_motor_speed=base_speed
+        speed_up_time=0.5
+        slow_down_time=1.5
+        time_elapsed=time.time()-horiztonal_lines_time
+        if time_elapsed<speed_up_time:
+            right_motor_speed=base_speed+time_elapsed*20
+            left_motor_speed=base_speed+time_elapsed*20
+        elif time_elapsed<slow_down_time:
+            right_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
+            left_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
         else:
-            right_motor_speed=base_speed-15
-            left_motor_speed=base_speed-15
+            right_motor_speed=base_speed-10
+            left_motor_speed=base_speed-10
 
-        #p control setup
-        angle_error=avg_angle_deg
-        x_location_error=(frame_width/2)-x_location_avg
-        
-        #i control setup
-        angle_error_sum+=angle_error
-        x_location_error_sum+=x_location_error
-        x_location_error_sum=clamp(x_location_error_sum,0,x_location_error_max)
-        angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
         
         #proportional control
-
+        angle_error=avg_angle_deg
+        x_location_error=(frame_width/2)-x_location_avg
         right_motor_speed+=int(angle_error*angle_p)
         left_motor_speed-=int(angle_error*angle_p)
         right_motor_speed+=int(x_location_error*centering_p)
         left_motor_speed-=int(x_location_error*centering_p)
         
         #integral control
-
+        angle_error_sum+=angle_error
+        x_location_error_sum+=x_location_error
+        x_location_error_sum=clamp(x_location_error_sum,0,x_location_error_max)
+        angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
         right_motor_speed+=int(angle_error_sum*angle_i)
         left_motor_speed-=int(angle_error_sum*angle_i)
         right_motor_speed+=int(x_location_error_sum*centering_i)
@@ -152,45 +155,45 @@ try:
             drive_motor("R",0,i2c_bus)
             print("No lines, stopping motors")
 
-
         # if no horizontal lines in frame, drive as normal
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor("L",left_motor_speed,i2c_bus)
             drive_motor("R",right_motor_speed,i2c_bus)
-            #print(left_motor_speed,":",right_motor_speed)
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
         elif(not horizontal_lines_acknowledged):
             horizontal_lines_acknowledged=True
-            #drive_motor("L",-base_speed,i2c_bus)
-            #drive_motor("R",-base_speed,i2c_bus)
-            #time.sleep(0.1)
             drive_motor("L",0,i2c_bus)
             drive_motor("R",0,i2c_bus)
 
+            # let robot come to stop
             time.sleep(stop_time/2)
 
-            if instruction_list[stop_num]=='R':
-                #right_turn(1.4,i2c_bus)
-                camera_assisted_turn(pipeline,'R',lower_blue,upper_blue,i2c_bus)
-            elif instruction_list[stop_num]=='L':
-                camera_assisted_turn(pipeline,'L',lower_blue,upper_blue,i2c_bus)
-                #left_turn(1.3,i2c_bus)
+            # perform turn if instruction is 'R' or 'L'
+            if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
+                camera_assisted_turn(pipeline,instruction_list[stop_num],lower_blue,upper_blue,i2c_bus)
 
+            # move arm to next position, for demo purposes only
             #move_arm(arm_position_list[stop_num%3],i2c_bus)
             #time.sleep(1)
             #move_arm('z',i2c_bus)
 
-            
+            # rest before continuing
             time.sleep(stop_time/2)
+
+            # increment stop number
             stop_num+=1
+
+            # reset stop time tracking variable
             horiztonal_lines_time=time.time()
+
+            # exit the code if there are no more stops left
             if stop_num>=len(instruction_list):
                 print("Course Complete")
                 exit()
         
-        # if old vertical lines still in frame, keep driving as usual till they are out of frame
+        # if old vertical lines still in frame, keep driving till they are out of frame
         else:
             drive_motor("L",left_motor_speed,i2c_bus)
             drive_motor("R",right_motor_speed,i2c_bus)
@@ -207,5 +210,6 @@ finally:
     # Release the OpenCV window
     cv2.destroyAllWindows()
 
+    # close the i2c bus
     i2c_bus.close()
 

@@ -3,7 +3,7 @@ import numpy as np
 import smbus2
 import time
 
-def image_to_angle(image, overlay):
+def image_to_angle(image, overlay, frame_time_elapsed):
     # parameters for hough lines transform
     min_intersections=10
     min_line_length=5
@@ -56,7 +56,6 @@ def image_to_angle(image, overlay):
                     total_length=total_length+line_length
                 
                 
-
         #prevent average angle from being infinity
         if total_length==0:
             total_length=1
@@ -67,12 +66,22 @@ def image_to_angle(image, overlay):
         x_location_avg=x_location_sum/(2*num_vertical_lines)
         horizontal_vertical_ratio=horizontal_sum/vertical_sum
 
+        
+
         #display this average angle value on frame
         font = cv2.FONT_HERSHEY_SIMPLEX
         angle_text=str(angle_avg_deg_rounded)
         location_text=str(x_location_avg)
         cv2.putText(overlay, angle_text, (50, 50), font, 1, (255,255,255), 2)
         cv2.putText(overlay, location_text, (50, 100), font, 1, (255,255,255), 2)
+
+        #compute and display framerate
+        if frame_time_elapsed != 0:
+            framerate=1/frame_time_elapsed
+        else:
+            framerate=0
+        framerate_text=str(framerate)+" fps"
+        cv2.putText(overlay, framerate_text, (50, 150), font, 1, (255,255,255), 2)
 
         #return 4 variables: angle, x location of line, horizontal/vertical ratio, and lines_seen boolean
         return angle_avg_deg, x_location_avg, horizontal_vertical_ratio,True
