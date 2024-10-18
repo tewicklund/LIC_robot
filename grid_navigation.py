@@ -108,14 +108,14 @@ try:
         full_speed_time=0.5
         normal_speed_time=0.5
         if time.time()-horiztonal_lines_time<full_speed_time:
-            right_motor_speed=base_speed*1.2
-            left_motor_speed=base_speed*1.2
+            right_motor_speed=base_speed+10
+            left_motor_speed=base_speed+10
         elif time.time()-horiztonal_lines_time>full_speed_time and time.time()-horiztonal_lines_time<full_speed_time+normal_speed_time:
             right_motor_speed=base_speed
             left_motor_speed=base_speed
         else:
-            right_motor_speed=base_speed/1.2
-            left_motor_speed=base_speed/1.2
+            right_motor_speed=base_speed-10
+            left_motor_speed=base_speed-10
 
         #p control setup
         angle_error=avg_angle_deg
