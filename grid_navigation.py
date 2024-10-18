@@ -8,8 +8,8 @@ i2c_bus = smbus2.SMBus(7)
 #initialize_bmm150(i2c_bus)
 
 # motor driving and PID variables
-base_speed=80
-max_speed=100
+base_speed=90
+max_speed=110
 min_speed=60
 angle_p=1
 centering_p=0.1
@@ -114,8 +114,8 @@ try:
             right_motor_speed=base_speed
             left_motor_speed=base_speed
         else:
-            right_motor_speed=base_speed-10
-            left_motor_speed=base_speed-10
+            right_motor_speed=base_speed-15
+            left_motor_speed=base_speed-15
 
         #p control setup
         angle_error=avg_angle_deg
