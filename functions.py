@@ -3,6 +3,53 @@ import numpy as np
 import smbus2
 import time
 
+def set_arm_position(bus,address,frequency,pos_char):
+    if pos_char=='a':
+        set_servo_angle(bus,address,frequency,0,-90)
+        set_servo_angle(bus,address,frequency,1,0)
+    elif pos_char=='b':
+        set_servo_angle(bus,address,frequency,0,0)
+        set_servo_angle(bus,address,frequency,1,90)
+    elif pos_char=='c':
+        set_servo_angle(bus,address,frequency,0,90)
+        set_servo_angle(bus,address,frequency,1,0)
+    else:
+        set_servo_angle(bus,address,frequency,0,0)
+        set_servo_angle(bus,address,frequency,1,0)
+    
+def set_servo_angle(bus,address,frequency,channel,angle):
+
+    # compute the on time register values from the angle
+    on_time_us=9.27*angle+1500
+    on_time_register_value=int(on_time_us*4096/(1000000/frequency))
+
+    # set on timestamp to zero
+    bus.write_byte_data(address, 6+4*channel, 0)
+    bus.write_byte_data(address, 7+4*channel, 0)
+
+    # set off timestamp to on_time integer
+    bus.write_byte_data(address, 8+4*channel, on_time_register_value & 0xFF)
+    bus.write_byte_data(address, 9+4*channel, on_time_register_value>>8)
+    
+    
+
+def set_frequency(bus,address,frequency):
+
+    prescale=int(25000000/(4096*frequency)+1)
+    # Set sleep bit to 1
+    mode1 = bus.read_byte_data(address, 0)
+    mode1 = mode1 | 0x10
+    bus.write_byte_data(address, 0, mode1)
+
+    # Calculate prescale value
+    bus.write_byte_data(address, 0xFE, prescale)
+
+    # Reset back sleep bit to operational mode
+    mode1 = mode1 & ~0x10
+    bus.write_byte_data(address, 0, mode1)
+    time.sleep(1)
+    bus.write_byte_data(address, 1, 4)
+
 def image_to_angle(image, overlay, frame_time_elapsed):
     # parameters for hough lines transform
     min_intersections=10
