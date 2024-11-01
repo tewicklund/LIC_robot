@@ -32,4 +32,4 @@ while True:
     option+=1
     if option==4:
         option=0
-    time.sleep(1)
+    time.sleep(3)
