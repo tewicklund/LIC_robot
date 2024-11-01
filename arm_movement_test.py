@@ -8,7 +8,7 @@ address=0x40
 
 # frequency to 330 Hz
 frequency=340
-set_frequency(bus,address,frequency)
+#set_frequency(bus,address,frequency)
 
 option=0
 

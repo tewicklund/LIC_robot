@@ -10,6 +10,7 @@ def set_arm_position(bus,address,frequency,pos_char):
     if pos_char=='a':
 
         set_servo_angle(bus,address,frequency,1,0)
+        set_servo_angle()
 
         for x in range(angle_deg+1):
             set_servo_angle(bus,address,frequency,0,-x)
