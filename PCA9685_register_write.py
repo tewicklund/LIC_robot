@@ -1,4 +1,4 @@
-import smbus
+import smbus2 as smbus
 import time
 
 bus = smbus.SMBus(7)  # Use 1 for i2c-1
