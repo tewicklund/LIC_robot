@@ -1,46 +1,78 @@
-from smbus2 import SMBus
 import time
+import smbus
 
-bus = SMBus(7)  # Use 1 for i2c-1
+# PIN SELECTIONS
+input1_pin = 11
+input2_pin = 12
+led_pin= 13
 
-# address of PCA9685 on bus 7
-device_address = 0x40  
+# INIT SMBUS
+bus = smbus.SMBus(7)
+address=0x40
 
-# address and value of mode 1 register
-mode_1_address=0x00
-mode_1_value=0x00
 
-# address and value of prescaler, used to set pwm frequency
-prescale_address=0xfe
-prescale_value=0x12
+def set_prescale(prescale):
+    # Set sleep bit to 1
+    mode1 = bus.read_byte_data(address, 0)
+    mode1 = mode1 | 0x10
+    bus.write_byte_data(address, 0, mode1)
 
-# addresses of PWM duty cycle
-led_all_on_address_ls=0xfa
-led_all_on_address_ms=0xfb
-led_all_off_address_ls=0xfc
-led_all_off_address_ms=0xfd
+    # Calculate prescale value
+    bus.write_byte_data(address, 0xFE, prescale)
 
-# values to write to led 0 as a test, expect 50% duty cycle
-led_all_value_ls=0x00
-led_all_value_ms=0x10
+    # Reset back sleep bit to operational mode
+    mode1 = mode1 & ~0x10
+    bus.write_byte_data(address, 0, mode1)
+    time.sleep(1)
+    bus.write_byte_data(address, 1, 4)
 
-# Write byte to mode 1 register to put in normal mode
-bus.write_byte_data(device_address,mode_1_address,mode_1_value)
-time.sleep(0.01)
+set_prescale(60)
 
-# Write byte to prescale address to set frequency to 330 Hz
-bus.write_byte_data(device_address,prescale_address,prescale_value)
-time.sleep(0.01)
+bus.write_byte_data(address, 7, 0)
+bus.write_byte_data(address, 6, 0)
 
-# write bytes to led 0 addresses
-bus.write_byte_data(device_address,led_all_on_address_ls,led_all_value_ls)
-time.sleep(0.01)
-bus.write_byte_data(device_address,led_all_on_address_ms,led_all_value_ms)
-time.sleep(0.01)
-bus.write_byte_data(device_address,led_all_off_address_ls,led_all_value_ls)
-time.sleep(0.01)
-bus.write_byte_data(device_address,led_all_off_address_ms,led_all_value_ms)
-time.sleep(0.01)
+bus.write_byte_data(address, 11, 0)
+bus.write_byte_data(address, 10, 0)
 
-# Close the bus connection if done
-bus.close()
+on_time = 0
+duty_cycle = 0
+
+option=0
+
+while True:
+    
+    time.sleep(0.02)
+
+    if option==0:
+        # pwm1.5, duty cycle = 0
+        on_time = 614
+        duty_cycle = 0
+        print("Detected in1 = 0, in2 = 0")
+
+    elif option==1:
+        # pwm1.1, duty cycle = 50
+        on_time = 450
+        duty_cycle = 2047
+        print("Detected in1 = 0, in2 = 1")
+
+    elif option==2:
+        # pwm1.9, duty cycle = 50
+        on_time = 778
+        duty_cycle = 2047
+        print("Detected in1 = 1, in2 = 0")
+
+    else:
+        #pwm1.5, duty cycle = 80
+        on_time = 614
+        duty_cycle = 3275
+        print("Detected in1 = 1, in2 = 1")
+
+    bus.write_byte_data(address, 9, on_time>>8)
+    bus.write_byte_data(address, 8, on_time & 0xFF)
+    bus.write_byte_data(address, 13, duty_cycle>>8)
+    bus.write_byte_data(address, 12, duty_cycle & 0xFF)
+
+    option+=1
+    if option==4:
+        option=0
+    time.sleep(1)
