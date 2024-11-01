@@ -36,10 +36,6 @@ bus.write_byte_data(address, 6, 0)
 bus.write_byte_data(address, 11, 0)
 bus.write_byte_data(address, 10, 0)
 
-
-on_time = 0
-duty_cycle = 0
-
 option=0
 
 while True:
@@ -66,10 +62,10 @@ while True:
         on_time_2 = compute_on_time(1500,340)
         print("Setting servo to 0 degrees")
 
-    bus.write_byte_data(address, 9, on_time>>8)
-    bus.write_byte_data(address, 8, on_time & 0xFF)
-    bus.write_byte_data(address, 13, duty_cycle>>8)
-    bus.write_byte_data(address, 12, duty_cycle & 0xFF)
+    bus.write_byte_data(address, 9, on_time_1>>8)
+    bus.write_byte_data(address, 8, on_time_1 & 0xFF)
+    bus.write_byte_data(address, 13, on_time_2>>8)
+    bus.write_byte_data(address, 12, on_time_2 & 0xFF)
 
     option+=1
     if option==4:
