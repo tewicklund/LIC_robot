@@ -11,7 +11,7 @@ def compute_on_time(time_on_us,frequency):
 
 def set_frequency(frequency):
 
-    prescale=25000000/(4096*frequency)+1
+    prescale=int(25000000/(4096*frequency)+1)
     # Set sleep bit to 1
     mode1 = bus.read_byte_data(address, 0)
     mode1 = mode1 | 0x10
