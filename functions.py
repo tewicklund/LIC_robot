@@ -19,8 +19,8 @@ def set_arm_position(bus,address,frequency,pos_char):
         time.sleep(2)
 
         for x in range(angle_deg+1):
-            set_servo_angle(bus,address,frequency,0,x-angle_deg+1)
-            print(x-angle_deg+1)
+            set_servo_angle(bus,address,frequency,0,x-angle_deg)
+            print(x-angle_deg)
             time.sleep(0.01)
         time.sleep(2)
 
@@ -36,8 +36,8 @@ def set_arm_position(bus,address,frequency,pos_char):
         time.sleep(2)
         
         for x in range(angle_deg+1):
-            set_servo_angle(bus,address,frequency,1,x-angle_deg+1)
-            print(x-angle_deg+1)
+            set_servo_angle(bus,address,frequency,1,x-angle_deg)
+            print(x-angle_deg)
             time.sleep(0.01)
         time.sleep(2)
 
@@ -52,8 +52,8 @@ def set_arm_position(bus,address,frequency,pos_char):
         time.sleep(2)
         
         for x in range(angle_deg+1):
-            set_servo_angle(bus,address,frequency,0,angle_deg+1-x)
-            print(angle_deg+1-x)
+            set_servo_angle(bus,address,frequency,0,angle_deg-x)
+            print(angle_deg-x)
             time.sleep(0.01)
         time.sleep(2)
 
