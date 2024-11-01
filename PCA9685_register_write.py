@@ -6,7 +6,7 @@ bus = smbus.SMBus(7)
 address=0x40
 
 def compute_on_time(time_on_us,frequency):
-    on_time_points=time_on_us*4096/(1000000/frequency)
+    on_time_points=int(time_on_us*4096/(1000000/frequency))
     return on_time_points
 
 def set_frequency(frequency):
