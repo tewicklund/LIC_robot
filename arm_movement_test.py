@@ -14,22 +14,21 @@ option=0
 
 while True:
     if option==0:
-        set_arm_position(bus,address,frequency,'a')
         print("Setting arm to position a")
+        set_arm_position(bus,address,frequency,'a')
+        
 
     elif option==1:
-        set_arm_position(bus,address,frequency,'b')
         print("Setting arm to position b")
+        set_arm_position(bus,address,frequency,'b')
+        
 
     elif option==2:
-        set_arm_position(bus,address,frequency,'c')
         print("Setting arm to position c")
+        set_arm_position(bus,address,frequency,'c')
+        
 
-    else:
-        set_arm_position(bus,address,frequency,'z')
-        print("Setting arm to position home")
 
     option+=1
-    if option==4:
+    if option==3:
         option=0
-    time.sleep(3)
