@@ -26,7 +26,7 @@ def set_prescale(prescale):
     time.sleep(1)
     bus.write_byte_data(address, 1, 4)
 
-set_prescale(60)
+set_prescale(17)
 
 bus.write_byte_data(address, 7, 0)
 bus.write_byte_data(address, 6, 0)
@@ -45,25 +45,25 @@ while True:
 
     if option==0:
         # pwm1.5, duty cycle = 0
-        on_time = 614
+        on_time = 666
         duty_cycle = 0
         print("Detected in1 = 0, in2 = 0")
 
     elif option==1:
         # pwm1.1, duty cycle = 50
-        on_time = 450
+        on_time = 1500
         duty_cycle = 2047
         print("Detected in1 = 0, in2 = 1")
 
     elif option==2:
         # pwm1.9, duty cycle = 50
-        on_time = 778
+        on_time = 2334
         duty_cycle = 2047
         print("Detected in1 = 1, in2 = 0")
 
     else:
         #pwm1.5, duty cycle = 80
-        on_time = 614
+        on_time = 1500
         duty_cycle = 3275
         print("Detected in1 = 1, in2 = 1")
 
