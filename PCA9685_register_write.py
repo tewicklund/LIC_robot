@@ -5,9 +5,21 @@ import smbus
 bus = smbus.SMBus(7)
 address=0x40
 
-def compute_on_time(time_on_us,frequency):
-    on_time_points=int(time_on_us*4096/(1000000/frequency))
-    return on_time_points
+def set_servo_angle(bus,frequency,channel,angle):
+
+    # compute the on time register values from the angle
+    on_time_us=9.27*angle+1500
+    on_time_register_value=int(on_time_us*4096/(1000000/frequency))
+
+    # set on timestamp to zero
+    bus.write_byte_data(address, 6+4*channel, 0)
+    bus.write_byte_data(address, 7+4*channel, 0)
+
+    # set off timestamp to on_time integer
+    bus.write_byte_data(address, 8+4*channel, on_time_register_value & 0xFF)
+    bus.write_byte_data(address, 9+4*channel, on_time_register_value>>8)
+    
+    
 
 def set_frequency(frequency):
 
@@ -30,42 +42,24 @@ def set_frequency(frequency):
 frequency=340
 set_frequency(frequency)
 
-# set all register bits to zero for the first 2 channels
-bus.write_byte_data(address, 7, 0)
-bus.write_byte_data(address, 6, 0)
-bus.write_byte_data(address, 11, 0)
-bus.write_byte_data(address, 10, 0)
-
 option=0
 
 while True:
-    
-    time.sleep(0.02)
-
     if option==0:
-        on_time_1 = compute_on_time(666,340)
-        on_time_2 = compute_on_time(666,340)
+        set_servo_angle(bus,frequency,0,-90)
         print("Setting servo to -90 degrees")
 
     elif option==1:
-        on_time_1 = compute_on_time(1500,340)
-        on_time_2 = compute_on_time(1500,340)
+        set_servo_angle(bus,frequency,0,0)
         print("Setting servo to 0 degrees")
 
     elif option==2:
-        on_time_1 = compute_on_time(2334,340)
-        on_time_2 = compute_on_time(2334,340)
+        set_servo_angle(bus,frequency,0,90)
         print("Setting servo to 90 degrees")
 
     else:
-        on_time_1 = compute_on_time(1500,340)
-        on_time_2 = compute_on_time(1500,340)
+        set_servo_angle(bus,frequency,0,0)
         print("Setting servo to 0 degrees")
-
-    bus.write_byte_data(address, 9, on_time_1>>8)
-    bus.write_byte_data(address, 8, on_time_1 & 0xFF)
-    bus.write_byte_data(address, 13, on_time_2>>8)
-    bus.write_byte_data(address, 12, on_time_2 & 0xFF)
 
     option+=1
     if option==4:
