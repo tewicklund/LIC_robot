@@ -15,14 +15,14 @@ prescale_address=0xfe
 prescale_value=0x12
 
 # addresses of PWM duty cycle
-led_0_on_address_ls=0x06
-led_0_on_address_ms=0x07
-led_0_off_address_ls=0x08
-led_0_off_address_ms=0x09
+led_all_on_address_ls=0xfa
+led_all_on_address_ms=0xfb
+led_all_off_address_ls=0xfc
+led_all_off_address_ms=0xfd
 
 # values to write to led 0 as a test, expect 50% duty cycle
-led_0_value_ls=0x00
-led_0_value_ms=0x10
+led_all_value_ls=0x00
+led_all_value_ms=0x10
 
 # Write byte to mode 1 register to put in normal mode
 bus.write_byte_data(device_address,mode_1_address,mode_1_value)
@@ -33,13 +33,13 @@ bus.write_byte_data(device_address,prescale_address,prescale_value)
 time.sleep(0.01)
 
 # write bytes to led 0 addresses
-bus.write_byte_data(device_address,led_0_on_address_ls,led_0_value_ls)
+bus.write_byte_data(device_address,led_all_on_address_ls,led_all_value_ls)
 time.sleep(0.01)
-bus.write_byte_data(device_address,led_0_on_address_ms,led_0_value_ms)
+bus.write_byte_data(device_address,led_all_on_address_ms,led_all_value_ms)
 time.sleep(0.01)
-bus.write_byte_data(device_address,led_0_off_address_ls,led_0_value_ls)
+bus.write_byte_data(device_address,led_all_off_address_ls,led_all_value_ls)
 time.sleep(0.01)
-bus.write_byte_data(device_address,led_0_off_address_ms,led_0_value_ms)
+bus.write_byte_data(device_address,led_all_off_address_ms,led_all_value_ms)
 time.sleep(0.01)
 
 # Close the bus connection if done
