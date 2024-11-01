@@ -1,17 +1,17 @@
 import time
 import smbus
 
+# PIN SELECTIONS
+input1_pin = 11
+input2_pin = 12
+led_pin= 13
+
 # INIT SMBUS
 bus = smbus.SMBus(7)
 address=0x40
 
-def compute_on_time(time_on_us,frequency):
-    on_time_points=time_on_us*4096/(1000000/frequency)
-    return on_time_points
 
-def set_frequency(frequency):
-
-    prescale=25000000/(4096*frequency)+1
+def set_prescale(prescale):
     # Set sleep bit to 1
     mode1 = bus.read_byte_data(address, 0)
     mode1 = mode1 | 0x10
@@ -26,16 +26,13 @@ def set_frequency(frequency):
     time.sleep(1)
     bus.write_byte_data(address, 1, 4)
 
-# frequency to 330 Hz
-frequency=340
-set_frequency(frequency)
+set_prescale(17)
 
-# set all register bits to zero for the first 2 channels
 bus.write_byte_data(address, 7, 0)
 bus.write_byte_data(address, 6, 0)
+
 bus.write_byte_data(address, 11, 0)
 bus.write_byte_data(address, 10, 0)
-
 
 on_time = 0
 duty_cycle = 0
@@ -47,24 +44,28 @@ while True:
     time.sleep(0.02)
 
     if option==0:
-        on_time_1 = compute_on_time(666,340)
-        on_time_2 = compute_on_time(666,340)
-        print("Setting servo to -90 degrees")
+        # pwm1.5, duty cycle = 0
+        on_time = int(666*4096/2949)
+        duty_cycle = 0
+        print("Detected in1 = 0, in2 = 0")
 
     elif option==1:
-        on_time_1 = compute_on_time(1500,340)
-        on_time_2 = compute_on_time(1500,340)
-        print("Setting servo to 0 degrees")
+        # pwm1.1, duty cycle = 50
+        on_time = int(1500*4096/2949)
+        duty_cycle = 2047
+        print("Detected in1 = 0, in2 = 1")
 
     elif option==2:
-        on_time_1 = compute_on_time(2334,340)
-        on_time_2 = compute_on_time(2334,340)
-        print("Setting servo to 90 degrees")
+        # pwm1.9, duty cycle = 50
+        on_time = int(2334*4096/2949)
+        duty_cycle = 2047
+        print("Detected in1 = 1, in2 = 0")
 
     else:
-        on_time_1 = compute_on_time(1500,340)
-        on_time_2 = compute_on_time(1500,340)
-        print("Setting servo to 0 degrees")
+        #pwm1.5, duty cycle = 80
+        on_time = int(1500*4096/2949)
+        duty_cycle = 3275
+        print("Detected in1 = 1, in2 = 1")
 
     bus.write_byte_data(address, 9, on_time>>8)
     bus.write_byte_data(address, 8, on_time & 0xFF)
