@@ -45,25 +45,25 @@ while True:
 
     if option==0:
         # pwm1.5, duty cycle = 0
-        on_time = 666
+        on_time = 666*4096/2949
         duty_cycle = 0
         print("Detected in1 = 0, in2 = 0")
 
     elif option==1:
         # pwm1.1, duty cycle = 50
-        on_time = 1500
+        on_time = 1500*4096/2949
         duty_cycle = 2047
         print("Detected in1 = 0, in2 = 1")
 
     elif option==2:
         # pwm1.9, duty cycle = 50
-        on_time = 2334
+        on_time = 2334*4096/2949
         duty_cycle = 2047
         print("Detected in1 = 1, in2 = 0")
 
     else:
         #pwm1.5, duty cycle = 80
-        on_time = 1500
+        on_time = 1500*4096/2949
         duty_cycle = 3275
         print("Detected in1 = 1, in2 = 1")
 
