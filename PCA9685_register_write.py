@@ -1,7 +1,7 @@
-import smbus
+import smbus2 as SMBus
 import time
 
-bus = smbus.SMBus(7)  # Use 1 for i2c-1
+bus = SMBus(7)  # Use 1 for i2c-1
 
 
 device_address = 0x40  
@@ -17,13 +17,13 @@ led_0_value_ms=0x00
 
 
 # Write byte to prescale address to set frequency to 330 Hz
-bus.write(device_address,prescale_address,prescale_value)
+bus.write_byte_data(device_address,prescale_address,prescale_value)
 time.sleep(0.01)
 
 # write bytes to led 0 addresses
-bus.write(device_address,led_0_address_ls,led_0_value_ls)
+bus.write_byte_data(device_address,led_0_address_ls,led_0_value_ls)
 time.sleep(0.01)
-bus.write(device_address,led_0_address_ms,led_0_value_ms)
+bus.write_byte_data(device_address,led_0_address_ms,led_0_value_ms)
 time.sleep(0.01)
 
 # Close the bus connection if done
