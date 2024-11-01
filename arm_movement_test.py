@@ -8,6 +8,7 @@ address=0x40
 
 # frequency to 330 Hz
 frequency=340
+# NEED TO SET FREQUENCY BEFORE CONNECTING ANY SERVOS, SO THE ROBOT DOES NOT DESTROY ITSELF
 #set_frequency(bus,address,frequency)
 
 option=0
