@@ -6,6 +6,8 @@ from functions import *
 
 i2c_bus = smbus2.SMBus(7)
 
+#still need to go through code, multiply a bunch of stuff by 64/255
+
 
 # motor speed range, change to make robot run course faster or slower
 base_speed=90

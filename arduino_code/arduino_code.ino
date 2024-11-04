@@ -48,9 +48,9 @@ void setup() {
 
 void setDutyCycle(int pin, int dutyCycle) {
   if (pin == pwmPinLeft) {
-    OCR1A = map(dutyCycle, 0, 64, 0, ICR1);
+    OCR1A = map(dutyCycle, 0, 255, 0, ICR1);
   } else if (pin == pwmPinRight) {
-    OCR1B = map(dutyCycle, 0, 64, 0, ICR1);
+    OCR1B = map(dutyCycle, 0, 255, 0, ICR1);
   }
 }
 
@@ -85,6 +85,9 @@ void receiveByte(int byteCount) {
       } else {
         digitalWrite(dirPinRight, ccw);
       }
+      if (speed != 0){
+        speed+=64;
+      }
       setDutyCycle(pwmPinRight, speed);
     }
 
@@ -94,6 +97,9 @@ void receiveByte(int byteCount) {
         digitalWrite(dirPinLeft, ccw);
       } else {
         digitalWrite(dirPinRight, cw);
+      }
+      if (speed != 0){
+        speed+=64;
       }
       setDutyCycle(pwmPinLeft, speed);
     }
