@@ -88,7 +88,7 @@ void receiveByte(int byteCount) {
       } else {
         digitalWrite(dirPinRight, cw);
       }
-      setDutyCycle(pwmPinLeft, speed * 4);
+      setDutyCycle(pwmPinLeft, speed);
     }
 
     // Displaying the results
