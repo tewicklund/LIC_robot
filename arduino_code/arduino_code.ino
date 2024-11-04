@@ -3,8 +3,8 @@
 const int dirPinLeft = 7;
 const int dirPinRight = 8;
 
-const bool cw = true;
-const bool ccw = false;
+const bool cw = false;
+const bool ccw = true;
 
 const int pwmPinLeft = 9;    // PWM output pin 1
 const int pwmPinRight = 10;  // PWM output pin 2
@@ -28,22 +28,29 @@ void setup() {
   pinMode(pwmPinLeft, OUTPUT);
   pinMode(pwmPinRight, OUTPUT);
 
-  // Set up Timer1 for 25 kHz PWM
-  TCCR1A = 0;  // Reset control registers
+  // Configure Timer1 for PWM_PIN_L
+  TCCR1A = 0;  // Reset Timer1 configuration
   TCCR1B = 0;
 
-  TCCR1A = (1 << WGM11) | (1 << WGM10);  // Set to Fast PWM mode
-  TCCR1B = (1 << WGM12) | (1 << CS10);   // Fast PWM, no prescaler
+  // Set Fast PWM mode with ICR1 as TOP
+  TCCR1A |= (1 << WGM11);
+  TCCR1B |= (1 << WGM12) | (1 << WGM13);
 
-  // Set frequency to 25 kHz
-  OCR1A = 319;  // (16MHz / (25kHz * 2)) - 1
+  // Set prescaler to 1 and start PWM
+  TCCR1B |= (1 << CS10);
+
+  // Set TOP value for 25 kHz frequency
+  ICR1 = 640;  // (16 MHz / (1 * 25 kHz)) - 1
+
+  // Set non-inverting mode for both channels
+  TCCR1A |= (1 << COM1A1) | (1 << COM1B1);
 }
 
 void setDutyCycle(int pin, int dutyCycle) {
   if (pin == pwmPinLeft) {
-    OCR1A = map(dutyCycle, 0, 64, 0, 319);
+    OCR1A = map(dutyCycle, 0, 64, 0, ICR1);
   } else if (pin == pwmPinRight) {
-    OCR1B = map(dutyCycle, 0, 64, 0, 319);
+    OCR1B = map(dutyCycle, 0, 64, 0, ICR1);
   }
 }
 
