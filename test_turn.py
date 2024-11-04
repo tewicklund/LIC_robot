@@ -1,10 +1,59 @@
-import numpy as np
 from functions import *
+import Jetson.GPIO as GPIO
 
 i2c_bus = smbus2.SMBus(7)
 
-left_turn(1.2,i2c_bus)
-time.sleep(2)
-right_turn(1.4,i2c_bus)
+left_encoder_pin=31
+right_encoder_pin=33
 
-i2c_bus.close()
+num_edges_target=100
+
+left_falling_edge_count=0
+right_falling_edge_count=0
+
+left_edges=0
+right_edges=0
+
+def count_left_edge(channel):
+    global left_edges
+    left_edges+=1
+    print(f"Falling edge detected! Count: {left_edges}")
+
+def count_right_edge(channel):
+    global right_edges
+    right_edges+=1
+    print(f"Falling edge detected! Count: {right_edges}")
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(left_encoder_pin, GPIO.IN)
+GPIO.setup(right_encoder_pin, GPIO.IN)
+
+GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
+GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
+
+
+
+
+try:
+    # Keep the program running to catch the interrupts
+    print("Monitoring falling edges on GPIO pins")
+    while True:
+        if left_edges<num_edges_target:
+            drive_motor_exp('L',50,i2c_bus)
+        else:
+            drive_motor_exp('L',0,i2c_bus)
+
+        if right_edges<num_edges_target:
+            drive_motor_exp('R',50,i2c_bus)
+        else:
+            drive_motor_exp('R',0,i2c_bus)
+
+except KeyboardInterrupt:
+    print("Script terminated by user")
+
+finally:
+    # Clean up GPIO settings
+    GPIO.cleanup()
+    i2c_bus.close()
+
+
