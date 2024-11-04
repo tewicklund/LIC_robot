@@ -59,7 +59,7 @@ void loop(){
   if (millis()-prevMillis>waitTime){
     setDutyCycle(pwmPinLeft,0);
     setDutyCycle(pwmPinRight,0);
-    Serial.println("Stopping Motors");
+    //Serial.println("Stopping Motors");
     prevMillis=millis();
   }
 }
@@ -99,11 +99,11 @@ void receiveByte(int byteCount) {
     }
 
     // Displaying the results
-    Serial.print("Left/Right: ");
-    Serial.print(rightBool ? "Right" : "Left");
-    Serial.print(", Forward/Backward: ");
-    Serial.print(forwardBool ? "Forward" : "Backward");
-    Serial.print(", Speed: ");
-    Serial.println(speed);
+    //Serial.print("Left/Right: ");
+    //Serial.print(rightBool ? "Right" : "Left");
+    //Serial.print(", Forward/Backward: ");
+    //Serial.print(forwardBool ? "Forward" : "Backward");
+    //Serial.print(", Speed: ");
+    //Serial.println(speed);
   }
 }
