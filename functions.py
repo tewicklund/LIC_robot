@@ -187,6 +187,18 @@ def move_arm(character,bus):
     bus.write_byte(i2c_address, data_byte)
     time.sleep(1) #delay to allow arm time to move
 
+def drive_motor_exp(side,speed,bus):
+    i2c_address=0x08
+    side_bit=(side=='R')
+    forward_bit=(speed>0)
+    if not (0 <= speed <= 63):
+        raise ValueError("The number must be a 6-bit integer (0-63).")
+    byte_to_send=(side_bit<<7) | (forward_bit<<6) | (speed & 0x3F)
+    bus.write_byte(i2c_address, byte_to_send)
+    time.sleep(0.01)  # Small delay between bytes for stability
+    
+    
+
 def drive_motor(side,speed,bus):
     i2c_address=0x08
     message="U"+side+":"
