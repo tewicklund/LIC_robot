@@ -6,13 +6,13 @@ from functions import *
 
 i2c_bus = smbus2.SMBus(7)
 
-#still need to go through code, multiply a bunch of stuff by 64/255
+#send speeds 0-63 to drive the motors on each side.
 
 
 # motor speed range, change to make robot run course faster or slower
-base_speed=90
-max_speed=110
-min_speed=60
+base_speed=26
+max_speed=63
+min_speed=1
 
 #pi control variables, set to 0 to disable
 angle_p=1
@@ -111,26 +111,6 @@ try:
         # show the frame
         cv2.imshow('Robot Vision', output_image)
 
-
-        
-        # set the base speed according to the time since last stop
-        speed_up_time=0.5
-        slow_down_time=1.5
-        time_elapsed=time.time()-horiztonal_lines_time
-
-        if instruction_list[stop_num]=='S':
-            if time_elapsed<speed_up_time:
-                right_motor_speed=base_speed+time_elapsed*20
-                left_motor_speed=base_speed+time_elapsed*20
-            elif time_elapsed<slow_down_time:
-                right_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
-                left_motor_speed=base_speed+(slow_down_time-time_elapsed)*20
-            else:
-                right_motor_speed=base_speed-10
-                left_motor_speed=base_speed-10
-        else:
-            right_motor_speed=base_speed-10
-            left_motor_speed=base_speed-10
 
         
         #proportional control

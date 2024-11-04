@@ -105,11 +105,11 @@ void receiveByte(int byteCount) {
     }
 
     // Displaying the results
-    //Serial.print("Left/Right: ");
-    //Serial.print(rightBool ? "Right" : "Left");
-    //Serial.print(", Forward/Backward: ");
-    //Serial.print(forwardBool ? "Forward" : "Backward");
-    //Serial.print(", Speed: ");
-    //Serial.println(speed);
+    Serial.print("Left/Right: ");
+    Serial.print(rightBool ? "Right" : "Left");
+    Serial.print(", Forward/Backward: ");
+    Serial.print(forwardBool ? "Forward" : "Backward");
+    Serial.print(", Speed: ");
+    Serial.println(speed);
   }
 }
