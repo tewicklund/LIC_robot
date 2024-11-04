@@ -10,10 +10,10 @@ const int pwmPinLeft = 9;    // PWM output pin 1
 const int pwmPinRight = 10;  // PWM output pin 2
 
 #define DIR_MASK 0b10000000    // 1 bit for direction (left or right)
-#define FB_MASK 0b01000000     // 1 bit for forward or backward
+#define FB_MASK 0b01000000     // 1 bit for forward or backwards
 #define SPEED_MASK 0b00111111  // 6 bits for speed value
 
-int waitTime=1000;
+int waitTime=100;
 long prevMillis=0;
 
 // Define the I2C address for this slave device
