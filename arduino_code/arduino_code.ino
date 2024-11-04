@@ -23,6 +23,8 @@ void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_ADDRESS);
   Wire.onReceive(receiveByte);
+  pinMode(dirPinLeft, OUTPUT);
+  pinMode(dirPinRight, OUTPUT);
   pinMode(pwmPinLeft, OUTPUT);
   pinMode(pwmPinRight, OUTPUT);
 
@@ -39,9 +41,9 @@ void setup() {
 
 void setDutyCycle(int pin, int dutyCycle) {
   if (pin == pwmPinLeft) {
-    OCR1A = map(dutyCycle, 0, 100, 0, 319);
+    OCR1A = map(dutyCycle, 0, 64, 0, 319);
   } else if (pin == pwmPinRight) {
-    OCR1B = map(dutyCycle, 0, 100, 0, 319);
+    OCR1B = map(dutyCycle, 0, 64, 0, 319);
   }
 }
 
@@ -50,6 +52,7 @@ void loop(){
   if (millis()-prevMillis>waitTime){
     setDutyCycle(pwmPinLeft,0);
     setDutyCycle(pwmPinRight,0);
+    Serial.println("Stopping Motors");
     prevMillis=millis();
   }
 }
@@ -75,7 +78,7 @@ void receiveByte(int byteCount) {
       } else {
         digitalWrite(dirPinRight, ccw);
       }
-      setDutyCycle(pwmPinRight, speed * 4);
+      setDutyCycle(pwmPinRight, speed);
     }
 
     //control left wheel spin
