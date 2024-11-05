@@ -405,30 +405,5 @@ def clamp(variable, min_value, max_value):
             variable=min_value
     return variable
 
-def encoder_turn(num_edges_target,direction,bus):
-    global left_edges
-    global right_edges
-    left_motor_done=False
-    right_motor_done=False
-    if direction=='L':
-        left_sign=-1
-    else:
-        left_sign=1
-    while (not left_motor_done) or (not right_motor_done):
-        if left_edges<num_edges_target:
-            if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
-                drive_motor_exp('L',left_sign*20,bus)
-            else:
-                drive_motor_exp('L',left_sign*10,bus)
-        else:
-            drive_motor_exp('L',0,bus)
-            left_motor_done=True
 
-        if right_edges<num_edges_target:
-            if num_edges_target/4 <= right_edges <= num_edges_target*3/4:
-                drive_motor_exp('R',-left_sign*20,bus)
-            else:
-                drive_motor_exp('R',-left_sign*10,bus)
-        else:
-            drive_motor_exp('R',0,bus)
-            right_motor_done=True
+    
