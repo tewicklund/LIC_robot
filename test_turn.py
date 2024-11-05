@@ -14,12 +14,12 @@ right_falling_edge_count=0
 left_edges=0
 right_edges=0
 
-def count_left_edge():
+def count_left_edge(channel):
     global left_edges
     left_edges+=1
     #print(f"Falling edge detected! Count: {left_edges}")
 
-def count_right_edge():
+def count_right_edge(channel):
     global right_edges
     right_edges+=1
     #print(f"Falling edge detected! Count: {right_edges}")
