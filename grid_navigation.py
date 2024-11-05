@@ -173,6 +173,10 @@ try:
         cv2.imshow('Robot Vision', output_image)
 
 
+        #start motors turning
+        right_motor_speed=base_speed
+        left_encoder_pin=base_speed
+
         
         #proportional control
         angle_error=avg_angle_deg
