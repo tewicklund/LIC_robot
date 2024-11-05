@@ -39,12 +39,12 @@ try:
     print("Monitoring falling edges on GPIO pins")
     while True:
         if left_edges<num_edges_target:
-            drive_motor_exp('L',50,i2c_bus)
+            drive_motor_exp('L',30,i2c_bus)
         else:
             drive_motor_exp('L',0,i2c_bus)
 
         if right_edges<num_edges_target:
-            drive_motor_exp('R',-50,i2c_bus)
+            drive_motor_exp('R',-30,i2c_bus)
         else:
             drive_motor_exp('R',0,i2c_bus)
 
