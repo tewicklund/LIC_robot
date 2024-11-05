@@ -1,9 +1,9 @@
 import time
-import smbus
+import smbus2
 from functions import *
 
 # INIT SMBUS
-bus = smbus.SMBus(7)
+bus = smbus2.SMBus(7)
 address=0x40
 
 # frequency to 330 Hz
