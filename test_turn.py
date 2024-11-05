@@ -37,7 +37,7 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 try:
     # Keep the program running to catch the interrupts
     print("Monitoring falling edges on GPIO pins")
-    encoder_turn(left_edges,right_edges,num_edges_target,'R',i2c_bus)
+    encoder_turn(num_edges_target,'R',i2c_bus)
 
 except KeyboardInterrupt:
     print("Script terminated by user")
