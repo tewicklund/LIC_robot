@@ -43,20 +43,20 @@ def encoder_turn(num_edges_target,direction,i2c_bus):
     while (not left_motor_done) or (not right_motor_done):
         if left_edges<num_edges_target:
             if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
-                drive_motor_exp('L',left_sign*20,i2c_bus)
+                drive_motor_exp_exp('L',left_sign*20,i2c_bus)
             else:
-                drive_motor_exp('L',left_sign*10,i2c_bus)
+                drive_motor_exp_exp('L',left_sign*10,i2c_bus)
         else:
-            drive_motor_exp('L',0,i2c_bus)
+            drive_motor_exp_exp('L',0,i2c_bus)
             left_motor_done=True
 
         if right_edges<num_edges_target:
             if num_edges_target/4 <= right_edges <= num_edges_target*3/4:
-                drive_motor_exp('R',-left_sign*20,i2c_bus)
+                drive_motor_exp_exp('R',-left_sign*20,i2c_bus)
             else:
-                drive_motor_exp('R',-left_sign*10,i2c_bus)
+                drive_motor_exp_exp('R',-left_sign*10,i2c_bus)
         else:
-            drive_motor_exp('R',0,i2c_bus)
+            drive_motor_exp_exp('R',0,i2c_bus)
             right_motor_done=True
 
 #setup encoder pins as inputs
@@ -203,21 +203,21 @@ try:
 
         #stop if no lines
         if (not lines_seen):
-            drive_motor("L",0,i2c_bus)
-            drive_motor("R",0,i2c_bus)
+            drive_motor_exp("L",0,i2c_bus)
+            drive_motor_exp("R",0,i2c_bus)
             print("No lines, stopping motors")
 
         # if no horizontal lines in frame, drive as normal
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
-            drive_motor("L",left_motor_speed,i2c_bus)
-            drive_motor("R",right_motor_speed,i2c_bus)
+            drive_motor_exp("L",left_motor_speed,i2c_bus)
+            drive_motor_exp("R",right_motor_speed,i2c_bus)
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
         elif(not horizontal_lines_acknowledged):
             horizontal_lines_acknowledged=True
-            drive_motor("L",0,i2c_bus)
-            drive_motor("R",0,i2c_bus)
+            drive_motor_exp("L",0,i2c_bus)
+            drive_motor_exp("R",0,i2c_bus)
 
             # let robot come to stop
             time.sleep(stop_time/2)
@@ -247,8 +247,8 @@ try:
         
         # if old vertical lines still in frame, keep driving till they are out of frame
         else:
-            drive_motor("L",left_motor_speed,i2c_bus)
-            drive_motor("R",right_motor_speed,i2c_bus)
+            drive_motor_exp("L",left_motor_speed,i2c_bus)
+            drive_motor_exp("R",right_motor_speed,i2c_bus)
 
 
         # Break loop with 'q' key
