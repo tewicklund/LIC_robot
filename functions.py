@@ -412,7 +412,7 @@ def encoder_turn(left_edges,right_edges,num_edges_target,direction,bus):
         left_sign=-1
     else:
         left_sign=1
-    while (not left_motor_done) and (not right_motor_done):
+    while (not left_motor_done) or (not right_motor_done):
         if left_edges<num_edges_target:
             if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
                 drive_motor_exp('L',left_sign*20,bus)
