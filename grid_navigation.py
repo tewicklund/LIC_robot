@@ -175,7 +175,7 @@ try:
 
         #start motors turning
         right_motor_speed=base_speed
-        left_encoder_pin=base_speed
+        left_motor_speed=base_speed
 
         
         #proportional control
