@@ -17,6 +17,9 @@ right_encoder_pin=33
 left_falling_edge_count=0
 right_falling_edge_count=0
 
+#number of encoder counts to make a 90 degree turn
+num_edges_target=130
+
 #functions called by interrupt to count edges
 def count_left_edge():
     global left_edges
@@ -28,6 +31,34 @@ def count_right_edge():
     right_edges+=1
     #print(f"Falling edge detected! Count: {right_edges}")
 
+def encoder_turn(num_edges_target,direction,i2c_bus):
+    global left_edges
+    global right_edges
+    left_motor_done=False
+    right_motor_done=False
+    if direction=='L':
+        left_sign=-1
+    else:
+        left_sign=1
+    while (not left_motor_done) or (not right_motor_done):
+        if left_edges<num_edges_target:
+            if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
+                drive_motor_exp('L',left_sign*20,i2c_bus)
+            else:
+                drive_motor_exp('L',left_sign*10,i2c_bus)
+        else:
+            drive_motor_exp('L',0,i2c_bus)
+            left_motor_done=True
+
+        if right_edges<num_edges_target:
+            if num_edges_target/4 <= right_edges <= num_edges_target*3/4:
+                drive_motor_exp('R',-left_sign*20,i2c_bus)
+            else:
+                drive_motor_exp('R',-left_sign*10,i2c_bus)
+        else:
+            drive_motor_exp('R',0,i2c_bus)
+            right_motor_done=True
+
 #setup encoder pins as inputs
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(left_encoder_pin, GPIO.IN)
@@ -36,6 +67,8 @@ GPIO.setup(right_encoder_pin, GPIO.IN)
 #attach interrupt functions to wheel encoder pins
 GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
 GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
+
+
 
 
 # motor speed range, change to make robot run course faster or slower
@@ -187,7 +220,7 @@ try:
 
             # perform turn if instruction is 'R' or 'L'
             if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
-                camera_assisted_turn(pipeline,instruction_list[stop_num],lower_blue,upper_blue,i2c_bus)
+                encoder_turn(num_edges_target,instruction_list[stop_num],i2c_bus)
 
             # move arm to next position, for demo purposes only
             #move_arm(arm_position_list[stop_num%3],i2c_bus)
