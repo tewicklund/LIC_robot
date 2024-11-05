@@ -1,12 +1,41 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import Jetson.GPIO as GPIO
 from functions import *
 
 
 i2c_bus = smbus2.SMBus(7)
 
 #send speeds 0-63 to drive the motors on each side.
+
+#pins for wheel encoders
+left_encoder_pin=31
+right_encoder_pin=33
+
+#variables to track number of falling edges
+left_falling_edge_count=0
+right_falling_edge_count=0
+
+#functions called by interrupt to count edges
+def count_left_edge():
+    global left_edges
+    left_edges+=1
+    #print(f"Falling edge detected! Count: {left_edges}")
+
+def count_right_edge():
+    global right_edges
+    right_edges+=1
+    #print(f"Falling edge detected! Count: {right_edges}")
+
+#setup encoder pins as inputs
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(left_encoder_pin, GPIO.IN)
+GPIO.setup(right_encoder_pin, GPIO.IN)
+
+#attach interrupt functions to wheel encoder pins
+GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
+GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
 
 
 # motor speed range, change to make robot run course faster or slower
@@ -31,7 +60,6 @@ ratio_limit=0.8
 
 # boolean for loop logic, used for driving over previously acknowledged horizontal lines
 horizontal_lines_acknowledged=False
-
 
 # index variable for keeping track of stop in sequence
 stop_num=0
