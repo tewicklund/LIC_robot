@@ -6,7 +6,7 @@ i2c_bus = smbus2.SMBus(7)
 left_encoder_pin=31
 right_encoder_pin=33
 
-num_edges_target=80
+num_edges_target=100
 
 left_falling_edge_count=0
 right_falling_edge_count=0
@@ -40,7 +40,7 @@ try:
     while True:
         if left_edges<num_edges_target:
             if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
-                drive_motor_exp('L',30,i2c_bus)
+                drive_motor_exp('L',20,i2c_bus)
             else:
                 drive_motor_exp('L',10,i2c_bus)
         else:
@@ -48,7 +48,7 @@ try:
 
         if right_edges<num_edges_target:
             if num_edges_target/4 <= right_edges <= num_edges_target*3/4:
-                drive_motor_exp('R',-30,i2c_bus)
+                drive_motor_exp('R',-20,i2c_bus)
             else:
                 drive_motor_exp('R',-10,i2c_bus)
         else:
