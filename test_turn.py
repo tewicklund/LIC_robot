@@ -26,19 +26,9 @@ def count_right_edge(channel):
     right_edges+=1
     #print(f"Falling edge detected! Count: {right_edges}")
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(left_encoder_pin, GPIO.IN)
-GPIO.setup(right_encoder_pin, GPIO.IN)
-
-GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
-GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
-
-
-
-
-try:
-    # Keep the program running to catch the interrupts
-    print("Monitoring falling edges on GPIO pins")
+def encoder_turn(num_edges_target,direction,i2c_bus):
+    global left_edges
+    global right_edges
     left_motor_done=False
     right_motor_done=False
     if direction=='L':
@@ -64,6 +54,21 @@ try:
             drive_motor_exp('R',0,i2c_bus)
             right_motor_done=True
 
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(left_encoder_pin, GPIO.IN)
+GPIO.setup(right_encoder_pin, GPIO.IN)
+
+GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
+GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
+
+
+try:
+    # Keep the program running to catch the interrupts
+    print("Monitoring falling edges on GPIO pins")
+    encoder_turn(num_edges_target,direction,i2c_bus)
+    
+
 except KeyboardInterrupt:
     print("Script terminated by user")
 
@@ -71,5 +76,3 @@ finally:
     # Clean up GPIO settings
     GPIO.cleanup()
     i2c_bus.close()
-
-
