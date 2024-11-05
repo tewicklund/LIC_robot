@@ -6,7 +6,7 @@ i2c_bus = smbus2.SMBus(7)
 left_encoder_pin=31
 right_encoder_pin=33
 
-num_edges_target=100
+num_edges_target=120
 
 left_falling_edge_count=0
 right_falling_edge_count=0
