@@ -1,4 +1,16 @@
 #include <Wire.h>
+#include <SPI.h>
+#include <RF24.h>
+
+// Define the CE and CSN pins for the nRF24L01+ module
+#define CE_PIN 2
+#define CSN_PIN 3
+
+// Create an RF24 object
+RF24 radio(CE_PIN, CSN_PIN);
+
+// Define the address for communication (must match transmitter)
+const byte address[6] = "00001";  
 
 const int dirPinLeft = 7;
 const int dirPinRight = 8;
@@ -13,20 +25,83 @@ const int pwmPinRight = 10;  // PWM output pin 2
 #define FB_MASK 0b01000000     // 1 bit for forward or backwards
 #define SPEED_MASK 0b00111111  // 6 bits for speed value
 
-int waitTime=100;
-long prevMillis=0;
+int waitTime = 100;
+long prevMillis = 0;
+
+byte received_byte_I2C;
 
 // Define the I2C address for this slave device
 #define I2C_ADDRESS 0x08
 
+void printByteAsBits(byte b) {
+  for (int i = 7; i >= 0; i--) {
+    Serial.print(bitRead(b, i));
+  }
+  Serial.println();
+}
+
+void setupNRF24() {
+  radio.begin();
+  radio.openReadingPipe(0, address);  // Set the address to read from
+  radio.setPALevel(RF24_PA_LOW);      // Set power level (use LOW for short distances)
+  radio.startListening();             // Set the module as a receiver
+}
+
+void byte_to_speed(byte command_byte) {
+  // Extracting the left/right bit (most significant bit)
+  bool rightBool = (command_byte & DIR_MASK) >> 7;
+
+  // Extracting the forward/backward bit (second most significant bit)
+  bool forwardBool = (command_byte & FB_MASK) >> 6;
+
+  // Extracting the speed (last 6 bits)
+  int speed = command_byte & SPEED_MASK;
+
+  //control right wheel spin
+  if (rightBool) {
+    if (forwardBool) {
+      digitalWrite(dirPinRight, cw);
+    } else {
+      digitalWrite(dirPinRight, ccw);
+    }
+    if (speed != 0) {
+      speed += 64;
+    }
+    setDutyCycle(pwmPinRight, speed);
+  }
+
+  //control left wheel spin
+  else {
+    if (forwardBool) {
+      digitalWrite(dirPinLeft, ccw);
+    } else {
+      digitalWrite(dirPinRight, cw);
+    }
+    if (speed != 0) {
+      speed += 64;
+    }
+    setDutyCycle(pwmPinLeft, speed);
+  }
+}
+
+void setDutyCycle(int pin, int dutyCycle) {
+  if (pin == pwmPinLeft) {
+    OCR1A = map(dutyCycle, 0, 255, 0, ICR1);
+  } else if (pin == pwmPinRight) {
+    OCR1B = map(dutyCycle, 0, 255, 0, ICR1);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_ADDRESS);
-  Wire.onReceive(receiveByte);
+  setupNRF24();
+
   pinMode(dirPinLeft, OUTPUT);
   pinMode(dirPinRight, OUTPUT);
   pinMode(pwmPinLeft, OUTPUT);
   pinMode(pwmPinRight, OUTPUT);
+
 
   // Configure Timer1 for PWM_PIN_L
   TCCR1A = 0;  // Reset Timer1 configuration
@@ -46,70 +121,31 @@ void setup() {
   TCCR1A |= (1 << COM1A1) | (1 << COM1B1);
 }
 
-void setDutyCycle(int pin, int dutyCycle) {
-  if (pin == pwmPinLeft) {
-    OCR1A = map(dutyCycle, 0, 255, 0, ICR1);
-  } else if (pin == pwmPinRight) {
-    OCR1B = map(dutyCycle, 0, 255, 0, ICR1);
-  }
-}
-
-void loop(){
+void loop() {
   // stop motors if jetson nano stops sending packets for waitTime milliseconds
-  if (millis()-prevMillis>waitTime){
-    setDutyCycle(pwmPinLeft,0);
-    setDutyCycle(pwmPinRight,0);
+  if (millis() - prevMillis > waitTime) {
+    setDutyCycle(pwmPinLeft, 0);
+    setDutyCycle(pwmPinRight, 0);
     //Serial.println("Stopping Motors");
-    prevMillis=millis();
+    prevMillis = millis();
   }
-}
 
-void receiveByte(int byteCount) {
-  prevMillis=millis();
-  while (Wire.available()) {
-    byte receivedByte = Wire.read();
+  //handle incoming SPI packets from RF module
+  if (radio.available()) {
+    Serial.println("SPI Packet Received!");
+    prevMillis = millis();
+    byte received_byte;
+    radio.read(&received_byte, sizeof(received_byte));
+    printByteAsBits(received_byte);
+    byte_to_speed(received_byte);
+  }
 
-    // Extracting the left/right bit (most significant bit)
-    bool rightBool = (receivedByte & DIR_MASK) >> 7;
-
-    // Extracting the forward/backward bit (second most significant bit)
-    bool forwardBool = (receivedByte & FB_MASK) >> 6;
-
-    // Extracting the speed (last 6 bits)
-    int speed = receivedByte & SPEED_MASK;
-
-    //control right wheel spin
-    if (rightBool) {
-      if (forwardBool) {
-        digitalWrite(dirPinRight, cw);
-      } else {
-        digitalWrite(dirPinRight, ccw);
-      }
-      if (speed != 0){
-        speed+=64;
-      }
-      setDutyCycle(pwmPinRight, speed);
-    }
-
-    //control left wheel spin
-    else {
-      if (forwardBool) {
-        digitalWrite(dirPinLeft, ccw);
-      } else {
-        digitalWrite(dirPinRight, cw);
-      }
-      if (speed != 0){
-        speed+=64;
-      }
-      setDutyCycle(pwmPinLeft, speed);
-    }
-
-    // Displaying the results
-    Serial.print("Left/Right: ");
-    Serial.print(rightBool ? "Right" : "Left");
-    Serial.print(", Forward/Backward: ");
-    Serial.print(forwardBool ? "Forward" : "Backward");
-    Serial.print(", Speed: ");
-    Serial.println(speed);
+  //handle incoming I2C packets from Jetson Nano
+  if (Wire.available()) {
+    Serial.println("I2C Packet Received!");
+    prevMillis = millis();
+    byte received_byte = Wire.read();
+    printByteAsBits(received_byte);
+    byte_to_speed(received_byte);
   }
 }
