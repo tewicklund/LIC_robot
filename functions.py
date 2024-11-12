@@ -194,7 +194,7 @@ def drive_motor_exp(side,speed,bus):
     if not (0 <= abs(speed) <= 63):
         raise ValueError("The number must be a 6-bit integer (0-63).")
     #print("Value is good!")
-    byte_to_send=(side_bit<<7) | (forward_bit<<6) | (abs(speed) & 0x3F)
+    byte_to_send=(side_bit<<7) | (forward_bit<<6) | (abs(int(speed)) & 0x3F)
     #print("Byte to send ready")
     bus.write_byte(i2c_address, byte_to_send)
     #print("byte sent on i2c bus")
