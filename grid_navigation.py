@@ -74,17 +74,7 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 
 
 
-# base speed control, based on avg of edges seen on left and right wheel
-edges_avg=(left_edges+right_edges)/2
-print(f"Average Edges: {edges_avg}")
-if (edges_avg<init_accel_edges_target):
-    base_speed=10+(16*edges_avg/init_accel_edges_target)
-elif (edges_avg<init_accel_edges_target+cruise_edges_target):
-    base_speed=26
-elif (edges_avg<init_accel_edges_target+cruise_edges_target+decel_edges_target):
-    base_speed=26-(16*edges_avg/decel_edges_target)
-else:
-    base_speed=10
+
 max_speed=63
 min_speed=1
 
@@ -184,6 +174,18 @@ try:
         # show the frame
         #cv2.imshow('Robot Vision', output_image)
 
+        # base speed control, based on avg of edges seen on left and right wheel
+        edges_avg=(left_edges+right_edges)/2
+        print(f"Average Edges: {edges_avg}")
+        if (edges_avg<init_accel_edges_target):
+            base_speed=10+(16*edges_avg/init_accel_edges_target)
+        elif (edges_avg<init_accel_edges_target+cruise_edges_target):
+            base_speed=26
+        elif (edges_avg<init_accel_edges_target+cruise_edges_target+decel_edges_target):
+            base_speed=26-(16*edges_avg/decel_edges_target)
+        else:
+            base_speed=10
+
 
         #start motors turning
         right_motor_speed=base_speed
@@ -223,8 +225,8 @@ try:
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
-            print(f"Left motor throttle: {left_motor_speed}")
-            print(f"Right motor throttle: {right_motor_speed}\n")
+            #print(f"Left motor throttle: {left_motor_speed}")
+            #print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
