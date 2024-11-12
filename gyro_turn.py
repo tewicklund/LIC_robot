@@ -21,7 +21,7 @@ timestamp=time.time()
 # variables to store angle position info
 radians_turned=0
 error=0
-target_radians=np.pi/2
+
 
 # speed settings for the motors
 current_speed=0
@@ -32,6 +32,7 @@ direction=input("Enter direction char (L or R): ")
 
 try:
     if direction=="R":
+        target_radians=np.pi/2
         while radians_turned<target_radians:
             # Get frameset of motion data
             frames = pipeline.wait_for_frames()
@@ -60,6 +61,7 @@ try:
                 
                 #make sure motor speed doesn't drop too low
                 motor_speed=clamp(motor_speed,min_speed,base_speed)
+                print(f"Speed: {motor_speed}")
                 
                 #drive motors to make the turn
                 drive_motor_exp('L',motor_speed,i2c_bus)
@@ -71,7 +73,8 @@ try:
         drive_motor_exp('L',0,i2c_bus)
         drive_motor_exp('R',0,i2c_bus)
     else:
-        while radians_turned>-target_radians:
+        target_radians=-np.pi/2
+        while radians_turned>target_radians:
             # Get frameset of motion data
             frames = pipeline.wait_for_frames()
 
@@ -99,6 +102,7 @@ try:
                 
                 #make sure motor speed doesn't drop too low
                 motor_speed=clamp(motor_speed,min_speed,base_speed)
+                print(f"Speed: {motor_speed}")
                 
                 #drive motors to make the turn
                 drive_motor_exp('L',motor_speed,i2c_bus)
