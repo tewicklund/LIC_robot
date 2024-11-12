@@ -73,7 +73,7 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 
 max_speed=63
 min_speed=1
-cruise_speed=40
+cruise_speed=26
 
 #pi control variables, set to 0 to disable
 angle_p=1
