@@ -30,7 +30,7 @@ min_speed=5
 p=12.5
 
 try:
-    while radians_turned<target_radians:
+    while abs(radians_turned)<abs(target_radians):
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
 
