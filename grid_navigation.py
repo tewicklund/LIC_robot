@@ -73,6 +73,7 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 
 max_speed=63
 min_speed=1
+cruise_speed=40
 
 #pi control variables, set to 0 to disable
 angle_p=1
@@ -174,11 +175,11 @@ try:
         edges_avg=(left_edges+right_edges)/2
         #print(f"Average Edges: {edges_avg}")
         if (edges_avg<init_accel_edges_target):
-            base_speed=10+(16*edges_avg/init_accel_edges_target)
+            base_speed=10+((cruise_speed-10)*edges_avg/init_accel_edges_target)
         elif (edges_avg<init_accel_edges_target+cruise_edges_target):
-            base_speed=26
+            base_speed=cruise_speed
         elif (edges_avg<init_accel_edges_target+cruise_edges_target+decel_edges_target):
-            base_speed=26-(16*edges_avg/(init_accel_edges_target+cruise_edges_target+decel_edges_target))
+            base_speed=cruise_speed-((cruise_speed-10)*edges_avg/(init_accel_edges_target+cruise_edges_target+decel_edges_target))
         else:
             base_speed=10
 
