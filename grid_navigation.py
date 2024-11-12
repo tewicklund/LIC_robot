@@ -89,7 +89,7 @@ x_location_error_sum=0
 x_location_error_max=400
 
 # minimum ratio of horizontal lines to vertical lines that is recognized as a stop
-ratio_limit=0.6
+ratio_limit=0.2
 
 # boolean for loop logic, used for driving over previously acknowledged horizontal lines
 horizontal_lines_acknowledged=False
