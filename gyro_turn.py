@@ -71,7 +71,7 @@ try:
         drive_motor_exp('L',0,i2c_bus)
         drive_motor_exp('R',0,i2c_bus)
     else:
-        while radians_turned>target_radians:
+        while radians_turned>-target_radians:
             # Get frameset of motion data
             frames = pipeline.wait_for_frames()
 
