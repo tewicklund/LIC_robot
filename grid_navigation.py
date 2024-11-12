@@ -176,12 +176,12 @@ try:
 
         # interpret canny edges black and white image to return info about the angle and location of lines seen
         [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
-        print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
+        #print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
         # add overlay to frame
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        #cv2.imshow('Robot Vision', output_image)
+        cv2.imshow('Robot Vision', output_image)
 
 
         #start motors turning
@@ -222,8 +222,8 @@ try:
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
-            #print(f"Left motor throttle: {left_motor_speed}")
-            #print(f"Right motor throttle: {right_motor_speed}\n")
+            print(f"Left motor throttle: {left_motor_speed}")
+            print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
