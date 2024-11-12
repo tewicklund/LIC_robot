@@ -21,7 +21,7 @@ timestamp=time.time()
 # variables to store angle position info
 radians_turned=0
 error=0
-target_radians=-np.pi/2
+target_radians=np.pi/2
 
 # speed settings for the motors
 current_speed=0
@@ -30,7 +30,7 @@ min_speed=5
 p=12.5
 
 try:
-    while abs(radians_turned)<abs(target_radians):
+    while radians_turned<target_radians:
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
 
@@ -67,7 +67,7 @@ try:
         # time.sleep(0.1)
     
     drive_motor_exp('L',0,i2c_bus)
-    drive_motor_exp('L',0,i2c_bus)
+    drive_motor_exp('R',0,i2c_bus)
     
 except KeyboardInterrupt:
     print("Stopping data capture...")
