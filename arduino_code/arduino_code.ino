@@ -28,8 +28,6 @@ const int pwmPinRight = 10;  // PWM output pin 2
 int waitTime = 100;
 long prevMillis = 0;
 
-byte received_byte_I2C;
-
 // Define the I2C address for this slave device
 #define I2C_ADDRESS 0x08
 
@@ -75,7 +73,7 @@ void byte_to_speed(byte command_byte) {
     if (forwardBool) {
       digitalWrite(dirPinLeft, ccw);
     } else {
-      digitalWrite(dirPinRight, cw);
+      digitalWrite(dirPinLeft, cw);
     }
     if (speed != 0) {
       speed += 64;
@@ -92,9 +90,20 @@ void setDutyCycle(int pin, int dutyCycle) {
   }
 }
 
+void handle_I2C(int byteCount){
+  while (Wire.available()){
+    byte received_byte_I2C=Wire.read();
+    Serial.println("I2C Packet Received!");
+    prevMillis = millis();
+    printByteAsBits(received_byte_I2C);
+    byte_to_speed(received_byte_I2C);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(I2C_ADDRESS);
+  Wire.onReceive(handle_I2C);
   setupNRF24();
 
   pinMode(dirPinLeft, OUTPUT);
@@ -134,18 +143,9 @@ void loop() {
   if (radio.available()) {
     Serial.println("SPI Packet Received!");
     prevMillis = millis();
-    byte received_byte;
-    radio.read(&received_byte, sizeof(received_byte));
-    printByteAsBits(received_byte);
-    byte_to_speed(received_byte);
-  }
-
-  //handle incoming I2C packets from Jetson Nano
-  if (Wire.available()) {
-    Serial.println("I2C Packet Received!");
-    prevMillis = millis();
-    byte received_byte = Wire.read();
-    printByteAsBits(received_byte);
-    byte_to_speed(received_byte);
+    byte received_byte_SPI;
+    radio.read(&received_byte_SPI, sizeof(received_byte_SPI));
+    printByteAsBits(received_byte_SPI);
+    byte_to_speed(received_byte_SPI);
   }
 }
