@@ -422,7 +422,6 @@ def gyro_turn(pipeline,direction,i2c_bus):
     base_speed=20
     min_speed=5
     p=12.5
-    direction=input("Enter direction char (L or R): ")
 
     try:
         if direction=='R':
