@@ -17,4 +17,4 @@ pipeline.start(config)
 
 gyro_turn(pipeline,'R',i2c_bus)
 time.sleep(2)
-gyro_turn(pipeline,'R',i2c_bus)
+gyro_turn(pipeline,'L',i2c_bus)
