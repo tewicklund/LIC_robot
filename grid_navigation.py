@@ -27,12 +27,12 @@ decel_edges_target=100
 def count_left_edge():
     global left_edges
     left_edges+=1
-    #print(f"Falling edge detected! Count: {left_edges}")
+    print(f"Falling edge detected! Count: {left_edges}")
 
 def count_right_edge():
     global right_edges
     right_edges+=1
-    #print(f"Falling edge detected! Count: {right_edges}")
+    print(f"Falling edge detected! Count: {right_edges}")
 
 def encoder_turn(turn_edges_target,direction,i2c_bus):
     global left_edges
@@ -71,10 +71,6 @@ GPIO.setup(right_encoder_pin, GPIO.IN)
 GPIO.add_event_detect(left_encoder_pin, GPIO.FALLING, callback=count_left_edge, bouncetime=10)
 GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge, bouncetime=10)
 
-
-
-
-
 max_speed=63
 min_speed=1
 
@@ -103,7 +99,7 @@ stop_num=0
 stop_time=2
 
 # list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
-instruction_list=['S','S','S','S','S','S','S','S','S','S','R','S','R']#,
+instruction_list=['S','S','S','S','S']#,'S','S','S','S','S','R','S','R']#,
                  # 'S','S','S','S','S','S','S','S','S','S','L','S','L',
                  # 'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
@@ -176,7 +172,7 @@ try:
 
         # base speed control, based on avg of edges seen on left and right wheel
         edges_avg=(left_edges+right_edges)/2
-        print(f"Average Edges: {edges_avg}")
+        #print(f"Average Edges: {edges_avg}")
         if (edges_avg<init_accel_edges_target):
             base_speed=10+(16*edges_avg/init_accel_edges_target)
         elif (edges_avg<init_accel_edges_target+cruise_edges_target):
