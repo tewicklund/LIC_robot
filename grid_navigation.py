@@ -14,11 +14,14 @@ left_encoder_pin=31
 right_encoder_pin=33
 
 #variables to track number of falling edges
-left_falling_edge_count=0
-right_falling_edge_count=0
+left_edges=0
+right_edges=0
 
 #number of encoder counts to make a 90 degree turn
-num_edges_target=130
+turn_edges_target=130
+init_accel_edges_target=100
+cruise_edges_target=100
+decel_edges_target=100
 
 #functions called by interrupt to count edges
 def count_left_edge():
@@ -31,7 +34,7 @@ def count_right_edge():
     right_edges+=1
     #print(f"Falling edge detected! Count: {right_edges}")
 
-def encoder_turn(num_edges_target,direction,i2c_bus):
+def encoder_turn(turn_edges_target,direction,i2c_bus):
     global left_edges
     global right_edges
     left_motor_done=False
@@ -41,8 +44,8 @@ def encoder_turn(num_edges_target,direction,i2c_bus):
     else:
         left_sign=1
     while (not left_motor_done) or (not right_motor_done):
-        if left_edges<num_edges_target:
-            if num_edges_target/4 <= left_edges <= num_edges_target*3/4:
+        if left_edges<turn_edges_target:
+            if turn_edges_target/4 <= left_edges <= turn_edges_target*3/4:
                 drive_motor_exp('L',left_sign*20,i2c_bus)
             else:
                 drive_motor_exp('L',left_sign*10,i2c_bus)
@@ -50,8 +53,8 @@ def encoder_turn(num_edges_target,direction,i2c_bus):
             drive_motor_exp('L',0,i2c_bus)
             left_motor_done=True
 
-        if right_edges<num_edges_target:
-            if num_edges_target/4 <= right_edges <= num_edges_target*3/4:
+        if right_edges<turn_edges_target:
+            if turn_edges_target/4 <= right_edges <= turn_edges_target*3/4:
                 drive_motor_exp('R',-left_sign*20,i2c_bus)
             else:
                 drive_motor_exp('R',-left_sign*10,i2c_bus)
@@ -71,8 +74,16 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 
 
 
-# motor speed range, change to make robot run course faster or slower
-base_speed=26
+# base speed control, based on avg of edges seen on left and right wheel
+edges_avg=(left_edges+right_edges)/2
+if (edges_avg<init_accel_edges_target):
+    base_speed=10+(16*edges_avg/init_accel_edges_target)
+elif (edges_avg<init_accel_edges_target+cruise_edges_target):
+    base_speed=26
+elif (edges_avg<init_accel_edges_target+cruise_edges_target+decel_edges_target):
+    base_speed=26-(16*edges_avg/decel_edges_target)
+else:
+    base_speed=10
 max_speed=63
 min_speed=1
 
@@ -216,8 +227,15 @@ try:
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
-        elif(not horizontal_lines_acknowledged):
+        elif(not horizontal_lines_acknowledged and edges_avg<init_accel_edges_target):
+            #reset edge counts
+            left_edges=0
+            right_edges=0
+
+            #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
+
+            #stop motors
             drive_motor_exp("L",0,i2c_bus)
             drive_motor_exp("R",0,i2c_bus)
 
@@ -226,7 +244,7 @@ try:
 
             # perform turn if instruction is 'R' or 'L'
             if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
-                encoder_turn(num_edges_target,instruction_list[stop_num],i2c_bus)
+                encoder_turn(turn_edges_target,instruction_list[stop_num],i2c_bus)
 
             # move arm to next position, for demo purposes only
             #move_arm(arm_position_list[stop_num%3],i2c_bus)
@@ -238,6 +256,10 @@ try:
 
             # increment stop number
             stop_num+=1
+
+            #reset edge counts
+            left_edges=0
+            right_edges=0
 
             # reset stop time tracking variable
             horiztonal_lines_time=time.time()
