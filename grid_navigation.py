@@ -54,6 +54,7 @@ frame_width=640
 frame_height=480
 config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.gyro)
 
 # Start streaming
 pipeline.start(config)
@@ -170,10 +171,7 @@ try:
             time.sleep(stop_time/2)
 
             # perform turn if instruction is 'R' or 'L'
-            if instruction_list[stop_num]=='R':
-                right_turn(1.2,i2c_bus)
-            if instruction_list[stop_num]=='L':
-                left_turn(1.2,i2c_bus)
+            gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
 
             # move arm to next position, for demo purposes only
             #move_arm(arm_position_list[stop_num%3],i2c_bus)
