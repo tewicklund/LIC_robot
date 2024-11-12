@@ -39,6 +39,7 @@ try:
             print(f"Gyroscope: x={gx:.3f}, y={gy:.3f}, z={gz:.3f}")
 
             time_elapsed=time.time()-timestamp
+            timestamp=time.time()
             radians_turned+=gz*time_elapsed
             print(f"Radians turned: {radians_turned:.3f}")
 
