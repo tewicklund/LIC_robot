@@ -226,11 +226,10 @@ try:
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
-        elif(not horizontal_lines_acknowledged and edges_avg<init_accel_edges_target):
+        elif(not horizontal_lines_acknowledged and edges_avg>init_accel_edges_target):
             #reset edge counts
             left_edges=0
             right_edges=0
-
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
 
