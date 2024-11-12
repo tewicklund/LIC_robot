@@ -76,8 +76,8 @@ try:
     drive_motor_exp('L',0,i2c_bus)
     drive_motor_exp('R',0,i2c_bus)
     
-except KeyboardInterrupt:
-    print("Stopping data capture...")
+except Exception as e:
+    print(f"Error occurred: {e}")
 
 finally:
     # Stop the pipeline
