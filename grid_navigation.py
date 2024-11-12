@@ -27,12 +27,12 @@ decel_edges_target=100
 def count_left_edge(channel):
     global left_edges
     left_edges+=1
-    print(f"Falling edge detected! Count: {left_edges}")
+    #print(f"Falling edge detected! Count: {left_edges}")
 
 def count_right_edge(channel):
     global right_edges
     right_edges+=1
-    print(f"Falling edge detected! Count: {right_edges}")
+    #print(f"Falling edge detected! Count: {right_edges}")
 
 def encoder_turn(turn_edges_target,direction,i2c_bus):
     global left_edges
