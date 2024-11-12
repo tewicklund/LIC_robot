@@ -226,10 +226,11 @@ def drive_motor(side,speed,bus):
 #turning code, needs to be replaced when magnetometer comes in
 def left_turn(turn_time,bus):
     start_time=time.time()
-    
+
     while time.time()-start_time<turn_time:
         drive_motor('L',-80,bus)
         drive_motor('R',80,bus)
+
 
 def camera_assisted_turn(pipeline,direction,lower_blue,upper_blue,bus):
     #start the turn with 2 seconds of blind turning

@@ -21,7 +21,7 @@ timestamp=time.time()
 # variables to store angle position info
 radians_turned=0
 error=0
-target_radians=np.pi/2
+target_radians=-np.pi/2
 
 # speed settings for the motors
 current_speed=0
