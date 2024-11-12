@@ -76,6 +76,7 @@ GPIO.add_event_detect(right_encoder_pin, GPIO.FALLING, callback=count_right_edge
 
 # base speed control, based on avg of edges seen on left and right wheel
 edges_avg=(left_edges+right_edges)/2
+print(f"Average Edges: {edges_avg}")
 if (edges_avg<init_accel_edges_target):
     base_speed=10+(16*edges_avg/init_accel_edges_target)
 elif (edges_avg<init_accel_edges_target+cruise_edges_target):
@@ -181,7 +182,7 @@ try:
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        cv2.imshow('Robot Vision', output_image)
+        #cv2.imshow('Robot Vision', output_image)
 
 
         #start motors turning
