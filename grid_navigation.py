@@ -24,12 +24,12 @@ cruise_edges_target=100
 decel_edges_target=100
 
 #functions called by interrupt to count edges
-def count_left_edge():
+def count_left_edge(channel):
     global left_edges
     left_edges+=1
     print(f"Falling edge detected! Count: {left_edges}")
 
-def count_right_edge():
+def count_right_edge(channel):
     global right_edges
     right_edges+=1
     print(f"Falling edge detected! Count: {right_edges}")
