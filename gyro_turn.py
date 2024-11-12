@@ -31,9 +31,11 @@ p=12.5
 direction=input("Enter direction char (L or R): ")
 
 try:
-    target_radians=(np.pi/2)*(-1*(direction=='L'))
-    print(f"Abs radians turned: {abs(radians_turned)}")
-    print(f"target radians: {abs(target_radians)}")
+    if direction=='L':
+        target_radians=(np.pi/2)
+    else:
+        target_radians=-1*(np.pi/2)
+        
     while abs(radians_turned)<abs(target_radians):
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
