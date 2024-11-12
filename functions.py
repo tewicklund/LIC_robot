@@ -406,7 +406,7 @@ def clamp(variable, min_value, max_value):
         if variable<-max_value:
             variable=-max_value
         elif variable>-min_value:
-            variable=min_value
+            variable=-min_value
     return variable
 
 
