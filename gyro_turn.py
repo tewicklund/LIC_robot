@@ -32,6 +32,8 @@ direction=input("Enter direction char (L or R): ")
 
 try:
     target_radians=(np.pi/2)*(-1*(direction=='L'))
+    print(f"Abs radians turned: {abs(radians_turned)}")
+    print(f"target radians: {abs(target_radians)}")
     while abs(radians_turned)<abs(target_radians):
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
@@ -67,12 +69,9 @@ try:
             drive_motor_exp('R',-motor_speed,i2c_bus)
         
         # Delay to reduce CPU load
-        # time.sleep(0.1)
-    
-    drive_motor_exp('L',0,i2c_bus)
-    drive_motor_exp('R',0,i2c_bus)
+        # time.sleep(0.1
 
-    
+    print("Turn Complete")
     drive_motor_exp('L',0,i2c_bus)
     drive_motor_exp('R',0,i2c_bus)
     
