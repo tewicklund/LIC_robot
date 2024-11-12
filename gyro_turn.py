@@ -57,8 +57,8 @@ try:
             motor_speed=error*p
             
             #make sure motor speed doesn't drop too low
-            if motor_speed<min_speed:
-                motor_speed=min_speed
+            #if motor_speed<min_speed:
+            #    motor_speed=min_speed
             
             #drive motors to make the turn
             drive_motor_exp('L',motor_speed,i2c_bus)
