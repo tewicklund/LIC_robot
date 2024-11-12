@@ -211,6 +211,8 @@ try:
         if (horizontal_vertical_ratio<ratio_limit and lines_seen):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
+            print(f"Left motor throttle: {left_motor_speed}")
+            print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
