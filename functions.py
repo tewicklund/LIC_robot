@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import smbus2
 import time
+import pyrealsense2 as rs
 
 def set_arm_position(bus,address,frequency,pos_char):
 
