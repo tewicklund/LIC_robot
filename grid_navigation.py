@@ -100,7 +100,7 @@ stop_num=0
 stop_time=2
 
 # list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
-instruction_list=['S','S','S','S','S','S','S','S','S','S','R','S','R']#,
+instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
                   #'S','S','S','S','S','S','S','S','S','S','L','S','L',
                   #'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
