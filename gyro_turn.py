@@ -1,6 +1,11 @@
 import pyrealsense2 as rs
 import time
+import numpy as np
 from functions import *
+
+i2c_bus = smbus2.SMBus(7)
+
+
 
 # Initialize RealSense pipeline
 pipeline = rs.pipeline()
@@ -15,15 +20,20 @@ pipeline.start(config)
 
 timestamp=time.time()
 radians_turned=0
+target_radians=np.pi/2
 
 try:
-    while True:
+    while radians_turned<target_radians:
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
 
         # Get accelerometer and gyroscope data
         #accel_frame = frames.first_or_default(rs.stream.accel)
         gyro_frame = frames.first_or_default(rs.stream.gyro)
+
+        #spin motors
+        drive_motor_exp('L',20,i2c_bus)
+        drive_motor_exp('L',-20,i2c_bus)
 
         if gyro_frame:# and accel_frame:
             # Extract accelerometer data (x, y, z)
@@ -46,7 +56,10 @@ try:
         
         # Delay to reduce CPU load
         # time.sleep(0.1)
-
+    
+    drive_motor_exp('L',0,i2c_bus)
+    drive_motor_exp('L',0,i2c_bus)
+    
 except KeyboardInterrupt:
     print("Stopping data capture...")
 
