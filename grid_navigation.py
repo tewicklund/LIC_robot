@@ -178,7 +178,7 @@ try:
         elif (edges_avg<init_accel_edges_target+cruise_edges_target):
             base_speed=26
         elif (edges_avg<init_accel_edges_target+cruise_edges_target+decel_edges_target):
-            base_speed=26-(16*edges_avg/decel_edges_target)
+            base_speed=26-(16*edges_avg/(init_accel_edges_target+cruise_edges_target+decel_edges_target))
         else:
             base_speed=10
 
