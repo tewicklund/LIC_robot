@@ -28,7 +28,7 @@ current_speed=0
 base_speed=20
 min_speed=5
 p=12.5
-direction='L'
+direction=input("Enter direction char (L or R): ")
 
 try:
     if direction=="R":
