@@ -33,7 +33,7 @@ try:
 
         #spin motors
         drive_motor_exp('L',20,i2c_bus)
-        drive_motor_exp('L',-20,i2c_bus)
+        drive_motor_exp('R',-20,i2c_bus)
 
         if gyro_frame:# and accel_frame:
             # Extract accelerometer data (x, y, z)
