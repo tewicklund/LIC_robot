@@ -19,7 +19,7 @@ right_edges=0
 
 #number of encoder counts to make a 90 degree turn
 turn_edges_target=130
-init_accel_edges_target=100
+init_accel_edges_target=50
 cruise_edges_target=100
 decel_edges_target=100
 
