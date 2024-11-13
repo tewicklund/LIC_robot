@@ -15,10 +15,17 @@ timestamp=time.time()
 
 velocity=0
 
+frame_num=0
+
+num_cal_frames=100
+
+cal_frames=[]
+
 try:
     while True:
         # Get frameset of motion data
         frames = pipeline.wait_for_frames()
+        frame_num+=1
 
         # Get accelerometer and gyroscope data
         accel_frame = frames.first_or_default(rs.stream.accel)
@@ -29,8 +36,13 @@ try:
             ax, ay, az = accel_data.x, accel_data.y, accel_data.z
 
             time_elapsed=time.time()-timestamp
-            if abs(ay)>0.01:
-                velocity+=ay*time_elapsed
+
+            #add readings to cal list if applicable
+            if frame_num<num_cal_frames:
+                cal_frames.append(ay)
+            else:
+                velocity+=(ay-sum(cal_frames)/len(cal_frames))*time_elapsed
+            
             timestamp=time.time()
 
             print(f"Velocity: {velocity}")
