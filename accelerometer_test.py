@@ -11,6 +11,7 @@ config.enable_stream(rs.stream.accel)
 # Start streaming with the specified configuration
 pipeline.start(config)
 
+# test comment
 timestamp=time.time()
 
 velocity=0
