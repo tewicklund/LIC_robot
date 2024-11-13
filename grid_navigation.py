@@ -67,7 +67,7 @@ decel_time=2.5
 
 max_speed=63
 min_speed=1
-cruise_speed=26
+cruise_speed=40
 slow_speed=10
 
 # put sequence in try statement so if anything goes wrong, the finally statement will run
