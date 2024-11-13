@@ -11,6 +11,8 @@ config.enable_stream(rs.stream.accel)
 # Start streaming with the specified configuration
 pipeline.start(config)
 
+timestamp=time.time()
+
 try:
     while True:
         # Get frameset of motion data
@@ -24,11 +26,18 @@ try:
             accel_data = accel_frame.as_motion_frame().get_motion_data()
             ax, ay, az = accel_data.x, accel_data.y, accel_data.z
 
+            time_elapsed=time.time()-timestamp
+            velocity=ay*time_elapsed
+            timestamp=time.time()
+
+            print(f"Velocity: {velocity}")
+
             # Print the accelerometer and gyroscope values
-            print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
+            #print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
+
 
         # Delay to reduce CPU load
-        time.sleep(0.1)
+        #time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Stopping data capture...")
