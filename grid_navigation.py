@@ -9,9 +9,7 @@ i2c_bus = smbus2.SMBus(7)
 #send speeds 0-63 to drive the motors on each side.
 
 
-max_speed=63
-min_speed=1
-cruise_speed=26
+
 
 #pi control variables, set to 0 to disable
 angle_p=1
@@ -54,7 +52,6 @@ frame_width=640
 frame_height=480
 config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-config.enable_stream(rs.stream.gyro)
 
 # Start streaming
 pipeline.start(config)
@@ -64,6 +61,17 @@ horiztonal_lines_time=time.time()
 
 # Get timestamp for frame counter
 frame_time=time.time()
+
+# get timestamp for accel/decel
+timestamp=time.time()
+accel_time=1
+cruise_time=1.5
+decel_time=2.5
+
+max_speed=63
+min_speed=1
+cruise_speed=26
+slow_speed=10
 
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
@@ -110,8 +118,16 @@ try:
         # show the frame
         #cv2.imshow('Robot Vision', output_image)
 
-        # base speed control, constant rn
-        base_speed=cruise_speed
+        # base speed control, based on elapsed time
+        elapsed_time=time.time()-timestamp
+        if (elapsed_time<accel_time):
+            base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
+        elif(elapsed_time<cruise_time):
+            base_speed=cruise_speed
+        elif(elapsed_time<decel_time):
+            base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/accel_time
+        else:
+            base_speed=slow_speed
 
         #start motors turning
         right_motor_speed=base_speed
@@ -157,11 +173,12 @@ try:
 
         # if new horizontal line encountered, stop for set amount of time
         elif(not horizontal_lines_acknowledged):
-            #reset edge counts
-            left_edges=0
-            right_edges=0
+            
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
+
+            #reset timestamp
+            timestamp=time.time()
 
             #stop motors
             drive_motor_exp("L",0,i2c_bus)
