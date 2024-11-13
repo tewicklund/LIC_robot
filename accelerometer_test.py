@@ -42,15 +42,17 @@ try:
             #add readings to cal list if applicable
             if frame_num<num_cal_frames:
                 cal_frames.append(ay)
+                print(f"Calibrating, {frame_num}/{num_cal_frames}")
             else:
                 velocity+=(ay-sum(cal_frames)/len(cal_frames))*time_elapsed
                 position+=velocity*time_elapsed
+                print(f"Acceleration: {ay}")
+                print(f"Velocity: {velocity}")
+                print(f"Position: {position}")
             
             timestamp=time.time()
             
-            print(f"Acceleration: {ay}")
-            print(f"Velocity: {velocity}")
-            print(f"Position: {position}")
+            
 
             # Print the accelerometer and gyroscope values
             #print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
