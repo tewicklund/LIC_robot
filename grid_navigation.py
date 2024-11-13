@@ -122,7 +122,7 @@ try:
         elif(elapsed_time<cruise_time):
             base_speed=cruise_speed
         elif(elapsed_time<decel_time):
-            base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/accel_time
+            base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/decel_time
         else:
             base_speed=slow_speed
 
