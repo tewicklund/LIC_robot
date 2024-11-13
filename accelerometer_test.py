@@ -13,6 +13,8 @@ pipeline.start(config)
 
 timestamp=time.time()
 
+velocity=0
+
 try:
     while True:
         # Get frameset of motion data
@@ -27,7 +29,7 @@ try:
             ax, ay, az = accel_data.x, accel_data.y, accel_data.z
 
             time_elapsed=time.time()-timestamp
-            velocity=ay*time_elapsed
+            velocity+=ay*time_elapsed
             timestamp=time.time()
 
             print(f"Velocity: {velocity}")
