@@ -63,7 +63,7 @@ frame_time=time.time()
 timestamp=time.time()
 accel_time=1
 cruise_time=1.5
-decel_time=2.5
+decel_time=2
 
 max_speed=63
 min_speed=1
