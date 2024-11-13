@@ -29,13 +29,14 @@ try:
             ax, ay, az = accel_data.x, accel_data.y, accel_data.z
 
             time_elapsed=time.time()-timestamp
-            velocity+=ay*time_elapsed
+            if abs(ay)>0.01:
+                velocity+=ay*time_elapsed
             timestamp=time.time()
 
             print(f"Velocity: {velocity}")
 
             # Print the accelerometer and gyroscope values
-            #print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
+            print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
 
 
         # Delay to reduce CPU load
