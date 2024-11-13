@@ -15,6 +15,8 @@ timestamp=time.time()
 
 velocity=0
 
+position=0
+
 frame_num=0
 
 num_cal_frames=100
@@ -42,17 +44,20 @@ try:
                 cal_frames.append(ay)
             else:
                 velocity+=(ay-sum(cal_frames)/len(cal_frames))*time_elapsed
+                position+=velocity*time_elapsed
             
             timestamp=time.time()
-
+            
+            print(f"Acceleration: {ay}")
             print(f"Velocity: {velocity}")
+            print(f"Position: {position}")
 
             # Print the accelerometer and gyroscope values
-            print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
+            #print(f"Accelerometer: x={ax:.3f}, y={ay:.3f}, z={az:.3f}")
 
 
         # Delay to reduce CPU load
-        #time.sleep(0.1)
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Stopping data capture...")
