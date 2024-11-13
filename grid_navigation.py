@@ -6,6 +6,11 @@ from functions import *
 # use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
 
+# set to true if you would like the arm to actuate at each stop
+minor_motion_control=False
+pca_address=0x40
+frequency=340
+
 #pi control variables, set to 0 to disable
 angle_p=1
 centering_p=0.1
@@ -188,6 +193,12 @@ try:
             # perform turn if instruction is 'R' or 'L'
             if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
                 gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
+            
+            elif minor_motion_control:
+                set_arm_position(i2c_bus,pca_address,frequency,'a')
+                time.sleep(2)
+                set_arm_position(i2c_bus,pca_address,frequency,'b')
+                time.sleep(2)
 
             # rest before continuing
             time.sleep(stop_time/2)
