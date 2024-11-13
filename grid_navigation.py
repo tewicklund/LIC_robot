@@ -3,10 +3,8 @@ import numpy as np
 import cv2
 from functions import *
 
-
+# use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
-
-#send speeds 0-63 to drive the motors on each side.
 
 #pi control variables, set to 0 to disable
 angle_p=1
@@ -21,7 +19,7 @@ x_location_error_sum=0
 x_location_error_max=400
 
 # minimum ratio of horizontal lines to vertical lines that is recognized as a stop
-ratio_limit=0.2
+ratio_limit=0.8
 
 # boolean for loop logic, used for driving over previously acknowledged horizontal lines
 horizontal_lines_acknowledged=False
@@ -37,9 +35,6 @@ instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
                   #'S','S','S','S','S','S','S','S','S','S','L','S','L',
                   #'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
-# list of arm positions to cycle through, just for demo purposes for now
-#arm_position_list=['a','b',"c"]
-
 
 # Initialize the RealSense pipeline
 pipeline = rs.pipeline()
@@ -53,18 +48,19 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
-# Get timestamp for time since last stop
-horiztonal_lines_time=time.time()
 
 # Get timestamp for frame counter
 frame_time=time.time()
 
 # get timestamp for accel/decel
 timestamp=time.time()
+
+# assign timestamps for speed changing, in seconds
 accel_time=1
 cruise_time=1.5
 decel_time=2
 
+# set speeds used by the robot during straightforward navigation
 max_speed=63
 min_speed=1
 cruise_speed=40
@@ -126,6 +122,14 @@ try:
         else:
             base_speed=slow_speed
 
+        # run at slow speed if next command is a turn
+        try:
+            next_instruction=instruction_list[stop_num+1]
+            if next_instruction != 'S':
+                base_speed=slow_speed
+        except:
+            base_speed=slow_speed
+
         #start motors turning
         right_motor_speed=base_speed
         left_motor_speed=base_speed
@@ -174,8 +178,6 @@ try:
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
 
-            
-
             #stop motors
             drive_motor_exp("L",0,i2c_bus)
             drive_motor_exp("R",0,i2c_bus)
@@ -187,23 +189,11 @@ try:
             if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
                 gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
 
-            # move arm to next position, for demo purposes only
-            #move_arm(arm_position_list[stop_num%3],i2c_bus)
-            #time.sleep(1)
-            #move_arm('z',i2c_bus)
-
             # rest before continuing
             time.sleep(stop_time/2)
 
             # increment stop number
             stop_num+=1
-
-            #reset edge counts
-            left_edges=0
-            right_edges=0
-
-            # reset stop time tracking variable
-            horiztonal_lines_time=time.time()
 
             #reset timestamp
             timestamp=time.time()
