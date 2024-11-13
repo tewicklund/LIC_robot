@@ -169,7 +169,7 @@ try:
             horizontal_lines_acknowledged=False
 
         # if new horizontal line encountered, stop for set amount of time
-        elif(not horizontal_lines_acknowledged):
+        elif(not horizontal_lines_acknowledged and elapsed_time>cruise_time):
             
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
