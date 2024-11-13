@@ -174,8 +174,7 @@ try:
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
 
-            #reset timestamp
-            timestamp=time.time()
+            
 
             #stop motors
             drive_motor_exp("L",0,i2c_bus)
@@ -205,6 +204,9 @@ try:
 
             # reset stop time tracking variable
             horiztonal_lines_time=time.time()
+
+            #reset timestamp
+            timestamp=time.time()
 
             # exit the code if there are no more stops left
             if stop_num>=len(instruction_list):
