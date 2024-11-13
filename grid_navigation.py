@@ -8,9 +8,6 @@ i2c_bus = smbus2.SMBus(7)
 
 #send speeds 0-63 to drive the motors on each side.
 
-
-
-
 #pi control variables, set to 0 to disable
 angle_p=1
 centering_p=0.1
@@ -188,7 +185,8 @@ try:
             time.sleep(stop_time/2)
 
             # perform turn if instruction is 'R' or 'L'
-            gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
+            if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
+                gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
 
             # move arm to next position, for demo purposes only
             #move_arm(arm_position_list[stop_num%3],i2c_bus)
