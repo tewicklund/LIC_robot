@@ -59,7 +59,7 @@ try:
 
 
         # Delay to reduce CPU load
-        time.sleep(0.1)
+        #time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("Stopping data capture...")
