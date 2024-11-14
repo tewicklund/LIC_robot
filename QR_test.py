@@ -24,26 +24,8 @@ try:
         # Convert RealSense frame to numpy array (BGR format for OpenCV)
         color_image = np.asanyarray(color_frame.get_data())
 
-        # Apply gaussian blur to image
-        kernel_size=(3,3)
-        gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
-
-        # Convert image to HSV
-        hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
-
-        # Apply thresholds to only get blue color
-        lower_blue=np.array([100,150,0])
-        upper_blue=np.array([140,255,255])
-        blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
-
-        # Apply canny edge detection
-        canny_low=200
-        canny_high=400
-        canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
-        
-
         # Display the RGB image
-        cv2.imshow('Canny Video Stream', canny_image)
+        cv2.imshow('Color Video Stream', color_image)
 
         # Break loop with 'q' key
         if cv2.waitKey(1) & 0xFF == ord('q'):
