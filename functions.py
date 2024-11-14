@@ -3,6 +3,48 @@ import numpy as np
 import smbus2
 import time
 import pyrealsense2 as rs
+from pyzbar.pyzbar import decode
+import requests
+
+def send_POST_request(epoch_timestamp,stop_number,arrive_depart):
+    # Set the URL for the HTTP POST request
+    url = "192.168.4.6:8080/robot"  # Replace with the actual endpoint
+
+    # Define the data to send in the POST request
+    data = {
+        "epoch_timestamp": epoch_timestamp,  
+        "stop_number": stop_number,                 
+        "arrive_depart": arrive_depart
+    }
+
+    try:
+        # Send the POST request
+        response = requests.post(url, json=data)
+        
+        # Check for a successful response
+        if response.status_code == 200:
+            print("Request successful:", response.json())
+        else:
+            print("Request failed with status code:", response.status_code)
+            print("Response:", response.text)
+
+    except requests.exceptions.RequestException as e:
+        print("An error occurred:", e)
+
+# function to read qr codes
+def read_qr_code(color_image: np.ndarray) -> str:
+    # Convert the image to grayscale (QR detection works better in grayscale)
+    gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+    
+    # Decode any QR codes found in the image
+    decoded_objects = decode(gray_image)
+    
+    # If QR codes were found, return the text of the first one
+    if decoded_objects:
+        qr_text = decoded_objects[0].data.decode("utf-8")
+        return qr_text
+    else:
+        return "No QR code found"
 
 def set_arm_position(bus,address,frequency,pos_char):
 
