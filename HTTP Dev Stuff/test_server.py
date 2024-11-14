@@ -3,8 +3,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-@app.route('/LIC_triggers', methods=['POST'])
-def receive_data():
+@app.route('/robot', methods=['POST'])
+def receive_robot_data():
     data = request.json
     print("Received POST request:")
     print(f"epoch_timestamp: {data.get('epoch_timestamp')}")
@@ -13,8 +13,8 @@ def receive_data():
     print(f"Received at: {datetime.now()}")
     return jsonify({"status": "success", "message": "Data received"}), 200
 
-@app.route('/robot', methods=['POST'])
-def receive_data():
+@app.route('/LIC_triggers', methods=['POST'])
+def receive_LIC_data():
     data = request.json
     print("Received POST request:")
     print(f"Sensor ID: {data.get('sensor_id')}")
