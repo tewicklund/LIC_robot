@@ -8,7 +8,7 @@ import requests
 
 def send_POST_request(epoch_timestamp,stop_number,arrive_depart):
     # Set the URL for the HTTP POST request
-    url = "192.168.4.6:8080/robot"  # Replace with the actual endpoint
+    url = "http://192.168.4.6:8080/robot"  # Replace with the actual endpoint
 
     # Define the data to send in the POST request
     data = {
