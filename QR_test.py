@@ -1,6 +1,22 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+from pyzbar.pyzbar import decode
+
+# function to read qr codes
+def read_qr_code(color_image: np.ndarray) -> str:
+    # Convert the image to grayscale (QR detection works better in grayscale)
+    gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+    
+    # Decode any QR codes found in the image
+    decoded_objects = decode(gray_image)
+    
+    # If QR codes were found, return the text of the first one
+    if decoded_objects:
+        qr_text = decoded_objects[0].data.decode("utf-8")
+        return qr_text
+    else:
+        return "No QR code found"
 
 # Initialize the RealSense pipeline
 pipeline = rs.pipeline()
@@ -23,6 +39,7 @@ try:
 
         # Convert RealSense frame to numpy array (BGR format for OpenCV)
         color_image = np.asanyarray(color_frame.get_data())
+        print(read_qr_code(color_image))
 
         # Display the RGB image
         cv2.imshow('Color Video Stream', color_image)
