@@ -7,6 +7,16 @@ app = Flask(__name__)
 def receive_data():
     data = request.json
     print("Received POST request:")
+    print(f"epoch_timestamp: {data.get('epoch_timestamp')}")
+    print(f"stop_number: {data.get('stop_number')}")
+    print(f"arrive_depart: {data.get('arrive_depart')}")
+    print(f"Received at: {datetime.now()}")
+    return jsonify({"status": "success", "message": "Data received"}), 200
+
+@app.route('/robot', methods=['POST'])
+def receive_data():
+    data = request.json
+    print("Received POST request:")
     print(f"Sensor ID: {data.get('sensor_id')}")
     print(f"Timestamp: {data.get('timestamp')}")
     print(f"Received at: {datetime.now()}")
