@@ -175,7 +175,7 @@ try:
             drive_motor_exp("R",0,i2c_bus)
             print("No lines, stopping motors")
 
-        # if no horizontal lines in frame, drive as normal
+        # if no qr code in frame, drive as normal
         elif (qr_string==qr_not_found):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
@@ -183,7 +183,7 @@ try:
             #print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
-        # if new horizontal line encountered, stop for set amount of time
+        # if new qr code encountered, stop for set amount of time
         elif(elapsed_time>cruise_time):
             
             #set flag for horizontal lines high
@@ -195,7 +195,10 @@ try:
 
             #send POST request to database letting it know the robot has arrived at a stop
             epoch_timestamp=int(time.time())
-            qr_stop_number=int(qr_string)
+            if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
+                qr_stop_number=int(qr_string)
+            else:
+                qr_stop_number=0
             arrive_depart="arrive"
             send_POST_request(epoch_timestamp,qr_stop_number,arrive_depart)
 
@@ -204,8 +207,8 @@ try:
             time.sleep(stop_time/2)
 
             # perform turn if instruction is 'R' or 'L'
-            if instruction_list[stop_num]=='R' or instruction_list[stop_num]=='L':
-                gyro_turn(pipeline,instruction_list[stop_num],i2c_bus)
+            if qr_string=='R' or qr_string=='L':
+                gyro_turn(pipeline,qr_string,i2c_bus)
             
             elif minor_motion_control:
                 set_arm_position(i2c_bus,pca_address,frequency,'a')
@@ -229,7 +232,7 @@ try:
             timestamp=time.time()
 
             # exit the code if there are no more stops left
-            if stop_num>=len(instruction_list):
+            if qr_string=='S':
                 print("Course Complete")
                 exit()
         
