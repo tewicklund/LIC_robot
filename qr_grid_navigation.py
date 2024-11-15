@@ -99,16 +99,9 @@ qr_stop_number=0
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
-        # Wait for a coherent set of frames: color frame
-        frames = pipeline.wait_for_frames()
-        color_frame = frames.get_color_frame()
-        if not color_frame:
-            continue
-
-        # Convert RealSense frame to numpy array (BGR format for OpenCV)
-        color_image = np.asanyarray(color_frame.get_data())
+        
+        color_image = get_color_image(pipeline)
         #cv2.imshow('Color Image', color_image)
-
 
         # Apply gaussian blur to image
         kernel_size=(3,3)
@@ -217,6 +210,9 @@ try:
 
         # if new qr code encountered, stop for set amount of time
         elif(elapsed_time>cruise_time):
+
+            # let robot come to stop
+            time.sleep(stop_time/2)
             
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
@@ -227,7 +223,13 @@ try:
 
             #send POST request to database letting it know the robot has arrived at a stop
             epoch_timestamp=int(time.time())
-            qr_string = read_qr_code(color_image)
+
+            qr_string=qr_not_found
+            while qr_string==qr_not_found:
+                print("reading qr code...")
+                color_image=get_color_image(pipeline)
+                qr_string = read_qr_code(color_image)
+                time.sleep(1)
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 qr_stop_number=int(qr_string)
             else:
@@ -236,8 +238,7 @@ try:
             send_POST_request(epoch_timestamp,qr_stop_number,arrive_depart)
 
 
-            # let robot come to stop
-            time.sleep(stop_time/2)
+            
 
             # perform turn if instruction is 'R' or 'L'
             if qr_string=='R' or qr_string=='L':

@@ -32,6 +32,16 @@ def calculate_white_ratio(mask):
     white_ratio = white_pixels / total_pixels
     return white_ratio
 
+def get_color_image(pipeline):
+    color_frame=None
+    while not color_frame:
+        frames = pipeline.wait_for_frames()
+        color_frame = frames.get_color_frame()
+
+    # Convert RealSense frame to numpy array (BGR format for OpenCV)
+    color_image = np.asanyarray(color_frame.get_data())
+    return color_image
+
 def send_POST_request(epoch_timestamp,stop_number,arrive_depart):
     # Set the URL for the HTTP POST request
     url = "http://192.168.4.6:8080/robot"  # Replace with the actual endpoint
