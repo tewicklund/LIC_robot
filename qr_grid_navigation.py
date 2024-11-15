@@ -101,7 +101,7 @@ try:
     while True:
         
         color_image = get_color_image(pipeline)
-        #cv2.imshow('Color Image', color_image)
+        cv2.imshow('Color Image', color_image)
 
         # Apply gaussian blur to image
         kernel_size=(3,3)
