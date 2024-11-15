@@ -230,7 +230,7 @@ try:
                 color_image=get_color_image(pipeline)
                 cv2.imshow("Color Image",color_image)
                 qr_string = read_qr_code(color_image)
-                time.sleep(1)
+                #time.sleep(1)
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 qr_stop_number=int(qr_string)
             else:
