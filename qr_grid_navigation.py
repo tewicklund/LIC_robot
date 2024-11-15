@@ -105,12 +105,18 @@ try:
         # Convert RealSense frame to numpy array (BGR format for OpenCV)
         color_image = np.asanyarray(color_frame.get_data())
         qr_string = read_qr_code(color_image)
-        cv2.imshow('Color Image', color_image)
+        #cv2.imshow('Color Image', color_image)
 
 
         # Apply gaussian blur to image
         kernel_size=(3,3)
         gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
+
+        # Apply thresholds to only get white color (BGR color space)
+        lower_white=np.array([240,240,240])
+        upper_white=np.array([255,255,255])
+        white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
+        cv2.imshow(upper_white)
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
@@ -119,6 +125,8 @@ try:
         lower_blue=np.array([50,100,0])
         upper_blue=np.array([160,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
+
+        
 
         # Apply canny edge detection
         canny_low=200
