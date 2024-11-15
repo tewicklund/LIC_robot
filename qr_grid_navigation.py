@@ -49,6 +49,7 @@ frame_width=640
 frame_height=480
 config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.gyro)
 
 # Start streaming
 pipeline.start(config)
