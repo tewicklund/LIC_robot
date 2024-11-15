@@ -70,7 +70,7 @@ decel_time=2
 max_speed=63
 min_speed=1
 cruise_speed=40
-slow_speed=10
+slow_speed=2
 
 qr_not_found="No QR code found"
 qr_string=qr_not_found
