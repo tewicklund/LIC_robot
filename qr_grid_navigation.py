@@ -116,7 +116,7 @@ try:
         lower_white=np.array([240,240,240])
         upper_white=np.array([255,255,255])
         white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
-        cv2.imshow(upper_white)
+        cv2.imshow('White Threshold',upper_white)
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
