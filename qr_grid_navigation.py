@@ -88,6 +88,7 @@ try:
         # Convert RealSense frame to numpy array (BGR format for OpenCV)
         color_image = np.asanyarray(color_frame.get_data())
         qr_string = read_qr_code(color_image)
+        cv2.imshow('Color Image', color_image)
 
 
         # Apply gaussian blur to image
