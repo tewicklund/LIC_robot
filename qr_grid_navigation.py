@@ -102,6 +102,7 @@ try:
         
         color_image = get_color_image(pipeline)
         cv2.imshow('Color Image', color_image)
+        qr_string=read_qr_code(color_image)
 
         # Apply gaussian blur to image
         kernel_size=(3,3)
@@ -201,7 +202,7 @@ try:
             print("No lines, stopping motors")
 
         # if no qr code in frame, drive as normal
-        elif (qr_string != qr_not_found):
+        elif (qr_string == qr_not_found):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
             #print(f"Left motor throttle: {left_motor_speed}")
