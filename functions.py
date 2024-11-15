@@ -233,7 +233,10 @@ def image_to_angle(image, overlay, frame_time_elapsed):
         #compute average angle
         angle_avg_deg=angle_total_deg/total_length
         angle_avg_deg_rounded=round(angle_avg_deg,2)
-        x_location_avg=x_location_sum/(2*num_vertical_lines)
+        if num_vertical_lines==0:
+            x_location_avg=240
+        else:
+            x_location_avg=x_location_sum/(2*num_vertical_lines)
         horizontal_vertical_ratio=horizontal_sum/vertical_sum
 
         
