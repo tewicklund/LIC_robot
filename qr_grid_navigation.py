@@ -35,8 +35,11 @@ stop_num=0
 # amount of time spent at each stop, in seconds
 stop_time=2
 
+# limit of ratio of white to black pixels in mask that counts as qr code in frame
+white_ratio_limit=0.02
+
 # exposure time of the camera in microseconds
-exposure_time_us=800
+#exposure_time_us=800
 
 # list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
 instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
@@ -104,7 +107,6 @@ try:
 
         # Convert RealSense frame to numpy array (BGR format for OpenCV)
         color_image = np.asanyarray(color_frame.get_data())
-        qr_string = read_qr_code(color_image)
         #cv2.imshow('Color Image', color_image)
 
 
@@ -117,7 +119,8 @@ try:
         upper_white=np.array([255,255,255])
         white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
         cv2.imshow('White Threshold',white_threshold)
-        print(calculate_white_ratio(white_threshold))
+        white_ratio=calculate_white_ratio(white_threshold)
+        print(white_ratio)
 
 
         # Convert image to HSV
@@ -205,7 +208,7 @@ try:
             print("No lines, stopping motors")
 
         # if no qr code in frame, drive as normal
-        elif (qr_string==qr_not_found):
+        elif (white_ratio<white_ratio_limit):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
             #print(f"Left motor throttle: {left_motor_speed}")
@@ -224,6 +227,7 @@ try:
 
             #send POST request to database letting it know the robot has arrived at a stop
             epoch_timestamp=int(time.time())
+            qr_string = read_qr_code(color_image)
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 qr_stop_number=int(qr_string)
             else:
