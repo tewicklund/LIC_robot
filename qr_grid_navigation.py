@@ -57,18 +57,19 @@ config.enable_stream(rs.stream.gyro)
 # Start streaming
 pipeline.start(config)
 
-# Get the camera device from the pipeline
-device = pipeline.get_active_profile().get_device()
+######------MANUAL EXPOSURE ADJUST------######
+# # Get the camera device from the pipeline
+# device = pipeline.get_active_profile().get_device()
 
-# Get the RGB camera sensor
-sensor = device.query_sensors()[1]  # Assumes the RGB camera is the second sensor
-if not sensor.supports(rs.option.exposure):
-    print("The connected device does not support manual exposure.")
+# # Get the RGB camera sensor
+# sensor = device.query_sensors()[1]  # Assumes the RGB camera is the second sensor
+# if not sensor.supports(rs.option.exposure):
+#     print("The connected device does not support manual exposure.")
     
 
-# Set the exposure time
-sensor.set_option(rs.option.exposure, exposure_time_us)
-print(f"Exposure time set to {exposure_time_us} microseconds.")
+# # Set the exposure time
+# sensor.set_option(rs.option.exposure, exposure_time_us)
+# print(f"Exposure time set to {exposure_time_us} microseconds.")
 
 
 # Get timestamp for frame counter
