@@ -111,7 +111,7 @@ try:
         lower_white=np.array([250,250,250])
         upper_white=np.array([255,255,255])
         white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
-        cv2.imshow('White Threshold',white_threshold)
+        #cv2.imshow('White Threshold',white_threshold)
         white_ratio=calculate_white_ratio(white_threshold)
         print(white_ratio)
 
@@ -228,6 +228,7 @@ try:
             while qr_string==qr_not_found:
                 print("reading qr code...")
                 color_image=get_color_image(pipeline)
+                cv2.imshow("Color Image",color_image)
                 qr_string = read_qr_code(color_image)
                 time.sleep(1)
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
