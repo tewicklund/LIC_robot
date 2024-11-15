@@ -36,7 +36,7 @@ stop_num=0
 stop_time=2
 
 # exposure time of the camera in microseconds
-exposure_time_us=1250
+exposure_time_us=800
 
 # list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
 instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
