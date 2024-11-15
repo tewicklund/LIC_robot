@@ -113,10 +113,12 @@ try:
         gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
 
         # Apply thresholds to only get white color (BGR color space)
-        lower_white=np.array([240,240,240])
+        lower_white=np.array([250,250,250])
         upper_white=np.array([255,255,255])
         white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
         cv2.imshow('White Threshold',white_threshold)
+        print(calculate_white_ratio(white_threshold))
+
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)

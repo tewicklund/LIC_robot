@@ -6,6 +6,32 @@ import pyrealsense2 as rs
 from pyzbar.pyzbar import decode
 import requests
 
+def calculate_white_ratio(mask):
+    """
+    Calculate the ratio of white pixels in a binary mask.
+    
+    Parameters:
+        mask (numpy.ndarray): Binary image from cv2.inRange(), with white pixels (255) and black pixels (0).
+    
+    Returns:
+        float: Ratio of white pixels to total pixels (value between 0 and 1).
+    """
+    if not isinstance(mask, np.ndarray):
+        raise ValueError("Input mask must be a numpy array.")
+
+    # Ensure the mask is binary (values should be 0 or 255)
+    unique_values = np.unique(mask)
+    if not np.all(np.isin(unique_values, [0, 255])):
+        raise ValueError("Input mask must be binary (values 0 or 255).")
+
+    # Count white pixels (value 255)
+    white_pixels = np.sum(mask == 255)
+    total_pixels = mask.size
+
+    # Calculate and return the ratio
+    white_ratio = white_pixels / total_pixels
+    return white_ratio
+
 def send_POST_request(epoch_timestamp,stop_number,arrive_depart):
     # Set the URL for the HTTP POST request
     url = "http://192.168.4.6:8080/robot"  # Replace with the actual endpoint
