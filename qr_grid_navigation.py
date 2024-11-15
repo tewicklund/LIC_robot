@@ -229,6 +229,9 @@ try:
                 print("reading qr code...")
                 color_image=get_color_image(pipeline)
                 cv2.imshow("Color Image",color_image)
+                # Break loop with 'q' key
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
                 qr_string = read_qr_code(color_image)
                 #time.sleep(1)
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
