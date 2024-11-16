@@ -202,18 +202,17 @@ try:
             print("No lines, stopping motors")
 
         # if no qr code in frame, drive as normal
-        elif (qr_string == qr_not_found):
+        elif (horizontal_vertical_ratio>ratio_limit):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
             #print(f"Left motor throttle: {left_motor_speed}")
             #print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
-        # if new qr code encountered, stop for set amount of time
+        # if new lines code encountered, stop for set amount of time
         elif(elapsed_time>cruise_time):
 
-            # let robot come to stop
-            time.sleep(stop_time/2)
+            
             
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
@@ -225,6 +224,15 @@ try:
             #send POST request to database letting it know the robot has arrived at a stop
             epoch_timestamp=int(time.time())
 
+            while qr_string==qr_not_found:
+                color_image = get_color_image(pipeline)
+                cv2.imshow('Color Image', color_image)
+                qr_string=read_qr_code(color_image)
+
+                # Break loop with 'q' key
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 qr_stop_number=int(qr_string)
             else:
@@ -232,9 +240,9 @@ try:
             arrive_depart="arrive"
             send_POST_request(epoch_timestamp,qr_stop_number,arrive_depart)
 
-
+            # let robot come to stop
+            time.sleep(stop_time/2)
             
-
             # perform turn if instruction is 'R' or 'L'
             if qr_string=='R' or qr_string=='L':
                 gyro_turn(pipeline,qr_string,i2c_bus)
