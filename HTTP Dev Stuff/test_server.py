@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
+import time
+
+log_file_name="test_results.csv"
 
 app = Flask(__name__)
 
@@ -11,6 +14,10 @@ def receive_robot_data():
     print(f"stop_number: {data.get('stop_number')}")
     print(f"arrive_depart: {data.get('arrive_depart')}")
     print(f"Received at: {datetime.now()}")
+
+    f=open(log_file_name,'a')
+    f.write("Robot POST,"+str(time.time())+','+data.get('epoch_timestamp')+','+data.get('stop_number')+','+data.get('arrive_depart')+'\n')
+    f.close()
     return jsonify({"status": "success", "message": "Data received"}), 200
 
 @app.route('/LIC_triggers', methods=['POST'])
@@ -20,6 +27,11 @@ def receive_LIC_data():
     print(f"Sensor ID: {data.get('sensor_id')}")
     print(f"Timestamp: {data.get('timestamp')}")
     print(f"Received at: {datetime.now()}")
+
+    f=open(log_file_name,'a')
+    f.write("LIC Trigger POST,"+str(time.time())+','+data.get('timestamp')+','+data.get('sensor_id')+',N/A,'+'\n')
+    f.close()
+    
     return jsonify({"status": "success", "message": "Data received"}), 200
 
 if __name__ == '__main__':
