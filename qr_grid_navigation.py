@@ -202,10 +202,10 @@ try:
             print("No lines, stopping motors")
 
         # if no qr code in frame, drive as normal
-        elif (horizontal_vertical_ratio>ratio_limit):
+        elif (horizontal_vertical_ratio<ratio_limit):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
-            #print(f"Left motor throttle: {left_motor_speed}")
+            #print(f"Left motor throttle: {left_moto_speed}")
             #print(f"Right motor throttle: {right_motor_speed}\n")
             horizontal_lines_acknowledged=False
 
