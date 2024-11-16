@@ -141,7 +141,7 @@ try:
 
         # interpret canny edges black and white image to return info about the angle and location of lines seen
         [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
-        #print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
+        print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
         # add overlay to frame
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
@@ -242,7 +242,7 @@ try:
 
             # let robot come to stop
             time.sleep(stop_time/2)
-            
+
             # perform turn if instruction is 'R' or 'L'
             if qr_string=='R' or qr_string=='L':
                 gyro_turn(pipeline,qr_string,i2c_bus)
