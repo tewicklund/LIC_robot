@@ -16,7 +16,7 @@ def receive_robot_data():
     print(f"Received at: {datetime.now()}")
 
     f=open(log_file_name,'a')
-    f.write("Robot POST,"+str(time.time())+','+data.get('epoch_timestamp')+','+data.get('stop_number')+','+data.get('arrive_depart')+'\n')
+    f.write("Robot POST,"+str(time.time())+','+str(data.get('epoch_timestamp'))+','+str(data.get('stop_number'))+','+str(data.get('arrive_depart'))+'\n')
     f.close()
     return jsonify({"status": "success", "message": "Data received"}), 200
 
@@ -29,9 +29,9 @@ def receive_LIC_data():
     print(f"Received at: {datetime.now()}")
 
     f=open(log_file_name,'a')
-    f.write("LIC Trigger POST,"+str(time.time())+','+data.get('timestamp')+','+data.get('sensor_id')+',N/A,'+'\n')
+    f.write("LIC Trigger POST,"+str(time.time())+','+str(data.get('timestamp'))+','+str(data.get('sensor_id'))+',N/A,'+'\n')
     f.close()
-    
+
     return jsonify({"status": "success", "message": "Data received"}), 200
 
 if __name__ == '__main__':
