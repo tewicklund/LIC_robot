@@ -10,13 +10,14 @@ app = Flask(__name__)
 def receive_robot_data():
     data = request.json
     print("Received POST request:")
+    print(f"test_name: {data.get('test_name')}")
     print(f"epoch_timestamp: {data.get('epoch_timestamp')}")
     print(f"stop_number: {data.get('stop_number')}")
     print(f"arrive_depart: {data.get('arrive_depart')}")
     print(f"Received at: {datetime.now()}")
 
     f=open(log_file_name,'a')
-    f.write("Robot POST,"+str(time.time())+','+str(data.get('epoch_timestamp'))+','+str(data.get('stop_number'))+','+str(data.get('arrive_depart'))+'\n')
+    f.write(str(data.get('test_name'))+",Robot POST,"+str(time.time())+','+str(data.get('epoch_timestamp'))+','+str(data.get('stop_number'))+','+str(data.get('arrive_depart'))+'\n')
     f.close()
     return jsonify({"status": "success", "message": "Data received"}), 200
 
@@ -29,7 +30,7 @@ def receive_LIC_data():
     print(f"Received at: {datetime.now()}")
 
     f=open(log_file_name,'a')
-    f.write("LIC Trigger POST,"+str(time.time())+','+str(data.get('timestamp'))+','+str(data.get('sensor_id'))+',N/A,'+'\n')
+    f.write("N/A,LIC Trigger POST,"+str(time.time())+','+str(data.get('timestamp'))+','+str(data.get('sensor_id'))+',N/A,'+'\n')
     f.close()
 
     return jsonify({"status": "success", "message": "Data received"}), 200

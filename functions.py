@@ -42,12 +42,13 @@ def get_color_image(pipeline):
     color_image = np.asanyarray(color_frame.get_data())
     return color_image
 
-def send_POST_request(epoch_timestamp,stop_number,arrive_depart):
+def send_POST_request(test_name,epoch_timestamp,stop_number,arrive_depart):
     # Set the URL for the HTTP POST request
     url = "http://192.168.4.68:8080/robot"  # Replace with the actual endpoint
 
     # Define the data to send in the POST request
     data = {
+        "test_name": test_name,
         "epoch_timestamp": epoch_timestamp,  
         "stop_number": stop_number,                 
         "arrive_depart": arrive_depart

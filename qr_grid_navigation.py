@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 from functions import *
 
+test_name="LIC 1 Nov 18 2024"
+
 # use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
 
@@ -33,7 +35,7 @@ horizontal_lines_acknowledged=False
 stop_num=0
 
 # amount of time spent at each stop, in seconds
-stop_time=2
+stop_time=10
 
 # limit of ratio of white to black pixels in mask that counts as qr code in frame
 white_ratio_limit=0.02
@@ -238,7 +240,7 @@ try:
             else:
                 qr_stop_number=0
             arrive_depart="arrive"
-            send_POST_request(epoch_timestamp,qr_stop_number,arrive_depart)
+            send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
 
             # let robot come to stop
             time.sleep(stop_time/2)
@@ -260,7 +262,7 @@ try:
             epoch_timestamp=int(time.time())
             qr_stop_number=int(qr_string)
             arrive_depart="depart"
-            send_POST_request(epoch_timestamp,qr_stop_number,arrive_depart)
+            send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
 
             # increment stop number
             stop_num+=1
