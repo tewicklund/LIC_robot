@@ -13,7 +13,7 @@ const char* SSID = "Ynet";
 const char* PASSWORD = "CLTC1234";
 
 // Information about the HTTP server that will receive and store LIC trigger events
-const char* SERVER = "192.168.4.6";  // e.g., "example.com"
+const char* SERVER = "192.168.4.68";  // e.g., "example.com"
 const int PORT = 8080;               // Change to 443 for HTTPS
 const char* PATH = "/LIC_triggers";
 
