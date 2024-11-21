@@ -2,12 +2,11 @@ from functions import *
 
 # Initialize the RealSense pipeline
 pipeline = rs.pipeline()
-
-# Configure the pipeline to stream the RGB camera at 640x480
 frame_width=640
 frame_height=480
 config = rs.config()
 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+pipeline.start(config)
 
 try:
     while True:
