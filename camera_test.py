@@ -20,6 +20,10 @@ try:
         color_image = np.asanyarray(color_frame.get_data())
         cv2.imshow("Color Image",color_image)
 
+        # Break loop with 'q' key
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
 finally:
     # Stop streaming
     pipeline.stop()
