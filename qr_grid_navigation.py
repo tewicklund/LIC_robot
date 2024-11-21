@@ -204,6 +204,7 @@ try:
                 # Break loop with 'q' key
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
+            print("QR String:",qr_string)
 
             #send POST request to database letting it know the robot has arrived at a stop
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
