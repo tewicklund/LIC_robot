@@ -91,6 +91,8 @@ def send_POST_request(test_name,epoch_timestamp,stop_number,arrive_depart):
 def read_qr_code(color_image: np.ndarray) -> str:
     # Convert the image to grayscale (QR detection works better in grayscale)
     gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
+
+    cv2.imshow("gray image",gray_image)
     
     # Decode any QR codes found in the image
     decoded_objects = decode(gray_image)
