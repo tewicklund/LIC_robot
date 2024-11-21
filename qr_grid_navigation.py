@@ -35,7 +35,7 @@ horizontal_lines_acknowledged=False
 stop_num=0
 
 # amount of time spent at each stop, in seconds
-stop_time=10
+stop_time=3
 
 # limit of ratio of white to black pixels in mask that counts as qr code in frame
 white_ratio_limit=0.02
