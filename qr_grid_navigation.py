@@ -136,7 +136,7 @@ try:
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        cv2.imshow('Robot Vision', output_image)
+        #cv2.imshow('Robot Vision', output_image)
 
         # base speed control, based on elapsed time
         elapsed_time=time.time()-timestamp
@@ -208,7 +208,7 @@ try:
             while qr_string==qr_not_found:
                 print("Looking for QR code...")
                 color_image = get_color_image(pipeline)
-                cv2.imshow('Color Image', color_image)
+                #cv2.imshow('Color Image', color_image)
                 qr_string=read_qr_code(color_image)
                 #time.sleep(1)
 
