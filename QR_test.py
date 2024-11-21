@@ -23,7 +23,7 @@ pipeline = rs.pipeline()
 
 # Configure the pipeline to stream the RGB camera at 640x480
 config = rs.config()
-config.enable_stream(rs.stream.color, 1280, 960, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.color, 1920, 1080, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
