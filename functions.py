@@ -6,6 +6,16 @@ import pyrealsense2 as rs
 from pyzbar.pyzbar import decode
 import requests
 
+def init_camera():
+    # Initialize the RealSense pipeline
+    pipeline = rs.pipeline()
+    frame_width=1280
+    frame_height=800
+    config = rs.config()
+    config.enable_stream(rs.stream.color, frame_width, frame_height, rs.format.bgr8, 30)
+    pipeline.start(config)
+    return frame_width, frame_height, pipeline
+
 def calculate_white_ratio(mask):
     """
     Calculate the ratio of white pixels in a binary mask.
