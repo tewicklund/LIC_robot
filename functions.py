@@ -12,6 +12,7 @@ def init_camera(exposure_time_us):
     frame_width=1280
     frame_height=800
     config = rs.config()
+    config.enable_stream(rs.stream.gyro)
     config.enable_stream(rs.stream.color, frame_width, frame_height, rs.format.bgr8, 30)
     pipeline.start(config)
 
