@@ -49,18 +49,7 @@ instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
                   #'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
 
-# Initialize the RealSense pipeline
-pipeline = rs.pipeline()
-
-# Configure the pipeline to stream the RGB camera at 640x480
-frame_width=640
-frame_height=480
-config = rs.config()
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-config.enable_stream(rs.stream.gyro)
-
-# Start streaming
-pipeline.start(config)
+frame_width, frame_height,pipeline=init_camera(400)
 
 ######------MANUAL EXPOSURE ADJUST------######
 # # Get the camera device from the pipeline
