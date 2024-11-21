@@ -91,8 +91,8 @@ decel_time=2
 # set speeds used by the robot during straightforward navigation
 max_speed=63
 min_speed=1
-cruise_speed=40
-slow_speed=8
+cruise_speed=20
+slow_speed=15
 
 qr_not_found="No QR code found"
 qr_string=qr_not_found
@@ -161,13 +161,6 @@ try:
         else:
             base_speed=slow_speed
 
-        # run at slow speed if next command is a turn
-        try:
-            next_instruction=instruction_list[stop_num+1]
-            if next_instruction != 'S':
-                base_speed=slow_speed
-        except:
-            base_speed=slow_speed
 
         #start motors turning
         right_motor_speed=base_speed
@@ -213,9 +206,7 @@ try:
 
         # if new lines code encountered, stop for set amount of time
         elif(elapsed_time>cruise_time):
-
-            
-            
+    
             #set flag for horizontal lines high
             horizontal_lines_acknowledged=True
 
@@ -237,10 +228,11 @@ try:
 
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 qr_stop_number=int(qr_string)
+                arrive_depart="arrive"
+                send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
             else:
                 qr_stop_number=0
-            arrive_depart="arrive"
-            send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
+            
 
             # let robot come to stop
             time.sleep(stop_time/2)
