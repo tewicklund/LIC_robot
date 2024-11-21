@@ -6,7 +6,7 @@ import pyrealsense2 as rs
 from pyzbar.pyzbar import decode
 import requests
 
-def init_camera():
+def init_camera(exposure_time_us):
     # Initialize the RealSense pipeline
     pipeline = rs.pipeline()
     frame_width=1280
@@ -14,6 +14,15 @@ def init_camera():
     config = rs.config()
     config.enable_stream(rs.stream.color, frame_width, frame_height, rs.format.bgr8, 30)
     pipeline.start(config)
+
+    # Get the camera device from the pipeline
+    device = pipeline.get_active_profile().get_device()
+
+    # Get the RGB camera sensor
+    sensor = device.query_sensors()[1]
+
+    # Set the exposure time
+    sensor.set_option(rs.option.exposure, exposure_time_us)
     return frame_width, frame_height, pipeline
 
 def calculate_white_ratio(mask):
