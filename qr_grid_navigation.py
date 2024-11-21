@@ -102,22 +102,12 @@ qr_stop_number=0
 try:
     while True:
         
+        #get color image from camera
         color_image = get_color_image(pipeline)
-        cv2.imshow('Color Image', color_image)
-        qr_string=read_qr_code(color_image)
-
+        
         # Apply gaussian blur to image
         kernel_size=(3,3)
         gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
-
-        # Apply thresholds to only get white color (BGR color space)
-        #lower_white=np.array([250,250,250])
-        #upper_white=np.array([255,255,255])
-        #white_threshold=cv2.inRange(gauss_image,lower_white,upper_white)
-        #cv2.imshow('White Threshold',white_threshold)
-        #white_ratio=calculate_white_ratio(white_threshold)
-        #print(white_ratio)
-
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
@@ -126,8 +116,6 @@ try:
         lower_blue=np.array([50,100,0])
         upper_blue=np.array([160,255,255])
         blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
-
-        
 
         # Apply canny edge detection
         canny_low=200
@@ -148,7 +136,7 @@ try:
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        #cv2.imshow('Robot Vision', output_image)
+        cv2.imshow('Robot Vision', output_image)
 
         # base speed control, based on elapsed time
         elapsed_time=time.time()-timestamp
@@ -214,19 +202,23 @@ try:
             drive_motor_exp("L",0,i2c_bus)
             drive_motor_exp("R",0,i2c_bus)
 
-            #send POST request to database letting it know the robot has arrived at a stop
-            epoch_timestamp=int(time.time())
-
+            
+            
+            #repeatedly check for qr code
             while qr_string==qr_not_found:
+                print("Looking for QR code...")
                 color_image = get_color_image(pipeline)
                 cv2.imshow('Color Image', color_image)
                 qr_string=read_qr_code(color_image)
+                #time.sleep(1)
 
                 # Break loop with 'q' key
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
 
+            #send POST request to database letting it know the robot has arrived at a stop
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
+                epoch_timestamp=int(time.time())
                 qr_stop_number=int(qr_string)
                 arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
