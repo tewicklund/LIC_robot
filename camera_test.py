@@ -1,7 +1,7 @@
 from functions import *
 
 # Initialize camera
-frame_width,frame_height,pipeline=init_camera(5000)
+frame_width,frame_height,pipeline=init_camera(400)
 
 try:
     while True:
