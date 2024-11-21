@@ -230,8 +230,6 @@ try:
                 qr_stop_number=int(qr_string)
                 arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
-            else:
-                qr_stop_number=0
             
 
             # let robot come to stop
@@ -251,10 +249,12 @@ try:
             time.sleep(stop_time/2)
 
             #send POST request to database letting it know the robot has departed a stop
-            epoch_timestamp=int(time.time())
-            qr_stop_number=int(qr_string)
-            arrive_depart="depart"
-            send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
+            if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
+                epoch_timestamp=int(time.time())
+                qr_stop_number=int(qr_string)
+                arrive_depart="depart"
+                send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
+            
 
             # increment stop number
             stop_num+=1
