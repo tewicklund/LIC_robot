@@ -194,6 +194,7 @@ try:
             
             
             #repeatedly check for qr code
+            qr_string=qr_not_found
             while qr_string==qr_not_found:
                 print("Looking for QR code...")
                 color_image = get_color_image(pipeline)
