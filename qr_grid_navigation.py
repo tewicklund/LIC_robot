@@ -127,7 +127,7 @@ try:
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        #cv2.imshow('Robot Vision', output_image)
+        cv2.imshow('Robot Vision', output_image)
 
         # base speed control, based on elapsed time
         elapsed_time=time.time()-timestamp
