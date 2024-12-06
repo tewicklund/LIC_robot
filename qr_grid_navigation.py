@@ -49,7 +49,7 @@ instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
                   #'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
 
-frame_width, frame_height,pipeline=init_camera(400)
+frame_width, frame_height,pipeline=init_camera(200)
 
 ######------MANUAL EXPOSURE ADJUST------######
 # # Get the camera device from the pipeline
@@ -93,10 +93,12 @@ try:
         
         #get color image from camera
         color_image = get_color_image(pipeline)
+
+        cropped_image=crop_image(color_image)
         
         # Apply gaussian blur to image
         kernel_size=(3,3)
-        gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
+        gauss_image=cv2.GaussianBlur(cropped_image,kernel_size,0)
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
