@@ -14,8 +14,8 @@ pca_address=0x40
 frequency=340
 
 #pi control variables, set to 0 to disable
-angle_p=1
-centering_p=0.1
+angle_p=0.5
+centering_p=0.05
 angle_i=0
 centering_i=0
 
