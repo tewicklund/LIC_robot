@@ -6,6 +6,28 @@ import pyrealsense2 as rs
 from pyzbar.pyzbar import decode
 import requests
 
+def crop_image(color_image):
+    # Original image dimensions
+    image_height, image_width, _ = color_image.shape
+
+    # Desired crop dimensions
+    crop_width = 800
+    crop_height = 400
+
+    # Calculate the center of the image
+    center_x = image_width // 2
+    center_y = image_height // 2
+
+    # Calculate the crop box
+    start_x = center_x - crop_width // 2
+    end_x = center_x + crop_width // 2
+    start_y = center_y - crop_height // 2
+    end_y = center_y + crop_height // 2
+
+    # Perform the crop
+    cropped_image = color_image[start_y:end_y, start_x:end_x]
+    return cropped_image
+
 def init_camera(exposure_time_us):
     # Initialize the RealSense pipeline
     pipeline = rs.pipeline()

@@ -93,10 +93,14 @@ try:
         
         #get color image from camera
         color_image = get_color_image(pipeline)
+
+        cropped_image=crop_image(color_image)
+
+
         
         # Apply gaussian blur to image
         kernel_size=(3,3)
-        gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
+        gauss_image=cv2.GaussianBlur(cropped_image,kernel_size,0)
 
         # Convert image to HSV
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
