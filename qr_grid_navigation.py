@@ -95,6 +95,7 @@ try:
         color_image = get_color_image(pipeline)
 
         cropped_image=crop_image(color_image)
+        cropped_frame_width=800
         
         # Apply gaussian blur to image
         kernel_size=(3,3)
@@ -148,7 +149,7 @@ try:
         
         #proportional control
         angle_error=avg_angle_deg
-        x_location_error=(frame_width/2)-x_location_avg
+        x_location_error=(cropped_frame_width/2)-x_location_avg
         right_motor_speed+=int(angle_error*angle_p)
         left_motor_speed-=int(angle_error*angle_p)
         right_motor_speed+=int(x_location_error*centering_p)
