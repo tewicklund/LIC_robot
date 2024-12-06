@@ -107,8 +107,8 @@ try:
         hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
 
         # Adjust thresholds to isolate bright (almost white) blue
-        lower_blue = np.array([90, 140, 150])  # H: 100-120 for blue, S: High, V: High
-        upper_blue = np.array([140, 255, 255])  # Narrow range for bright blue
+        lower_blue = np.array([90, 80, 50])
+        upper_blue = np.array([130, 255, 255])
 
         #Apply the adjusted thresholds
         blue_threshold = cv2.inRange(hsv_image, lower_blue, upper_blue)
@@ -133,7 +133,7 @@ try:
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
         # show the frame
-        cv2.imshow('Robot Vision', gauss_image)
+        cv2.imshow('Robot Vision', blue_threshold)
         # Break loop with 'q' key
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
