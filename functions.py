@@ -546,8 +546,8 @@ def gyro_turn(pipeline,direction,i2c_bus):
 
 
     # speed settings for the motors
-    base_speed=20
-    min_speed=5
+    base_speed=25
+    min_speed=10
     p=12.5
 
     try:
