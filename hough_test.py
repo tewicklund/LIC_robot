@@ -49,7 +49,8 @@ instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
                   #'S','S','S','S','S','S','S','S','S','S','R','S','R']
 
 
-frame_width, frame_height,pipeline=init_camera(400)
+#adjust camera exposure
+frame_width, frame_height,pipeline=init_camera(200)
 
 ######------MANUAL EXPOSURE ADJUST------######
 # # Get the camera device from the pipeline
