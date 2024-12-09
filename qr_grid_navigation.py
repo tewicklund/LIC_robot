@@ -31,8 +31,6 @@ ratio_limit=0.8
 # boolean for loop logic, used for driving over previously acknowledged horizontal lines
 horizontal_lines_acknowledged=False
 
-# index variable for keeping track of stop in sequence
-stop_num=0
 
 # amount of time spent at each stop, in seconds
 stop_time=3
@@ -69,7 +67,6 @@ slow_speed=10
 
 qr_not_found="No QR code found"
 qr_string=qr_not_found
-qr_stop_number=0
 
 init_delay=True
 
@@ -185,6 +182,7 @@ try:
             
             
             #repeatedly check for qr code
+            qr_int=99
             qr_string=qr_not_found
             while qr_string==qr_not_found:
                 print("Looking for QR code...")
@@ -196,23 +194,24 @@ try:
                 # Break loop with 'q' key
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
-            print("QR String:",qr_string)
-
-
-            #send POST request to database letting it know the robot has arrived at a stop
-            if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
-                epoch_timestamp=int(time.time())
-                qr_stop_number=int(qr_string)
-                arrive_depart="arrive"
-                send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
             
-            #set motor speeds to slow if next stop is a turn or coming out of a turn
-            qr_int=1
+            print("QR String:",qr_string)
             try:
                 qr_int=int(qr_string)
                 go_slow=qr_int%10==0 and qr_int !=0
             except:
                 pass
+
+            # exit the code if there are no more stops left
+            if qr_string=='S':
+                print("Course Complete")
+                exit()
+
+            #send POST request to database letting it know the robot has arrived at a stop
+            epoch_timestamp=int(time.time())
+            arrive_depart="arrive"
+            send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+            
                 
             
 
@@ -235,23 +234,15 @@ try:
             time.sleep(stop_time/2)
 
             #send POST request to database letting it know the robot has departed a stop
-            if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
-                epoch_timestamp=int(time.time())
-                qr_stop_number=int(qr_string)
-                arrive_depart="depart"
-                send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
+            epoch_timestamp=int(time.time())
+            arrive_depart="depart"
+            send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
             
-
-            # increment stop number
-            stop_num+=1
 
             #reset timestamp
             timestamp=time.time()
 
-            # exit the code if there are no more stops left
-            if qr_string=='S':
-                print("Course Complete")
-                exit()
+            
         
         # if old qr still in frame, keep driving till they are out of frame
         else:
