@@ -71,10 +71,14 @@ qr_not_found="No QR code found"
 qr_string=qr_not_found
 qr_stop_number=0
 
+init_delay=True
+
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
-        
+        if init_delay:
+            init_delay=False
+            time.sleep(2)
         #get color image from camera
         color_image = get_color_image(pipeline)
 
