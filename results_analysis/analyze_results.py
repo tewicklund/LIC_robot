@@ -38,7 +38,7 @@ try:
             # add arrival/departure times for specified test id
             if row[0]==test_ID:
                 print(row)
-                if row[5]=='arrive' and row[4] != '0':      #ignore the first arrival, with stop num 0
+                if row[5]=='arrive':
                     arrival_times.append(int(row[3]))
                 if row[5]=='depart':
                     departure_times.append(int(row[3]))
