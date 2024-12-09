@@ -41,29 +41,12 @@ stop_time=3
 white_ratio_limit=0.02
 
 # exposure time of the camera in microseconds
-#exposure_time_us=800
-
-# list of instructions, 'S' means stop at the line, 'R' means make a 90 degree right turn, and 'L' means make a 90 degree left turn
-instruction_list=['S','S','S','S','S','S','S','S','S','S','S','R','S','R']#,
-                  #'S','S','S','S','S','S','S','S','S','S','L','S','L',
-                  #'S','S','S','S','S','S','S','S','S','S','R','S','R']
+exposure_time_us=200
 
 
-frame_width, frame_height,pipeline=init_camera(200)
 
-######------MANUAL EXPOSURE ADJUST------######
-# # Get the camera device from the pipeline
-# device = pipeline.get_active_profile().get_device()
 
-# # Get the RGB camera sensor
-# sensor = device.query_sensors()[1]  # Assumes the RGB camera is the second sensor
-# if not sensor.supports(rs.option.exposure):
-#     print("The connected device does not support manual exposure.")
-    
-
-# # Set the exposure time
-# sensor.set_option(rs.option.exposure, exposure_time_us)
-# print(f"Exposure time set to {exposure_time_us} microseconds.")
+frame_width, frame_height,pipeline=init_camera(exposure_time_us)
 
 
 # Get timestamp for frame counter
@@ -74,14 +57,15 @@ timestamp=time.time()
 
 # assign timestamps for speed changing, in seconds
 accel_time=1
-cruise_time=1.5
+cruise_time=1
 decel_time=2
+go_slow=False
 
 # set speeds used by the robot during straightforward navigation
 max_speed=63
 min_speed=1
-cruise_speed=20
-slow_speed=15
+cruise_speed=40
+slow_speed=10
 
 qr_not_found="No QR code found"
 qr_string=qr_not_found
@@ -130,13 +114,13 @@ try:
         # show the frame
         cv2.imshow('Robot Vision', output_image)
 
-        # base speed control, based on elapsed time
+        # base speed control, based on elapsed time and 
         elapsed_time=time.time()-timestamp
-        if (elapsed_time<accel_time):
+        if (elapsed_time<accel_time and not go_slow):
             base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
-        elif(elapsed_time<cruise_time):
+        elif(elapsed_time<cruise_time and not go_slow):
             base_speed=cruise_speed
-        elif(elapsed_time<decel_time):
+        elif(elapsed_time<decel_time and not go_slow):
             base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/decel_time
         else:
             base_speed=slow_speed
@@ -210,6 +194,7 @@ try:
                     break
             print("QR String:",qr_string)
 
+
             #send POST request to database letting it know the robot has arrived at a stop
             if qr_string != 'R' and qr_string != 'L' and qr_string != 'S':
                 epoch_timestamp=int(time.time())
@@ -217,13 +202,24 @@ try:
                 arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_stop_number,arrive_depart)
             
+            #set motor speeds to slow if next stop is a turn or coming out of a turn
+            qr_int=1
+            try:
+                qr_int=int(qr_string)
+                go_slow=qr_int%10==0 and qr_int !=0
+            except:
+                pass
+                
+            
 
             # let robot come to stop
             time.sleep(stop_time/2)
 
-            # perform turn if instruction is 'R' or 'L'
+            # perform turn if instruction is 'R' or 'L', go slow on next one
             if qr_string=='R' or qr_string=='L':
                 gyro_turn(pipeline,qr_string,i2c_bus)
+                go_slow=True
+
             
             elif minor_motion_control:
                 set_arm_position(i2c_bus,pca_address,frequency,'a')
