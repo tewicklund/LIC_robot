@@ -57,7 +57,7 @@ timestamp=time.time()
 
 # assign timestamps for speed changing, in seconds
 accel_time=1
-cruise_time=1
+cruise_time=1.5
 decel_time=2
 go_slow=False
 
