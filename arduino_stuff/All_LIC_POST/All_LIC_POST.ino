@@ -13,7 +13,7 @@ const char* SSID = "Ynet";
 const char* PASSWORD = "CLTC1234";
 
 // Information about the HTTP server that will receive and store LIC trigger events
-const char* SERVER = "192.168.4.68";  // e.g., "example.com"
+const char* SERVER = "192.168.4.28";  // e.g., "example.com"
 const int PORT = 8080;               // Change to 443 for HTTPS
 const char* PATH = "/LIC_triggers";
 
@@ -26,6 +26,9 @@ const int timeZoneOffset = 0;                     // Offset in seconds, adjust b
 // Digital pin assignment
 const int buttonPin = 2;    // connect test button to digital pin 2
 const int presencePin = 3;  // connect TTL output from LIC to digital pin 3 (Keilton only)
+const int noWifiPin=4;
+const int yesWifiPin=5;
+const int triggerIndicatorPin=6;
 
 // WiFi setup stuff
 WiFiClient wifiClient;
@@ -43,15 +46,24 @@ void setup() {
   // Serial comms setup
   Serial.begin(115200);
 
+  
+
   // Input pin setup
   pinMode(buttonPin, INPUT);
   pinMode(presencePin, INPUT);
+  pinMode(noWifiPin,OUTPUT);
+  pinMode(yesWifiPin,OUTPUT);
+  pinMode(triggerIndicatorPin,OUTPUT);
 
   //WiFi setup
   if (WiFi.begin(SSID, PASSWORD) == WL_CONNECTED) {
     Serial.println("Connected to WiFi");
+    digitalWrite(yesWifiPin, HIGH);
+    digitalWrite(noWifiPin, LOW);
   } else {
     Serial.println("Failed to connect to WiFi");
+    digitalWrite(yesWifiPin, LOW);
+    digitalWrite(noWifiPin, HIGH);
     while (true)
       ;
   }
@@ -78,7 +90,9 @@ void loop() {
         Serial.println("Detected button press, sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next button press...");
       }
       break;
@@ -89,7 +103,9 @@ void loop() {
         Serial.println("Detected presence from Keilton LIC, sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -103,7 +119,9 @@ void loop() {
         Serial.println("), sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -117,7 +135,9 @@ void loop() {
         Serial.println("), sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -131,7 +151,9 @@ void loop() {
         Serial.println("),sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -142,7 +164,9 @@ void loop() {
         Serial.println("Detected presence from WIZ20 LIC, sending post request");
         sendPostRequest();
         Serial.println("Sent request successfully! Waiting 5 seconds...");
+        digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
+        digitalWrite(triggerIndicatorPin,LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;

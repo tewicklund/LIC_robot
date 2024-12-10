@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from functions import *
 
-test_name="LIC 1 Nov 18 2024"
+test_name="LIC 1 Dec 10 2024"
 
 # use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
@@ -33,7 +33,7 @@ horizontal_lines_acknowledged=False
 
 
 # amount of time spent at each stop, in seconds
-stop_time=3
+stop_time=10
 
 # limit of ratio of white to black pixels in mask that counts as qr code in frame
 white_ratio_limit=0.02
