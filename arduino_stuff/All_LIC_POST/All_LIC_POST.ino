@@ -22,6 +22,7 @@ const char* ntpServer = "pool.ntp.org";
 const int ntpPort = 123;                          // NTP uses port 123
 const unsigned long seventyYears = 2208988800UL;  // UNIX epoch starts from 1970, NTP from 1900
 const int timeZoneOffset = 0;                     // Offset in seconds, adjust based on your timezone
+unsigned long startEpochMilliseconds=0;
 
 // Digital pin assignment
 const int buttonPin = 2;    // connect test button to digital pin 2
@@ -45,6 +46,9 @@ int analogReading=0;
 void setup() {
   // Serial comms setup
   Serial.begin(115200);
+
+  //sync arduino millis() with epoch time
+  startEpochMilliseconds=1000*getEpochTime()-millis();
 
   
 
@@ -88,7 +92,7 @@ void loop() {
     case 0:
       if (digitalRead(buttonPin)) {
         Serial.println("Detected button press, sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
@@ -101,7 +105,7 @@ void loop() {
     case 1:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from Keilton LIC, sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
@@ -117,7 +121,7 @@ void loop() {
         Serial.print("Detected presence from Acuity LIC (analogRead = ");
         Serial.print(analogReading);
         Serial.println("), sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
@@ -133,7 +137,7 @@ void loop() {
         Serial.print("Detected presence from Cooper LIC (Blue = ");
         Serial.print(b);
         Serial.println("), sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
@@ -149,7 +153,7 @@ void loop() {
         Serial.print("Detected presence from EasySense LIC (Red = ");
         Serial.print(r);
         Serial.println("),sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
@@ -162,7 +166,7 @@ void loop() {
     case 5:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from WIZ20 LIC, sending post request");
-        sendPostRequest();
+        sendPostRequest(startEpochMilliseconds);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
         digitalWrite(triggerIndicatorPin,HIGH);
         delay(5000);
