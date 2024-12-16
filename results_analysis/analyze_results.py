@@ -2,7 +2,9 @@ from analysis_functions import *
 
 #ask user for test ID, should be 1st column of results csv
 #test_ID=input("Enter test ID: ")
-test_ID='LIC 1 Dec 16 2024'
+test_ID='LIC 2 Dec 16 2024'
+
+grid_title='LIC on table results grid'
 
 #list to store LIC posts
 LIC_post_list=csv_to_LIC_post_list(test_ID)
@@ -23,5 +25,5 @@ for grid_square in range(num_squares):
             if post.post_type=='LIC Trigger POST' and start_timestamp<post.server_timestamp and post.server_timestamp<end_timestamp:
                 grid_chars[grid_square]='X'
 
-export_grid_as_png('LIC in pos 1 results grid',grid_chars,'8 stop grid.png')
+export_grid_as_png(grid_title,grid_chars)
 

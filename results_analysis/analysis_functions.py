@@ -2,33 +2,51 @@ from tkinter import Tk, filedialog
 import csv
 import openpyxl
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
-def export_grid_as_png(title,grid_chars,output_path):
-    #save results grid as png
+def export_grid_as_png(title, grid_chars):
+    # Save results grid as png
+    output_path = title + '.png'
 
-    # output grid image dimensions
+    # Output grid image dimensions
     rows, cols = 10, 7
     cell_width, cell_height = 1, 1
 
     # Create the grid
     fig, ax = plt.subplots(figsize=(cols * cell_width, rows * cell_height))
+    
     # Draw the grid
     for row in range(rows + 1):
         ax.axhline(y=row, color='black', linewidth=0.5)
     for col in range(cols + 1):
         ax.axvline(x=col, color='black', linewidth=0.5)
 
-    # Add 'X' and 'O' in cells
+    # Add 'X' and 'O' in cells with background for 'X'
     for row in range(rows):
         for col in range(cols):
-            if col%2==0:
-                grid_number=(10*col)+9-row
+            if col % 2 == 0:
+                grid_number = (10 * col) + 9 - row
             else:
-                grid_number=(10*col)+row
-            
+                grid_number = (10 * col) + row
+
             char = grid_chars[grid_number]
-            ax.text(col + 0.5, rows - row - 0.5, char, ha='center', va='center', fontsize=12)
-    
+            
+            # Add green background for 'X'
+            if char == 'X':
+                rect = patches.Rectangle(
+                    (col, rows - row - 1),  # Bottom-left corner
+                    1, 1,  # Width and height
+                    color='green',
+                    zorder=1  # Ensure it appears below the text
+                )
+                ax.add_patch(rect)
+
+            # Add text on top
+            ax.text(
+                col + 0.5, rows - row - 0.5, char,
+                ha='center', va='center', fontsize=12, color='black', zorder=2
+            )
+
     # Add title
     fig.suptitle(title, fontsize=16, weight='bold', y=0.95)
 
@@ -36,14 +54,17 @@ def export_grid_as_png(title,grid_chars,output_path):
     ax.text(0.5, 0.1, "START", ha='center', va='bottom', fontsize=12, weight='bold')
 
     # Adjust the plot
-    expansion_constant=0.01
-    ax.set_xlim(-expansion_constant, cols + expansion_constant)  # Expand limits slightly to ensure visibility
+    expansion_constant = 0.01
+    ax.set_xlim(-expansion_constant, cols + expansion_constant)
     ax.set_ylim(-expansion_constant, rows + expansion_constant)
     ax.set_aspect('equal')
     ax.axis('off')  # Hide axes
 
     # Save the image
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
+    plt.close()
+
+
 
 def get_timestamp_from_post(stop_ID,stop_type,post_list):
     for post in post_list:
