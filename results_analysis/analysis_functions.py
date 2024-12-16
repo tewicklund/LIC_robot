@@ -45,9 +45,9 @@ def export_grid_as_png(title,grid_chars,output_path):
     # Save the image
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
 
-def get_timestamp_from_post(stop_ID,arrive_depart,post_list):
+def get_timestamp_from_post(stop_ID,stop_type,post_list):
     for post in post_list:
-        if post.stop_ID==stop_ID and post.arrive_depart==arrive_depart:
+        if post.stop_ID==stop_ID and post.stop_type==stop_type:
             return(post.server_timestamp)
     return 0.0
 
@@ -79,13 +79,13 @@ def csv_to_LIC_post_list(test_ID):
         print(f"An error occurred: {e}")
 
 class LIC_post():
-    def __init__(self,test_name,post_type,server_timestamp,client_timestamp,stop_ID,arrive_depart):
+    def __init__(self,test_name,post_type,server_timestamp,client_timestamp,stop_ID,stop_type):
         self.test_name=test_name
         self.post_type=post_type
         self.server_timestamp=round(float(server_timestamp),3)
         self.client_timestamp=round(float(client_timestamp),3)
         self.stop_ID=stop_ID
-        self.arrive_depart=arrive_depart
+        self.stop_type=stop_type
 
     def __str__(self):
         return_string=''
@@ -95,7 +95,7 @@ class LIC_post():
         return_string+='Client Timestamp: '+str(self.client_timestamp)+'\n'
         if self.post_type=='Robot POST':
             return_string+='Stop Number: '+self.stop_ID+'\n'
-            return_string+='Arrive/Depart: '+self.arrive_depart+'\n'
+            return_string+='Arrive/Depart: '+self.stop_type+'\n'
         return return_string
         
         
