@@ -6,7 +6,7 @@
 #include "Adafruit_TCS34725.h"  // Library for color sensor
 
 // Number to specify UUT, THIS WILL NEED TO BE ADJUSTED WHEN CHANGING UUT
-const int SENSOR_ID = 0;
+const int SENSOR_ID = 1;
 
 // Information about the WiFi network the Arduino needs to join
 const char* SSID = "Ynet";

@@ -8,7 +8,7 @@ from functions import *
 
 
 ####--------------ADJUSTABLE VARIABLES--------------####
-test_name="LIC 1 Dec 16 2024"
+test_name="LIC 2 Dec 16 2024"
 
 #pid control variables, set to 0 to disable
 angle_p=0.5
