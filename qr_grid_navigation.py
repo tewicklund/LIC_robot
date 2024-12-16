@@ -1,57 +1,26 @@
 import pyrealsense2 as rs
 import numpy as np
 import cv2
+import os
 from functions import *
 
-test_name="LIC 1 Dec 10 2024"
 
-# use I2C1 interface on Jetson nano, pins 3 and 5
-i2c_bus = smbus2.SMBus(7)
 
-# set to true if you would like the arm to actuate at each stop
-minor_motion_control=False
-pca_address=0x40
-frequency=340
 
-#pi control variables, set to 0 to disable
+####--------------ADJUSTABLE VARIABLES--------------####
+test_name="LIC 1 Dec 16 2024"
+
+#pid control variables, set to 0 to disable
 angle_p=0.5
 centering_p=0.05
 angle_i=0
 centering_i=0
 
-# maximum errors for i control
-angle_error_sum=0
-angle_error_sum_max=400
-x_location_error_sum=0
-x_location_error_max=400
-
 # minimum ratio of horizontal lines to vertical lines that is recognized as a stop
 ratio_limit=0.8
 
-# boolean for loop logic, used for driving over previously acknowledged horizontal lines
-horizontal_lines_acknowledged=False
-
-
 # amount of time spent at each stop, in seconds
 stop_time=8
-
-# limit of ratio of white to black pixels in mask that counts as qr code in frame
-white_ratio_limit=0.02
-
-# exposure time of the camera in microseconds
-exposure_time_us=200
-
-
-
-
-frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-
-
-# Get timestamp for frame counter
-frame_time=time.time()
-
-# get timestamp for accel/decel
-timestamp=time.time()
 
 # assign timestamps for speed changing, in seconds
 accel_time=1
@@ -65,10 +34,42 @@ min_speed=1
 cruise_speed=40
 slow_speed=10
 
+# give the camera a second to initialize before beginning drive sequence
+init_delay=True
+####------------END ADJUSTABLE VARIABLES------------####
+
+
+
+# force sync with same NTP server as arduino and HTTP server
+os.system('cat /var/log/syslog | grep systemd-timesyncd')
+
+# use I2C1 interface on Jetson nano, pins 3 and 5
+i2c_bus = smbus2.SMBus(7)
+
+# set to true if you would like the arm to actuate at each stop
+minor_motion_control=False
+pca_address=0x40
+frequency=340
+
+# maximum errors for i control
+angle_error_sum=0
+angle_error_sum_max=400
+x_location_error_sum=0
+x_location_error_max=400
+
+# init camera
+exposure_time_us=200
+frame_width, frame_height,pipeline=init_camera(exposure_time_us)
+
+# Get timestamp for frame counter
+frame_time=time.time()
+
+# get timestamp for accel/decel
+timestamp=time.time()
+
+# message to print if no QR code found in frame
 qr_not_found="No QR code found"
 qr_string=qr_not_found
-
-init_delay=True
 
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
@@ -115,7 +116,7 @@ try:
         # show the frame
         cv2.imshow('Robot Vision', output_image)
 
-        # base speed control, based on elapsed time and 
+        # base speed control, based on elapsed time
         elapsed_time=time.time()-timestamp
         if (elapsed_time<accel_time and not go_slow):
             base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
@@ -126,12 +127,10 @@ try:
         else:
             base_speed=slow_speed
 
-
         #start motors turning
         right_motor_speed=base_speed
         left_motor_speed=base_speed
 
-        
         #proportional control
         angle_error=avg_angle_deg
         x_location_error=(cropped_frame_width/2)-x_location_avg
@@ -150,7 +149,6 @@ try:
         right_motor_speed+=int(x_location_error_sum*centering_i)
         left_motor_speed-=int(x_location_error_sum*centering_i)
 
-
         # clamp motor speeds to max_speed
         right_motor_speed=clamp(right_motor_speed,min_speed,max_speed)
         left_motor_speed=clamp(left_motor_speed,min_speed,max_speed)
@@ -161,35 +159,26 @@ try:
             drive_motor_exp("R",0,i2c_bus)
             print("No lines, stopping motors")
 
-        # if no qr code in frame, drive as normal
+        # if no horizontal lines in frame, drive as normal
         elif (horizontal_vertical_ratio<ratio_limit):
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
-            #print(f"Left motor throttle: {left_moto_speed}")
-            #print(f"Right motor throttle: {right_motor_speed}\n")
-            horizontal_lines_acknowledged=False
 
         # if new lines code encountered, stop for set amount of time
         elif(elapsed_time>cruise_time):
-    
-            #set flag for horizontal lines high
-            horizontal_lines_acknowledged=True
 
             #stop motors
             drive_motor_exp("L",0,i2c_bus)
             drive_motor_exp("R",0,i2c_bus)
 
-            
-            
             #repeatedly check for qr code
             qr_int=99
             qr_string=qr_not_found
             while qr_string==qr_not_found:
                 print("Looking for QR code...")
                 color_image = get_color_image(pipeline)
-                #cv2.imshow('Color Image', color_image)
+                cv2.imshow('Robot Vision', color_image)
                 qr_string=read_qr_code(color_image)
-                #time.sleep(1)
 
                 # Break loop with 'q' key
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -198,33 +187,31 @@ try:
             print("QR String:",qr_string)
             try:
                 qr_int=int(qr_string)
+
+                # go slow if stop is right before a turn (multiple of ten) but go normal speed if stop number is zero
                 go_slow=qr_int%10==0 and qr_int !=0
             except:
                 pass
-
-            # exit the code if there are no more stops left
-            if qr_string=='S':
-                print("Course Complete")
-                exit()
 
             #send POST request to database letting it know the robot has arrived at a stop
             epoch_timestamp=int(time.time())
             arrive_depart="arrive"
             send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
             
-                
-            
-
-            # let robot come to stop
-            time.sleep(stop_time/2)
-
-            # perform turn if instruction is 'R' or 'L', go slow on next one
+             # perform turn if instruction is 'R' or 'L', go slow on next one
             if qr_string=='R' or qr_string=='L':
                 gyro_turn(pipeline,qr_string,i2c_bus)
                 go_slow=True
 
+            # exit the code if there are no more stops left
+            if qr_string=='S':
+                print("Course Complete")
+                exit()
             
-            elif minor_motion_control:
+            # let robot come to stop
+            time.sleep(stop_time/2)
+
+            if minor_motion_control and qr_int != 99:
                 set_arm_position(i2c_bus,pca_address,frequency,'a')
                 time.sleep(2)
                 set_arm_position(i2c_bus,pca_address,frequency,'b')
@@ -238,17 +225,13 @@ try:
             arrive_depart="depart"
             send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
             
-
             #reset timestamp
             timestamp=time.time()
 
-            
-        
-        # if old qr still in frame, keep driving till they are out of frame
+        # if old lines still in frame, keep driving till they are out of frame
         else:
             drive_motor_exp("L",left_motor_speed,i2c_bus)
             drive_motor_exp("R",right_motor_speed,i2c_bus)
-
 
         # Break loop with 'q' key
         if cv2.waitKey(1) & 0xFF == ord('q'):

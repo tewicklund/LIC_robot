@@ -14,22 +14,24 @@ const char* PASSWORD = "CLTC1234";
 
 // Information about the HTTP server that will receive and store LIC trigger events
 const char* SERVER = "192.168.4.28";  // e.g., "example.com"
-const int PORT = 8080;               // Change to 443 for HTTPS
+const int PORT = 8080;                // Change to 443 for HTTPS
 const char* PATH = "/LIC_triggers";
+
 
 // Information about the ntp server used to get an epoch timestamp UTC
 const char* ntpServer = "pool.ntp.org";
 const int ntpPort = 123;                          // NTP uses port 123
 const unsigned long seventyYears = 2208988800UL;  // UNIX epoch starts from 1970, NTP from 1900
 const int timeZoneOffset = 0;                     // Offset in seconds, adjust based on your timezone
-unsigned long startEpochMilliseconds=0;
+double startEpochSecondsDouble = 0;
+unsigned long initialEpochTime = 0;
 
 // Digital pin assignment
 const int buttonPin = 2;    // connect test button to digital pin 2
 const int presencePin = 3;  // connect TTL output from LIC to digital pin 3 (Keilton only)
-const int noWifiPin=4;
-const int yesWifiPin=5;
-const int triggerIndicatorPin=6;
+const int errorPin = 4;
+const int setupSuccessPin = 5;
+const int triggerIndicatorPin = 6;
 
 // WiFi setup stuff
 WiFiClient wifiClient;
@@ -41,33 +43,29 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 uint16_t r, g, b, c, colorTemp;
 
 //analog read setup
-int analogReading=0;
+int analogReading = 0;
 
 void setup() {
   // Serial comms setup
   Serial.begin(115200);
 
-  //sync arduino millis() with epoch time
-  startEpochMilliseconds=1000*getEpochTime()-millis();
-
-  
-
   // Input pin setup
   pinMode(buttonPin, INPUT);
   pinMode(presencePin, INPUT);
-  pinMode(noWifiPin,OUTPUT);
-  pinMode(yesWifiPin,OUTPUT);
-  pinMode(triggerIndicatorPin,OUTPUT);
+  pinMode(errorPin, OUTPUT);
+  pinMode(setupSuccessPin, OUTPUT);
+  pinMode(triggerIndicatorPin, OUTPUT);
+
+  //init indicators
+  digitalWrite(setupSuccessPin, LOW);
+  digitalWrite(errorPin, HIGH);
+  digitalWrite(triggerIndicatorPin,LOW);
 
   //WiFi setup
   if (WiFi.begin(SSID, PASSWORD) == WL_CONNECTED) {
     Serial.println("Connected to WiFi");
-    digitalWrite(yesWifiPin, HIGH);
-    digitalWrite(noWifiPin, LOW);
   } else {
     Serial.println("Failed to connect to WiFi");
-    digitalWrite(yesWifiPin, LOW);
-    digitalWrite(noWifiPin, HIGH);
     while (true)
       ;
   }
@@ -83,6 +81,27 @@ void setup() {
         ;
     }
   }
+
+  //sync arduino millis() with epoch time
+  while (initialEpochTime == 0) {
+    initialEpochTime = getEpochTime();
+    Serial.println("Attempting to connect to NTP server");
+  }
+  
+  //init successful, update indicators
+  digitalWrite(setupSuccessPin, HIGH);
+  digitalWrite(errorPin, LOW);
+
+  Serial.print("Initial epoch time: ");
+  Serial.println(initialEpochTime);
+
+  unsigned long initialMillis = millis();
+  Serial.print("Initial millis(): ");
+  Serial.println(initialMillis);
+
+  startEpochSecondsDouble = double(initialEpochTime) - double(initialMillis)/double(1000.0);
+  Serial.print("Start Time: ");
+  Serial.println(startEpochSecondsDouble);
 }
 
 void loop() {
@@ -92,11 +111,11 @@ void loop() {
     case 0:
       if (digitalRead(buttonPin)) {
         Serial.println("Detected button press, sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next button press...");
       }
       break;
@@ -105,27 +124,27 @@ void loop() {
     case 1:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from Keilton LIC, sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
 
     // UUT = Acuity LIC
     case 2:
-      analogReading=analogRead(A0);
+      analogReading = analogRead(A0);
       if (analogReading < 512) {
         Serial.print("Detected presence from Acuity LIC (analogRead = ");
         Serial.print(analogReading);
         Serial.println("), sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -137,11 +156,11 @@ void loop() {
         Serial.print("Detected presence from Cooper LIC (Blue = ");
         Serial.print(b);
         Serial.println("), sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -153,11 +172,11 @@ void loop() {
         Serial.print("Detected presence from EasySense LIC (Red = ");
         Serial.print(r);
         Serial.println("),sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -166,11 +185,11 @@ void loop() {
     case 5:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from WIZ20 LIC, sending post request");
-        sendPostRequest(startEpochMilliseconds);
+        sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin,HIGH);
+        digitalWrite(triggerIndicatorPin, HIGH);
         delay(5000);
-        digitalWrite(triggerIndicatorPin,LOW);
+        digitalWrite(triggerIndicatorPin, LOW);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;

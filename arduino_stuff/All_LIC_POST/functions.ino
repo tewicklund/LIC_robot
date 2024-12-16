@@ -31,8 +31,8 @@ void sendNTPpacket(const char* address) {
   udp.endPacket();
 }
 
-void sendPostRequest(unsigned long startEpochMilliseconds) {
-  unsigned long timestamp = millis()+startEpochMilliseconds;
+void sendPostRequest(double startSeconds) {
+  double timestamp = double(millis())/double(1000)+startSeconds;
   String payload = "{\"sensor_id\":" + String(SENSOR_ID) + ", \"timestamp\":" + String(timestamp) + "}";
 
   client.beginRequest();

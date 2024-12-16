@@ -48,32 +48,6 @@ def init_camera(exposure_time_us):
     sensor.set_option(rs.option.exposure, exposure_time_us)
     return frame_width, frame_height, pipeline
 
-def calculate_white_ratio(mask):
-    """
-    Calculate the ratio of white pixels in a binary mask.
-    
-    Parameters:
-        mask (numpy.ndarray): Binary image from cv2.inRange(), with white pixels (255) and black pixels (0).
-    
-    Returns:
-        float: Ratio of white pixels to total pixels (value between 0 and 1).
-    """
-    if not isinstance(mask, np.ndarray):
-        raise ValueError("Input mask must be a numpy array.")
-
-    # Ensure the mask is binary (values should be 0 or 255)
-    unique_values = np.unique(mask)
-    if not np.all(np.isin(unique_values, [0, 255])):
-        raise ValueError("Input mask must be binary (values 0 or 255).")
-
-    # Count white pixels (value 255)
-    white_pixels = np.sum(mask == 255)
-    total_pixels = mask.size
-
-    # Calculate and return the ratio
-    white_ratio = white_pixels / total_pixels
-    return white_ratio
-
 def get_color_image(pipeline):
     color_frame=None
     while not color_frame:
@@ -114,8 +88,6 @@ def send_POST_request(test_name,epoch_timestamp,stop_number,arrive_depart):
 def read_qr_code(color_image: np.ndarray) -> str:
     # Convert the image to grayscale (QR detection works better in grayscale)
     gray_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2GRAY)
-
-    cv2.imshow("gray image",gray_image)
     
     # Decode any QR codes found in the image
     decoded_objects = decode(gray_image)
@@ -284,8 +256,6 @@ def image_to_angle(image, overlay, frame_time_elapsed):
             x_location_avg=x_location_sum/(2*num_vertical_lines)
         horizontal_vertical_ratio=horizontal_sum/vertical_sum
 
-        
-
         #display this average angle value on frame
         font = cv2.FONT_HERSHEY_SIMPLEX
         angle_text=str(angle_avg_deg_rounded)
@@ -308,11 +278,6 @@ def image_to_angle(image, overlay, frame_time_elapsed):
     else:
         return 0.1234,240,0.1,False
     
-def move_arm(character,bus):
-    i2c_address=0x09
-    data_byte=ord(character)
-    bus.write_byte(i2c_address, data_byte)
-    time.sleep(1) #delay to allow arm time to move
 
 def drive_motor_exp(side,speed,bus):
     i2c_address=0x08
@@ -326,201 +291,6 @@ def drive_motor_exp(side,speed,bus):
     bus.write_byte(i2c_address, byte_to_send)
     #print("byte sent on i2c bus")
     time.sleep(0.01)  # Small delay between bytes for stability
-    
-    
-
-def drive_motor(side,speed,bus):
-    i2c_address=0x08
-    message="U"+side+":"
-    if speed<0:
-        message+="-"
-    else:
-        message+="+"
-    if abs(speed)<100:
-        message+="0"
-    if abs(speed)<10:
-        message+="0"
-    message+=str(abs(speed))+"V"
-
-
-    data_bytes = [ord(char) for char in message]
-
-    # Send each byte
-    for byte in data_bytes:
-        bus.write_byte(i2c_address, byte)
-        time.sleep(0.01)  # Small delay between bytes for stability
-
-#turning code, needs to be replaced when magnetometer comes in
-def left_turn(turn_time,bus):
-    start_time=time.time()
-
-    while time.time()-start_time<turn_time:
-        drive_motor('L',-80,bus)
-        drive_motor('R',80,bus)
-
-
-def camera_assisted_turn(pipeline,direction,lower_blue,upper_blue,bus):
-    #start the turn with 2 seconds of blind turning
-    turn_power=80
-    turn_time=2
-    start_time=time.time()
-    while time.time()-start_time<turn_time:
-        if direction=='L':
-            drive_motor('L',-1*turn_power,bus)
-            drive_motor('R',turn_power,bus)
-        elif direction=='R':
-            drive_motor('L',turn_power,bus)
-            drive_motor('R',-1*turn_power,bus)
-
-    line_straight=False
-    while not line_straight:
-        if direction=='L':
-            drive_motor('L',-1*turn_power,bus)
-            drive_motor('R',turn_power,bus)
-        elif direction=='R':
-            drive_motor('L',turn_power,bus)
-            drive_motor('R',-1*turn_power,bus)
-        # Wait for a coherent set of frames: color frame
-        frames = pipeline.wait_for_frames()
-        color_frame = frames.get_color_frame()
-
-        if not color_frame:
-            continue
-
-        # Convert RealSense frame to numpy array (BGR format for OpenCV)
-        color_image = np.asanyarray(color_frame.get_data())
-
-        # Apply gaussian blur to image
-        kernel_size=(3,3)
-        gauss_image=cv2.GaussianBlur(color_image,kernel_size,0)
-
-        # Convert image to HSV
-        hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
-
-        # Apply thresholds to only get blue color
-        blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
-        #cv2.imshow("blue mask",blue_threshold)
-        
-        # Apply canny edge detection
-        canny_low=200
-        canny_high=400
-        canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
-
-        # create copy of frame to overlay angle and hough lines
-        line_image=np.copy(hsv_image)*0
-
-        [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image)
-
-        # add overlay to frame
-        output_image = cv2.addWeighted(color_image, 0.8, line_image, 1, 0) 
-
-        # show the frame
-        #cv2.imshow('Robot Vision', output_image)
-
-        if avg_angle_deg>-5 and avg_angle_deg<5 and avg_angle_deg != 0.1234:
-            line_straight=True
-
-
-
-        # Break loop with 'q' key
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    drive_motor("L",0,bus)
-    drive_motor("R",0,bus)
-
-#turning code, needs to be replaced when magnetometer comes in
-def right_turn(turn_time,bus):
-    start_time=time.time()
-
-    while time.time()-start_time<turn_time:
-        drive_motor('L',80,bus)
-        drive_motor('R',-80,bus)
-
-# def perform_turn(turn_string,bus):
-#     turn_direction=turn_string[1]
-#     target_angle=int(turn_string[3:6])
-#     print("Turning",turn_direction," till angle is",target_angle)
-#     direction_reading=read_bmm150(bus)
-
-#     while abs(direction_reading-target_angle)>10:
-#         print(direction_reading)
-#         if turn_direction=='L':
-#             drive_motor('L',-80,bus)
-#             drive_motor('R',80,bus)
-#         elif turn_direction=='R':
-#             drive_motor('L',80,bus)
-#             drive_motor('R',-80,bus)
-#         direction_reading=read_bmm150(bus)
-
-
-def initialize_bmm150(bus):
-    # I2C address of the BMM150 (default 0x13)
-    BMM150_I2C_ADDRESS = 0x13
-    BMM150_OPMODE_REG = 0x4C
-    BMM150_POWER_CTRL_REG = 0x4B
-    BMM150_XY_REP_REG = 0x51
-    BMM150_Z_REP_REG = 0x52
-
-    # Preset Mode Constants
-    BMM150_HIGH_ACCURACY_XY = 0x17  # High accuracy mode setting for the OPMODE register
-    BMM150_HIGH_ACCURACY_Z = 0x29  # High accuracy mode setting for the OPMODE register
-
-    # Power and mode settings
-    BMM150_NORMAL_MODE = 0x00
-    BMM150_POWER_ON = 0x01
-    # Enable the power control bit
-    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_POWER_CTRL_REG, BMM150_POWER_ON)
-    time.sleep(0.01)  # Delay to allow power-up
-    
-    # Set to normal mode (OPMODE register)
-    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_OPMODE_REG, BMM150_NORMAL_MODE)
-    time.sleep(0.01)  # Allow sensor to stabilize
-
-    # Set sensor to high accuracy mode (Preset mode register)
-    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_XY_REP_REG, BMM150_HIGH_ACCURACY_XY)
-    bus.write_byte_data(BMM150_I2C_ADDRESS, BMM150_Z_REP_REG, BMM150_HIGH_ACCURACY_Z)
-    time.sleep(0.01)  # Allow sensor to stabilize in high accuracy mode
-
-def read_bmm150(bus):
-    # I2C address of the BMM150 (default 0x13)
-    BMM150_I2C_ADDRESS = 0x13
-
-    # Register addresses
-    BMM150_DATA_X_LSB = 0x42
-    BMM150_DATA_X_MSB = 0x43
-    BMM150_DATA_Y_LSB = 0x44
-    BMM150_DATA_Y_MSB = 0x45
-    BMM150_DATA_Z_LSB = 0x46
-    BMM150_DATA_Z_MSB = 0x47
-    
-    # Read magnetometer data for X, Y, and Z axis
-    try:
-        x_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_LSB)
-        x_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_X_MSB)
-        y_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Y_LSB)
-        y_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Y_MSB)
-        z_lsb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Z_LSB)
-        z_msb = bus.read_byte_data(BMM150_I2C_ADDRESS, BMM150_DATA_Z_MSB)
-
-        # Combine LSB and MSB to form 16-bit signed values
-        x = (x_msb << 8) | x_lsb
-        y = (y_msb << 8) | y_lsb
-        z = (z_msb << 8) | z_lsb
-
-        # Convert to signed 16-bit integers
-        if x > 32767:
-            x -= 65536
-        if y > 32767:
-            y -= 65536
-        if z > 32767:
-            z -= 65536
-
-        return z
-
-    except Exception as e:
-        print(f"Error reading BMM150 data: {e}")
-        return 0
     
 def clamp(variable, min_value, max_value):
     if variable>=0:
@@ -599,4 +369,3 @@ def gyro_turn(pipeline,direction,i2c_bus):
         
     except Exception as e:
         print(f"Error occurred: {e}")
-        
