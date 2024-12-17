@@ -226,14 +226,13 @@ try:
                 if qr_string=='S':
                     print("Course Complete")
                     print('Return switch to STOP position')
-                    start_signal=False
                     #cv2.destroyAllWindows()
                     switch_state=GPIO.input(switch_pin)
                     while switch_state:
                         time.sleep(0.1)
                 
                 # let robot come to stop
-                if start_signal:
+                if switch_state:
                     time.sleep(stop_time/2)
 
                     if minor_motion_control and qr_int != 99:
