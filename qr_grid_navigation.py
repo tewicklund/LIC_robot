@@ -36,7 +36,8 @@ cruise_speed=40
 slow_speed=10
 
 # give the camera a second to initialize before beginning drive sequence
-init_delay=True
+camera_delay_flag=True
+resync_NTP=True
 ####------------END ADJUSTABLE VARIABLES------------####
 
 # Pin Definitions
@@ -84,11 +85,13 @@ try:
             prev_switch_state=True
                 
             # delay to let camera power on and adjust exposure and sync ntp
-            if init_delay:
-                init_delay=False
+            if resync_NTP:
+                resync_NTP=False
                 # force sync with same NTP server as arduino and HTTP server
                 os.system('cat /var/log/syslog | grep systemd-timesyncd')
 
+            if camera_delay_flag:
+                camera_delay_flag=False
                 # init camera
                 exposure_time_us=200
                 frame_width, frame_height,pipeline=init_camera(exposure_time_us)
@@ -224,7 +227,7 @@ try:
 
                 # go back to looking for button presses once course complete
                 if qr_string=='S':
-                    init_delay=True
+                    resync_NTP=True
                     print("Course Complete")
                     print('Return switch to STOP position')
                     #cv2.destroyAllWindows()
