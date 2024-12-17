@@ -88,6 +88,7 @@ try:
             print("Press button to start")
             # Read input pin state
             input_state = GPIO.input(input_pin)
+            GPIO.output(output_pin, False)
 
             # increment button hold counter
             if input_state:
@@ -97,6 +98,7 @@ try:
             
             #start script if count reaches 10
             if button_pressed_loops>=10:
+                GPIO.output(output_pin, True)
                 start_signal=True
                 
 
