@@ -19,7 +19,6 @@ try:
         # Read input pin state
         input_state = GPIO.input(input_pin)
 
-        print(button_pressed_loops)
         if input_state:
             button_pressed_loops+=1
         else:

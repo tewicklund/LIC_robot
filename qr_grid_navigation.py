@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 from functions import *
+import Jetson.GPIO as GPIO
 
 
 
@@ -38,7 +39,18 @@ slow_speed=10
 init_delay=True
 ####------------END ADJUSTABLE VARIABLES------------####
 
+# Pin Definitions
+input_pin = 11   # Physical pin 11 (BOARD numbering)
+output_pin = 7   # Physical pin 7 (BOARD numbering)
 
+#variable to track how long the button is pressed
+button_pressed_loops=0
+start_signal=False
+
+# GPIO setup
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(input_pin, GPIO.IN)
+GPIO.setup(output_pin, GPIO.OUT)
 
 # force sync with same NTP server as arduino and HTTP server
 os.system('cat /var/log/syslog | grep systemd-timesyncd')
@@ -74,9 +86,28 @@ qr_string=qr_not_found
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
+        #loop that monitors button, starts script if button held for more than 1 second
+        while not start_signal:
+            # Read input pin state
+            input_state = GPIO.input(input_pin)
+
+            # increment button hold counter
+            if input_state:
+                button_pressed_loops+=1
+            else:
+                button_pressed_loops=0
+            
+            #start script if count reaches 10
+            if button_pressed_loops>=10:
+                start_signal=True
+
+            time.sleep(0.1)
+        
+        # delay to let camera power on and adjust exposure
         if init_delay:
             init_delay=False
             time.sleep(2)
+
         #get color image from camera
         color_image = get_color_image(pipeline)
 
@@ -203,10 +234,10 @@ try:
                 gyro_turn(pipeline,qr_string,i2c_bus)
                 go_slow=True
 
-            # exit the code if there are no more stops left
+            # go back to looking for button presses once course complete
             if qr_string=='S':
                 print("Course Complete")
-                exit()
+                start_signal=False
             
             # let robot come to stop
             time.sleep(stop_time/2)
