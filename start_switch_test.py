@@ -11,19 +11,21 @@ prev_switch_state=GPIO.input(input_pin)
 
 while True:
     switch_state=GPIO.input(input_pin)
+    print(switch_state)
+    time.sleep(0.1)
 
-    if switch_state:
-        if switch_state != prev_switch_state:
-            print("RUNNING TEST")
-            prev_switch_state=switch_state
+    # if switch_state:
+    #     if switch_state != prev_switch_state:
+    #         print("RUNNING TEST")
+    #         prev_switch_state=switch_state
         
-        #PUT RUN TEST CODE HERE
-        for x in range(10):
-            print(x)
-            time.sleep(0.1)
+    #     #PUT RUN TEST CODE HERE
+    #     for x in range(10):
+    #         print(x)
+    #         time.sleep(0.1)
     
-    else:
-        if switch_state != prev_switch_state:
-            print("READY TO START TEST")
-            prev_switch_state=switch_state
+    # else:
+    #     if switch_state != prev_switch_state:
+    #         print("READY TO START TEST")
+    #         prev_switch_state=switch_state
 
