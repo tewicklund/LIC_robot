@@ -285,4 +285,3 @@ finally:
 
     # close the i2c bus
     i2c_bus.close()
-
