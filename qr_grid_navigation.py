@@ -12,8 +12,8 @@ import Jetson.GPIO as GPIO
 test_name="LIC 2 Dec 16 2024"
 
 #pid control variables, set to 0 to disable
-angle_p=0.5
-centering_p=0.05
+angle_p=0.6
+centering_p=0.06
 angle_i=0
 centering_i=0
 
@@ -34,6 +34,7 @@ max_speed=63
 min_speed=1
 cruise_speed=40
 slow_speed=10
+left_bias=2
 
 # give the camera a second to initialize before beginning drive sequence
 camera_delay_flag=True
@@ -84,19 +85,21 @@ try:
         if switch_state:
             prev_switch_state=True
                 
-            # delay to let camera power on and adjust exposure and sync ntp
-            if resync_NTP:
-                resync_NTP=False
-                # force sync with same NTP server as arduino and HTTP server
-                os.system('cat /var/log/syslog | grep systemd-timesyncd')
-
+            
             if camera_delay_flag:
                 camera_delay_flag=False
                 # init camera
                 exposure_time_us=200
                 frame_width, frame_height,pipeline=init_camera(exposure_time_us)
                 timestamp=time.time()
-                time.sleep(2)
+                time.sleep(1)
+            # delay to let camera power on and adjust exposure and sync ntp
+            if resync_NTP:
+                resync_NTP=False
+                # force sync with same NTP server as arduino and HTTP server
+                os.system('cat /var/log/syslog | grep systemd-timesyncd')
+                time.sleep(1)
+
                 
 
             #get color image from camera
@@ -151,7 +154,7 @@ try:
 
             #start motors turning
             right_motor_speed=base_speed
-            left_motor_speed=base_speed
+            left_motor_speed=base_speed+left_bias
 
             #proportional control
             angle_error=avg_angle_deg
