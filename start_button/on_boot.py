@@ -25,13 +25,16 @@ try:
         else:
             button_pressed_loops=0
         
-        if button_pressed_loops>=10:
-            button_pressed_loops=0
-            os.system('python3 /home/robotjetson/Code/LIC_robot/qr_grid_navigation.py')
+        
 
 
         # Set output pin based on input state
         GPIO.output(output_pin, input_state)
+
+        if button_pressed_loops>=10:
+            button_pressed_loops=0
+            os.system('python3 /home/robotjetson/Code/LIC_robot/qr_grid_navigation.py')
+            time.sleep(10)
 
         # Small delay to prevent excessive CPU usage
         time.sleep(0.1)
