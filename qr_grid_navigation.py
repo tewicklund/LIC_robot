@@ -43,14 +43,13 @@ init_delay=True
 switch_pin = 11   # Physical pin 11 (BOARD numbering)
 
 #variable to track how long the button is pressed
-prev_switch_state=False
+prev_switch_state=True
 
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(switch_pin, GPIO.IN)
 
-# force sync with same NTP server as arduino and HTTP server
-os.system('cat /var/log/syslog | grep systemd-timesyncd')
+
 
 # use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
@@ -84,9 +83,12 @@ try:
         if switch_state:
             prev_switch_state=True
                 
-            # delay to let camera power on and adjust exposure
+            # delay to let camera power on and adjust exposure and sync ntp
             if init_delay:
                 init_delay=False
+                # force sync with same NTP server as arduino and HTTP server
+                os.system('cat /var/log/syslog | grep systemd-timesyncd')
+
                 # init camera
                 exposure_time_us=200
                 frame_width, frame_height,pipeline=init_camera(exposure_time_us)
