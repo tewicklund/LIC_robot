@@ -16,11 +16,13 @@ try:
         # Read input pin state
         input_state = GPIO.input(input_pin)
 
+        print(input_state)
+
         # Set output pin based on input state
         GPIO.output(output_pin, input_state)
 
         # Small delay to prevent excessive CPU usage
-        time.sleep(0.01)
+        time.sleep(0.1)
 except KeyboardInterrupt:
     print("Exiting program.")
 finally:
