@@ -224,6 +224,7 @@ try:
 
                 # go back to looking for button presses once course complete
                 if qr_string=='S':
+                    init_delay=True
                     print("Course Complete")
                     print('Return switch to STOP position')
                     #cv2.destroyAllWindows()
