@@ -140,7 +140,7 @@ try:
 
         # interpret canny edges black and white image to return info about the angle and location of lines seen
         [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
-        print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
+        #print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
         # add overlay to frame
         output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
 
@@ -238,24 +238,26 @@ try:
             if qr_string=='S':
                 print("Course Complete")
                 start_signal=False
+                cv2.destroyAllWindows()
             
             # let robot come to stop
-            time.sleep(stop_time/2)
+            if start_signal:
+                time.sleep(stop_time/2)
 
-            if minor_motion_control and qr_int != 99:
-                set_arm_position(i2c_bus,pca_address,frequency,'a')
-                time.sleep(2)
-                set_arm_position(i2c_bus,pca_address,frequency,'b')
-                time.sleep(2)
+                if minor_motion_control and qr_int != 99:
+                    set_arm_position(i2c_bus,pca_address,frequency,'a')
+                    time.sleep(2)
+                    set_arm_position(i2c_bus,pca_address,frequency,'b')
+                    time.sleep(2)
 
-            # rest before continuing
-            time.sleep(stop_time/2)
+                # rest before continuing
+                time.sleep(stop_time/2)
 
-            #send POST request to database letting it know the robot has departed a stop
-            epoch_timestamp=int(time.time())
-            arrive_depart="depart"
-            send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
-            
+                #send POST request to database letting it know the robot has departed a stop
+                epoch_timestamp=int(time.time())
+                arrive_depart="depart"
+                send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+                
             #reset timestamp
             timestamp=time.time()
 
