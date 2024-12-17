@@ -227,8 +227,9 @@ try:
                     print("Course Complete")
                     print('Return switch to STOP position')
                     #cv2.destroyAllWindows()
-                    switch_state=GPIO.input(switch_pin)
+                    
                     while switch_state:
+                        switch_state=GPIO.input(switch_pin)
                         time.sleep(0.1)
                 
                 # let robot come to stop
