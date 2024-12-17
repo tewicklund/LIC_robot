@@ -13,6 +13,8 @@ test_name="LIC 2 Dec 16 2024"
 
 minor_motion_control=True
 
+max_time=10
+
 #pid control variables, set to 0 to disable
 angle_p=0.6
 centering_p=0.06
@@ -73,6 +75,9 @@ frame_time=time.time()
 
 # get timestamp for accel/decel
 timestamp=time.time()
+
+#timestamp for stops
+stop_timestamp=time.time()
 
 # message to print if no QR code found in frame
 qr_not_found="No QR code found"
@@ -223,24 +228,36 @@ try:
                 epoch_timestamp=int(time.time())
                 arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
-                
-                # perform turn if instruction is 'R' or 'L', go slow on next one
-                if qr_string=='R' or qr_string=='L':
-                    gyro_turn(pipeline,qr_string,i2c_bus)
-                    go_slow=True
 
-                # go back to looking for button presses once course complete
-                if qr_string=='S':
+                # go back to looking for button presses once course complete or there are 10 seconds without a stop
+                time_since_departure=time.time()-stop_time
+                if qr_string=='S' or time_since_departure>=max_time:
                     resync_NTP=True
-                    print("Course Complete")
+                    if time_since_departure>=max_time:
+                        print("ERROR: robot off track, retry")
+                    else:
+                        print("Course Complete")
                     print('Return switch to STOP position')
                     #cv2.destroyAllWindows()
-                    
                     while switch_state:
                         switch_state=GPIO.input(switch_pin)
                         time.sleep(0.1)
                 
-                # let robot come to stop
+                # perform turn if instruction is 'R' or 'L', go slow on next one
+                if qr_string=='R' or qr_string=='L' and switch_state:
+                    turn_complete=gyro_turn(pipeline,qr_string,i2c_bus,max_time)
+                    go_slow=True
+
+                    if not turn_complete:
+                        resync_NTP=True
+                        print("Course Complete")
+                        print('Return switch to STOP position')
+                        #cv2.destroyAllWindows()
+                        while switch_state:
+                            switch_state=GPIO.input(switch_pin)
+                            time.sleep(0.1)
+
+                # go through procedure at stop if everything is good
                 if switch_state:
                     time.sleep(stop_time/2)
 
@@ -260,6 +277,9 @@ try:
 
                     # rest before continuing
                     time.sleep(stop_time/2)
+
+                    #update stop timestamp
+                    stop_timestamp=time.time()
 
                     #send POST request to database letting it know the robot has departed a stop
                     epoch_timestamp=int(time.time())

@@ -306,9 +306,13 @@ def clamp(variable, min_value, max_value):
             variable=-min_value
     return variable
 
-def gyro_turn(pipeline,direction,i2c_bus):
+def gyro_turn(pipeline,direction,i2c_bus,max_time):
     # timing used for integration
-    timestamp=time.time()
+    start_time=time.time()
+    time_since_start=0
+    timestamp=start_time
+
+    turn_complete=False
 
     # variables to store angle position info
     radians_turned=0
@@ -326,7 +330,8 @@ def gyro_turn(pipeline,direction,i2c_bus):
         else:
             target_radians=-1*(np.pi/2)
 
-        while abs(radians_turned)<abs(target_radians):
+        while abs(radians_turned)<abs(target_radians) and time_since_start<=max_time:
+            time_since_start=time.time()-start_time
             # Get frameset of motion data
             frames = pipeline.wait_for_frames()
 
@@ -363,9 +368,17 @@ def gyro_turn(pipeline,direction,i2c_bus):
             # Delay to reduce CPU load
             # time.sleep(0.1
 
-        print("Turn Complete")
-        drive_motor_exp('L',0,i2c_bus)
-        drive_motor_exp('R',0,i2c_bus)
+        if time_since_start<max_time:
+            print("Turn Complete")
+            turn_complete=True
+        else:
+            print("ERROR: turn could not be completed")
+            turn_complete=False
+            drive_motor_exp('L',0,i2c_bus)
+            drive_motor_exp('R',0,i2c_bus)
+        
         
     except Exception as e:
         print(f"Error occurred: {e}")
+    
+    return turn_complete
