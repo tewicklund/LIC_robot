@@ -252,6 +252,7 @@ try:
                         set_arm_position(i2c_bus,pca_address,frequency,'a')
                         time.sleep(2)
                         set_arm_position(i2c_bus,pca_address,frequency,'b')
+                        print('arm movement done')
                         time.sleep(2)
                         epoch_timestamp=int(time.time())
                         arrive_depart="end_arm"
