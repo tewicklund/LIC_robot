@@ -69,10 +69,6 @@ angle_error_sum_max=400
 x_location_error_sum=0
 x_location_error_max=400
 
-# init camera
-exposure_time_us=200
-frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-
 # Get timestamp for frame counter
 frame_time=time.time()
 
@@ -88,6 +84,7 @@ try:
     while True:
         #loop that monitors button, starts script if button held for more than 1 second
         while not start_signal:
+            print("Press button to start")
             # Read input pin state
             input_state = GPIO.input(input_pin)
 
@@ -106,6 +103,10 @@ try:
         # delay to let camera power on and adjust exposure
         if init_delay:
             init_delay=False
+            # init camera
+            exposure_time_us=200
+            frame_width, frame_height,pipeline=init_camera(exposure_time_us)
+
             time.sleep(2)
 
         #get color image from camera
