@@ -108,8 +108,9 @@ try:
             # init camera
             exposure_time_us=200
             frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-            time.sleep(2)
             timestamp=time.time()
+            time.sleep(2)
+            
 
         #get color image from camera
         color_image = get_color_image(pipeline)
