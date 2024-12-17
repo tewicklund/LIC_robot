@@ -84,6 +84,7 @@ try:
     while True:
         #loop that monitors button, starts script if button held for more than 1 second
         while not start_signal:
+            time.sleep(0.1)
             print("Press button to start")
             # Read input pin state
             input_state = GPIO.input(input_pin)
@@ -97,8 +98,9 @@ try:
             #start script if count reaches 10
             if button_pressed_loops>=10:
                 start_signal=True
+                
 
-            time.sleep(0.1)
+            
         
         # delay to let camera power on and adjust exposure
         if init_delay:
@@ -106,8 +108,8 @@ try:
             # init camera
             exposure_time_us=200
             frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-
             time.sleep(2)
+            timestamp=time.time()
 
         #get color image from camera
         color_image = get_color_image(pipeline)
