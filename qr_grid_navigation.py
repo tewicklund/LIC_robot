@@ -40,17 +40,14 @@ init_delay=True
 ####------------END ADJUSTABLE VARIABLES------------####
 
 # Pin Definitions
-input_pin = 11   # Physical pin 11 (BOARD numbering)
-output_pin = 7   # Physical pin 7 (BOARD numbering)
+switch_pin = 11   # Physical pin 11 (BOARD numbering)
 
 #variable to track how long the button is pressed
-button_pressed_loops=0
-start_signal=False
+prev_switch_state=False
 
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(input_pin, GPIO.IN)
-GPIO.setup(output_pin, GPIO.OUT)
+GPIO.setup(switch_pin, GPIO.IN)
 
 # force sync with same NTP server as arduino and HTTP server
 os.system('cat /var/log/syslog | grep systemd-timesyncd')
@@ -82,199 +79,194 @@ qr_string=qr_not_found
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
-        #loop that monitors button, starts script if button held for more than 1 second
-        while not start_signal:
-            time.sleep(0.1)
-            print("Press button to start")
-            # Read input pin state
-            input_state = GPIO.input(input_pin)
-            GPIO.output(output_pin, False)
 
-            # increment button hold counter
-            if input_state:
-                button_pressed_loops+=1
-            else:
-                button_pressed_loops=0
-            
-            #start script if count reaches 10
-            if button_pressed_loops>=10:
-                GPIO.output(output_pin, True)
-                start_signal=True
+        switch_state=GPIO.input(switch_pin)
+        if switch_state:
+            prev_switch_state=True
+                
+            # delay to let camera power on and adjust exposure
+            if init_delay:
+                init_delay=False
+                # init camera
+                exposure_time_us=200
+                frame_width, frame_height,pipeline=init_camera(exposure_time_us)
+                timestamp=time.time()
+                time.sleep(2)
                 
 
+            #get color image from camera
+            color_image = get_color_image(pipeline)
+
+            cropped_image=crop_image(color_image)
+            cropped_frame_width=800
             
-        
-        # delay to let camera power on and adjust exposure
-        if init_delay:
-            init_delay=False
-            # init camera
-            exposure_time_us=200
-            frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-            timestamp=time.time()
-            time.sleep(2)
+            # Apply gaussian blur to image
+            kernel_size=(3,3)
+            gauss_image=cv2.GaussianBlur(cropped_image,kernel_size,0)
+
+            # Convert image to HSV
+            hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
+
+            # Apply thresholds to only get blue color
+            lower_blue = np.array([90, 80, 50])
+            upper_blue = np.array([130, 255, 255])
+            blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
+
+            # Apply canny edge detection
+            canny_low=200
+            canny_high=400
+            canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
+
+            # create a blank copy of frame to overlay angle and hough lines
+            line_image=np.copy(hsv_image)*0
+
+            #get frame time to feed to image_to_angle function
+            frame_time_elapsed=time.time()-frame_time
+            frame_time=time.time()
+
+            # interpret canny edges black and white image to return info about the angle and location of lines seen
+            [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
+            #print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
+            # add overlay to frame
+            output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
+
+            # show the frame
+            #cv2.imshow('Robot Vision', output_image)
+
+            # base speed control, based on elapsed time
+            elapsed_time=time.time()-timestamp
+            if (elapsed_time<accel_time and not go_slow):
+                base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
+            elif(elapsed_time<cruise_time and not go_slow):
+                base_speed=cruise_speed
+            elif(elapsed_time<decel_time and not go_slow):
+                base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/decel_time
+            else:
+                base_speed=slow_speed
+
+            #start motors turning
+            right_motor_speed=base_speed
+            left_motor_speed=base_speed
+
+            #proportional control
+            angle_error=avg_angle_deg
+            x_location_error=(cropped_frame_width/2)-x_location_avg
+            right_motor_speed+=int(angle_error*angle_p)
+            left_motor_speed-=int(angle_error*angle_p)
+            right_motor_speed+=int(x_location_error*centering_p)
+            left_motor_speed-=int(x_location_error*centering_p)
             
+            #integral control
+            angle_error_sum+=angle_error
+            x_location_error_sum+=x_location_error
+            x_location_error_sum=clamp(x_location_error_sum,0,x_location_error_max)
+            angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
+            right_motor_speed+=int(angle_error_sum*angle_i)
+            left_motor_speed-=int(angle_error_sum*angle_i)
+            right_motor_speed+=int(x_location_error_sum*centering_i)
+            left_motor_speed-=int(x_location_error_sum*centering_i)
 
-        #get color image from camera
-        color_image = get_color_image(pipeline)
+            # clamp motor speeds to max_speed
+            right_motor_speed=clamp(right_motor_speed,min_speed,max_speed)
+            left_motor_speed=clamp(left_motor_speed,min_speed,max_speed)
 
-        cropped_image=crop_image(color_image)
-        cropped_frame_width=800
-        
-        # Apply gaussian blur to image
-        kernel_size=(3,3)
-        gauss_image=cv2.GaussianBlur(cropped_image,kernel_size,0)
+            #stop if no lines
+            if (not lines_seen):
+                drive_motor_exp("L",0,i2c_bus)
+                drive_motor_exp("R",0,i2c_bus)
+                print("No lines, stopping motors")
 
-        # Convert image to HSV
-        hsv_image=cv2.cvtColor(gauss_image,cv2.COLOR_BGR2HSV)
+            # if no horizontal lines in frame, drive as normal
+            elif (horizontal_vertical_ratio<ratio_limit):
+                drive_motor_exp("L",left_motor_speed,i2c_bus)
+                drive_motor_exp("R",right_motor_speed,i2c_bus)
 
-        # Apply thresholds to only get blue color
-        lower_blue = np.array([90, 80, 50])
-        upper_blue = np.array([130, 255, 255])
-        blue_threshold=cv2.inRange(hsv_image, lower_blue, upper_blue)
+            # if new lines code encountered, stop for set amount of time
+            elif(elapsed_time>cruise_time):
 
-        # Apply canny edge detection
-        canny_low=200
-        canny_high=400
-        canny_image=cv2.Canny(blue_threshold,canny_low,canny_high)
+                #stop motors
+                drive_motor_exp("L",0,i2c_bus)
+                drive_motor_exp("R",0,i2c_bus)
 
-        # create a blank copy of frame to overlay angle and hough lines
-        line_image=np.copy(hsv_image)*0
+                #repeatedly check for qr code
+                qr_int=99
+                qr_string=qr_not_found
+                while qr_string==qr_not_found:
+                    print("Looking for QR code...")
+                    color_image = get_color_image(pipeline)
+                    #cv2.imshow('Robot Vision', color_image)
+                    qr_string=read_qr_code(color_image)
 
-        #get frame time to feed to image_to_angle function
-        frame_time_elapsed=time.time()-frame_time
-        frame_time=time.time()
+                    # Break loop with 'q' key
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                
+                print("QR String:",qr_string)
+                try:
+                    qr_int=int(qr_string)
 
-        # interpret canny edges black and white image to return info about the angle and location of lines seen
-        [avg_angle_deg,x_location_avg, horizontal_vertical_ratio,lines_seen]=image_to_angle(canny_image,line_image,frame_time_elapsed)
-        #print(f"Horizontal/Vertical Ratio: {horizontal_vertical_ratio}")
-        # add overlay to frame
-        output_image = cv2.addWeighted(hsv_image, 0.8, line_image, 1, 0) 
+                    # go slow if stop is right before a turn (multiple of ten) but go normal speed if stop number is zero
+                    go_slow=qr_int%10==0 and qr_int !=0
+                except:
+                    pass
 
-        # show the frame
-        cv2.imshow('Robot Vision', output_image)
-
-        # base speed control, based on elapsed time
-        elapsed_time=time.time()-timestamp
-        if (elapsed_time<accel_time and not go_slow):
-            base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
-        elif(elapsed_time<cruise_time and not go_slow):
-            base_speed=cruise_speed
-        elif(elapsed_time<decel_time and not go_slow):
-            base_speed=cruise_speed-(cruise_speed-slow_speed)*elapsed_time/decel_time
-        else:
-            base_speed=slow_speed
-
-        #start motors turning
-        right_motor_speed=base_speed
-        left_motor_speed=base_speed
-
-        #proportional control
-        angle_error=avg_angle_deg
-        x_location_error=(cropped_frame_width/2)-x_location_avg
-        right_motor_speed+=int(angle_error*angle_p)
-        left_motor_speed-=int(angle_error*angle_p)
-        right_motor_speed+=int(x_location_error*centering_p)
-        left_motor_speed-=int(x_location_error*centering_p)
-        
-        #integral control
-        angle_error_sum+=angle_error
-        x_location_error_sum+=x_location_error
-        x_location_error_sum=clamp(x_location_error_sum,0,x_location_error_max)
-        angle_error_sum=clamp(angle_error_sum,0,angle_error_sum_max)
-        right_motor_speed+=int(angle_error_sum*angle_i)
-        left_motor_speed-=int(angle_error_sum*angle_i)
-        right_motor_speed+=int(x_location_error_sum*centering_i)
-        left_motor_speed-=int(x_location_error_sum*centering_i)
-
-        # clamp motor speeds to max_speed
-        right_motor_speed=clamp(right_motor_speed,min_speed,max_speed)
-        left_motor_speed=clamp(left_motor_speed,min_speed,max_speed)
-
-        #stop if no lines
-        if (not lines_seen):
-            drive_motor_exp("L",0,i2c_bus)
-            drive_motor_exp("R",0,i2c_bus)
-            print("No lines, stopping motors")
-
-        # if no horizontal lines in frame, drive as normal
-        elif (horizontal_vertical_ratio<ratio_limit):
-            drive_motor_exp("L",left_motor_speed,i2c_bus)
-            drive_motor_exp("R",right_motor_speed,i2c_bus)
-
-        # if new lines code encountered, stop for set amount of time
-        elif(elapsed_time>cruise_time):
-
-            #stop motors
-            drive_motor_exp("L",0,i2c_bus)
-            drive_motor_exp("R",0,i2c_bus)
-
-            #repeatedly check for qr code
-            qr_int=99
-            qr_string=qr_not_found
-            while qr_string==qr_not_found:
-                print("Looking for QR code...")
-                color_image = get_color_image(pipeline)
-                cv2.imshow('Robot Vision', color_image)
-                qr_string=read_qr_code(color_image)
-
-                # Break loop with 'q' key
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            
-            print("QR String:",qr_string)
-            try:
-                qr_int=int(qr_string)
-
-                # go slow if stop is right before a turn (multiple of ten) but go normal speed if stop number is zero
-                go_slow=qr_int%10==0 and qr_int !=0
-            except:
-                pass
-
-            #send POST request to database letting it know the robot has arrived at a stop
-            epoch_timestamp=int(time.time())
-            arrive_depart="arrive"
-            send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
-            
-             # perform turn if instruction is 'R' or 'L', go slow on next one
-            if qr_string=='R' or qr_string=='L':
-                gyro_turn(pipeline,qr_string,i2c_bus)
-                go_slow=True
-
-            # go back to looking for button presses once course complete
-            if qr_string=='S':
-                print("Course Complete")
-                start_signal=False
-                cv2.destroyAllWindows()
-            
-            # let robot come to stop
-            if start_signal:
-                time.sleep(stop_time/2)
-
-                if minor_motion_control and qr_int != 99:
-                    set_arm_position(i2c_bus,pca_address,frequency,'a')
-                    time.sleep(2)
-                    set_arm_position(i2c_bus,pca_address,frequency,'b')
-                    time.sleep(2)
-
-                # rest before continuing
-                time.sleep(stop_time/2)
-
-                #send POST request to database letting it know the robot has departed a stop
+                #send POST request to database letting it know the robot has arrived at a stop
                 epoch_timestamp=int(time.time())
-                arrive_depart="depart"
+                arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
                 
-            #reset timestamp
-            timestamp=time.time()
+                # perform turn if instruction is 'R' or 'L', go slow on next one
+                if qr_string=='R' or qr_string=='L':
+                    gyro_turn(pipeline,qr_string,i2c_bus)
+                    go_slow=True
 
-        # if old lines still in frame, keep driving till they are out of frame
+                # go back to looking for button presses once course complete
+                if qr_string=='S':
+                    print("Course Complete")
+                    print('Return switch to STOP position')
+                    start_signal=False
+                    #cv2.destroyAllWindows()
+                    switch_state=GPIO.input(switch_pin)
+                    while switch_state:
+                        time.sleep(0.1)
+                
+                # let robot come to stop
+                if start_signal:
+                    time.sleep(stop_time/2)
+
+                    if minor_motion_control and qr_int != 99:
+                        set_arm_position(i2c_bus,pca_address,frequency,'a')
+                        time.sleep(2)
+                        set_arm_position(i2c_bus,pca_address,frequency,'b')
+                        time.sleep(2)
+
+                    # rest before continuing
+                    time.sleep(stop_time/2)
+
+                    #send POST request to database letting it know the robot has departed a stop
+                    epoch_timestamp=int(time.time())
+                    arrive_depart="depart"
+                    send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+                    
+                #reset timestamp
+                timestamp=time.time()
+
+            # if old lines still in frame, keep driving till they are out of frame
+            else:
+                drive_motor_exp("L",left_motor_speed,i2c_bus)
+                drive_motor_exp("R",right_motor_speed,i2c_bus)
+
+            # Break loop with 'q' key
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        
+        #if the switch in the STOP position, print something once then wait
         else:
-            drive_motor_exp("L",left_motor_speed,i2c_bus)
-            drive_motor_exp("R",right_motor_speed,i2c_bus)
-
-        # Break loop with 'q' key
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            time.sleep(0.1)
+            if prev_switch_state==True:
+                prev_switch_state=False
+                print('Ready to begin next test...')
+            
 
 finally:
     # Stop streaming
