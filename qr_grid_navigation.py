@@ -11,6 +11,8 @@ import Jetson.GPIO as GPIO
 ####--------------ADJUSTABLE VARIABLES--------------####
 test_name="LIC 2 Dec 16 2024"
 
+minor_motion_control=True
+
 #pid control variables, set to 0 to disable
 angle_p=0.6
 centering_p=0.06
@@ -57,7 +59,6 @@ GPIO.setup(switch_pin, GPIO.IN)
 i2c_bus = smbus2.SMBus(7)
 
 # set to true if you would like the arm to actuate at each stop
-minor_motion_control=False
 pca_address=0x40
 frequency=340
 
@@ -244,10 +245,17 @@ try:
                     time.sleep(stop_time/2)
 
                     if minor_motion_control and qr_int != 99:
+                        print('starting arm movement')
+                        epoch_timestamp=int(time.time())
+                        arrive_depart="start_arm"
+                        send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
                         set_arm_position(i2c_bus,pca_address,frequency,'a')
                         time.sleep(2)
                         set_arm_position(i2c_bus,pca_address,frequency,'b')
                         time.sleep(2)
+                        epoch_timestamp=int(time.time())
+                        arrive_depart="end_arm"
+                        send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
 
                     # rest before continuing
                     time.sleep(stop_time/2)
