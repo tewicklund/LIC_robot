@@ -26,6 +26,9 @@ ratio_limit=0.8
 
 # amount of time spent at each stop, in seconds
 stop_time=10
+overtime_flag=False
+exit_flag=False
+
 
 # assign timestamps for speed changing, in seconds
 accel_time=1
@@ -73,11 +76,8 @@ x_location_error_max=400
 # Get timestamp for frame counter
 frame_time=time.time()
 
-# get timestamp for accel/decel
-timestamp=time.time()
-
-#timestamp for stops
-stop_timestamp=time.time()
+# get accel_timestamp for accel/decel
+accel_timestamp=time.time()
 
 # message to print if no QR code found in frame
 qr_not_found="No QR code found"
@@ -86,10 +86,14 @@ qr_string=qr_not_found
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
-
         switch_state=GPIO.input(switch_pin)
         if switch_state:
+
+            #set flag to show switch was flipped on
             prev_switch_state=True
+
+            #update time since departure
+            time_since_departure=time.time()-stop_time
                 
             
             if camera_delay_flag:
@@ -97,7 +101,7 @@ try:
                 # init camera
                 exposure_time_us=200
                 frame_width, frame_height,pipeline=init_camera(exposure_time_us)
-                timestamp=time.time()
+                accel_timestamp=time.time()
                 time.sleep(1)
             # delay to let camera power on and adjust exposure and sync ntp
             if resync_NTP:
@@ -148,7 +152,10 @@ try:
             #cv2.imshow('Robot Vision', output_image)
 
             # base speed control, based on elapsed time
-            elapsed_time=time.time()-timestamp
+            elapsed_time=time.time()-accel_timestamp
+            if elapsed_time>max_time:
+                exit_flag=True
+                overtime_flag=True
             if (elapsed_time<accel_time and not go_slow):
                 base_speed=slow_speed+(cruise_speed-slow_speed)*elapsed_time/accel_time
             elif(elapsed_time<cruise_time and not go_slow):
@@ -184,19 +191,24 @@ try:
             right_motor_speed=clamp(right_motor_speed,min_speed,max_speed)
             left_motor_speed=clamp(left_motor_speed,min_speed,max_speed)
 
+
+
+            if exit_flag:
+                pass
+
             #stop if no lines
-            if (not lines_seen):
+            elif (not lines_seen):
                 drive_motor_exp("L",0,i2c_bus)
                 drive_motor_exp("R",0,i2c_bus)
                 print("No lines, stopping motors")
 
-            # if no horizontal lines in frame, drive as normal
-            elif (horizontal_vertical_ratio<ratio_limit):
+            # if no horizontal lines in frame and max time hasn't elapsed, drive as normal
+            elif horizontal_vertical_ratio<ratio_limit:
                 drive_motor_exp("L",left_motor_speed,i2c_bus)
                 drive_motor_exp("R",right_motor_speed,i2c_bus)
 
             # if new lines code encountered, stop for set amount of time
-            elif(elapsed_time>cruise_time):
+            elif elapsed_time>cruise_time:
 
                 #stop motors
                 drive_motor_exp("L",0,i2c_bus)
@@ -215,10 +227,12 @@ try:
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 
+                
                 print("QR String:",qr_string)
+
+                #parse QR code as an integer
                 try:
                     qr_int=int(qr_string)
-
                     # go slow if stop is right before a turn (multiple of ten) but go normal speed if stop number is zero
                     go_slow=qr_int%10==0 and qr_int !=0
                 except:
@@ -228,37 +242,22 @@ try:
                 epoch_timestamp=int(time.time())
                 arrive_depart="arrive"
                 send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
-
-                # go back to looking for button presses once course complete or there are 10 seconds without a stop
-                time_since_departure=time.time()-stop_time
-                if qr_string=='S' or time_since_departure>=max_time:
-                    resync_NTP=True
-                    if time_since_departure>=max_time:
-                        print("ERROR: robot off track, retry")
-                    else:
-                        print("Course Complete")
-                    print('Return switch to STOP position')
-                    #cv2.destroyAllWindows()
-                    while switch_state:
-                        switch_state=GPIO.input(switch_pin)
-                        time.sleep(0.1)
+                    
                 
                 # perform turn if instruction is 'R' or 'L', go slow on next one
-                if qr_string=='R' or qr_string=='L' and switch_state:
+                if qr_string=='R' or qr_string=='L':
                     turn_complete=gyro_turn(pipeline,qr_string,i2c_bus,max_time)
                     go_slow=True
 
                     if not turn_complete:
-                        resync_NTP=True
-                        print("Course Complete")
-                        print('Return switch to STOP position')
-                        #cv2.destroyAllWindows()
-                        while switch_state:
-                            switch_state=GPIO.input(switch_pin)
-                            time.sleep(0.1)
+                        exit_flag=True
+                        overtime_flag=True
+                
+                elif qr_string=='S':
+                    exit_flag=True
 
-                # go through procedure at stop if everything is good
-                if switch_state:
+                
+                if not exit_flag:
                     time.sleep(stop_time/2)
 
                     if minor_motion_control and qr_int != 99:
@@ -278,21 +277,34 @@ try:
                     # rest before continuing
                     time.sleep(stop_time/2)
 
-                    #update stop timestamp
-                    stop_timestamp=time.time()
-
                     #send POST request to database letting it know the robot has departed a stop
                     epoch_timestamp=int(time.time())
                     arrive_depart="depart"
                     send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
                     
-                #reset timestamp
-                timestamp=time.time()
+                    #reset accel_timestamp
+                    accel_timestamp=time.time()
+
 
             # if old lines still in frame, keep driving till they are out of frame
             else:
                 drive_motor_exp("L",left_motor_speed,i2c_bus)
                 drive_motor_exp("R",right_motor_speed,i2c_bus)
+
+            if exit_flag:
+                exit_flag=False
+                resync_NTP=True
+                if overtime_flag:
+                    print("ERROR: robot got lost")
+                    overtime_flag=False
+                else:
+                    print("Course Complete")
+                print('Return switch to STOP position')
+                #cv2.destroyAllWindows()
+                while switch_state:
+                    switch_state=GPIO.input(switch_pin)
+                    time.sleep(0.1)
+
 
             # Break loop with 'q' key
             if cv2.waitKey(1) & 0xFF == ord('q'):
