@@ -293,7 +293,7 @@ try:
 
             if exit_flag:
                 exit_flag=False
-                resync_NTP=True
+                #resync_NTP=True
                 if overtime_flag:
                     print("ERROR: robot got lost")
                     overtime_flag=False
