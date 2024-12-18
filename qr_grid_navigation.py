@@ -313,6 +313,8 @@ try:
         #if the switch in the STOP position, print something once then wait
         else:
             time.sleep(0.1)
+            #reset accel_timestamp
+            accel_timestamp=time.time()
             if prev_switch_state==True:
                 prev_switch_state=False
                 print('Ready to begin next test...')
