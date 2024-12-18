@@ -217,11 +217,17 @@ try:
                 #repeatedly check for qr code
                 qr_int=99
                 qr_string=qr_not_found
+                qr_timestamp=time.time()
                 while qr_string==qr_not_found:
                     print("Looking for QR code...")
                     color_image = get_color_image(pipeline)
                     #cv2.imshow('Robot Vision', color_image)
                     qr_string=read_qr_code(color_image)
+                    qr_elapsed_time=time.time()-qr_timestamp
+                    if qr_elapsed_time>max_time:
+                        exit_flag=True
+                        overtime_flag=True
+                        qr_string='99'
 
                     # Break loop with 'q' key
                     if cv2.waitKey(1) & 0xFF == ord('q'):
