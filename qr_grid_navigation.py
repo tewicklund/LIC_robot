@@ -314,6 +314,7 @@ try:
         else:
             time.sleep(0.1)
             #reset accel_timestamp
+            go_slow=True
             accel_timestamp=time.time()
             if prev_switch_state==True:
                 prev_switch_state=False
