@@ -11,8 +11,6 @@ import Jetson.GPIO as GPIO
 ####--------------ADJUSTABLE VARIABLES--------------####
 test_name="LIC 2 Dec 16 2024"
 
-minor_motion_control=True
-
 max_time=10
 
 #pid control variables, set to 0 to disable
@@ -88,7 +86,7 @@ qr_string=qr_not_found
 try:
     while True:
         start_switch_state=GPIO.input(switch_pin)
-        major_minor_switch_state=GPIO.input(major_minor_pin)
+        major_motion_on=GPIO.input(major_minor_pin)
         if start_switch_state:
 
             #set flag to show switch was flipped on
@@ -268,7 +266,7 @@ try:
                 if not exit_flag:
                     time.sleep(stop_time/2)
 
-                    if major_minor_switch_state and qr_int != 99:
+                    if not major_motion_on and qr_int != 99:
                         print('starting arm movement')
                         epoch_timestamp=int(time.time())
                         arrive_depart="start_arm"
