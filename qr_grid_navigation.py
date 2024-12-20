@@ -272,9 +272,9 @@ try:
                         epoch_timestamp=int(time.time())
                         arrive_depart="start_arm"
                         send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
-                        set_arm_position(i2c_bus,pca_address,frequency,'a')
+                        set_arm_position(i2c_bus,servo_address,servo_frequency,'a')
                         time.sleep(2)
-                        set_arm_position(i2c_bus,pca_address,frequency,'b')
+                        set_arm_position(i2c_bus,servo_address,servo_frequency,'b')
                         print('arm movement done')
                         time.sleep(2)
                         epoch_timestamp=int(time.time())
