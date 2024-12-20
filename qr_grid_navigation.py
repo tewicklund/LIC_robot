@@ -56,6 +56,7 @@ prev_start_switch_state=True
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(switch_pin, GPIO.IN)
+GPIO.setup(major_minor_pin,GPIO.IN)
 
 
 
