@@ -1,7 +1,7 @@
 import Jetson.GPIO as GPIO
 import time
 
-input_pin = 11   # Physical pin 11 (BOARD numbering)
+input_pin = 7   # Physical pin 11 (BOARD numbering)
 
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)

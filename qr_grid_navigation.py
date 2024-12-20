@@ -50,9 +50,10 @@ resync_NTP=True
 
 # Pin Definitions
 switch_pin = 11   # Physical pin 11 (BOARD numbering)
+major_minor_pin=7
 
 #variable to track how long the button is pressed
-prev_switch_state=True
+prev_start_switch_state=True
 
 # GPIO setup
 GPIO.setmode(GPIO.BOARD)
@@ -86,11 +87,12 @@ qr_string=qr_not_found
 # put sequence in try statement so if anything goes wrong, the finally statement will run
 try:
     while True:
-        switch_state=GPIO.input(switch_pin)
-        if switch_state:
+        start_switch_state=GPIO.input(switch_pin)
+        major_minor_switch_state=GPIO.input(major_minor_pin)
+        if start_switch_state:
 
             #set flag to show switch was flipped on
-            prev_switch_state=True
+            prev_start_switch_state=True
 
             #update time since departure
             time_since_departure=time.time()-stop_time
@@ -266,7 +268,7 @@ try:
                 if not exit_flag:
                     time.sleep(stop_time/2)
 
-                    if minor_motion_control and qr_int != 99:
+                    if major_minor_switch_state and qr_int != 99:
                         print('starting arm movement')
                         epoch_timestamp=int(time.time())
                         arrive_depart="start_arm"
@@ -307,8 +309,8 @@ try:
                     print("Course Complete")
                 print('Return switch to STOP position')
                 #cv2.destroyAllWindows()
-                while switch_state:
-                    switch_state=GPIO.input(switch_pin)
+                while start_switch_state:
+                    start_switch_state=GPIO.input(switch_pin)
                     time.sleep(0.1)
 
 
@@ -322,8 +324,8 @@ try:
             #reset accel_timestamp
             go_slow=True
             accel_timestamp=time.time()
-            if prev_switch_state==True:
-                prev_switch_state=False
+            if prev_start_switch_state==True:
+                prev_start_switch_state=False
                 print('Ready to begin next test...')
             
 

@@ -4,9 +4,10 @@
 #include <WiFiUdp.h>            // UDP library for network communication
 #include <Wire.h>               // I2C library
 #include "Adafruit_TCS34725.h"  // Library for color sensor
+#include "Arduino_LED_Matrix.h" // Library for LED matrix
 
 // Number to specify UUT, THIS WILL NEED TO BE ADJUSTED WHEN CHANGING UUT
-const int SENSOR_ID = 1;
+const int SENSOR_ID = 0;
 
 // Information about the WiFi network the Arduino needs to join
 const char* SSID = "Ynet";
@@ -29,9 +30,8 @@ unsigned long initialEpochTime = 0;
 // Digital pin assignment
 const int buttonPin = 2;    // connect test button to digital pin 2
 const int presencePin = 3;  // connect TTL output from LIC to digital pin 3 (Keilton only)
-const int errorPin = 4;
-const int setupSuccessPin = 5;
-const int triggerIndicatorPin = 6;
+
+
 
 // WiFi setup stuff
 WiFiClient wifiClient;
@@ -45,6 +45,53 @@ uint16_t r, g, b, c, colorTemp;
 //analog read setup
 int analogReading = 0;
 
+// object for LED matrix
+ArduinoLEDMatrix matrix;
+
+byte empty_frame[8][12] = {
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+byte R_frame[8][12] = {
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+byte E_frame[8][12] = {
+  { 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0 }
+};
+
+byte RT_frame[8][12] = {
+  { 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 },
+  { 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 }
+};
+
 void setup() {
   // Serial comms setup
   Serial.begin(115200);
@@ -52,20 +99,16 @@ void setup() {
   // Input pin setup
   pinMode(buttonPin, INPUT);
   pinMode(presencePin, INPUT);
-  pinMode(errorPin, OUTPUT);
-  pinMode(setupSuccessPin, OUTPUT);
-  pinMode(triggerIndicatorPin, OUTPUT);
 
-  //init indicators
-  digitalWrite(setupSuccessPin, LOW);
-  digitalWrite(errorPin, HIGH);
-  digitalWrite(triggerIndicatorPin,LOW);
+  //init matrix
+  matrix.begin();
 
   //WiFi setup
   if (WiFi.begin(SSID, PASSWORD) == WL_CONNECTED) {
     Serial.println("Connected to WiFi");
   } else {
     Serial.println("Failed to connect to WiFi");
+    matrix.renderBitmap(E_frame, 8, 12);
     while (true)
       ;
   }
@@ -77,6 +120,7 @@ void setup() {
       Serial.println("Found sensor");
     } else {
       Serial.println("No TCS34725 found ... check your connections");
+      matrix.renderBitmap(E_frame, 8, 12);
       while (1)
         ;
     }
@@ -88,9 +132,8 @@ void setup() {
     Serial.println("Attempting to connect to NTP server");
   }
   
-  //init successful, update indicators
-  digitalWrite(setupSuccessPin, HIGH);
-  digitalWrite(errorPin, LOW);
+  //init successful, update indicator matrix
+  matrix.renderBitmap(R_frame, 8, 12);
 
   Serial.print("Initial epoch time: ");
   Serial.println(initialEpochTime);
@@ -113,9 +156,9 @@ void loop() {
         Serial.println("Detected button press, sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next button press...");
       }
       break;
@@ -126,9 +169,9 @@ void loop() {
         Serial.println("Detected presence from Keilton LIC, sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -142,9 +185,9 @@ void loop() {
         Serial.println("), sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -158,9 +201,9 @@ void loop() {
         Serial.println("), sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -174,9 +217,9 @@ void loop() {
         Serial.println("),sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
@@ -187,9 +230,9 @@ void loop() {
         Serial.println("Detected presence from WIZ20 LIC, sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
-        digitalWrite(triggerIndicatorPin, HIGH);
+        matrix.renderBitmap(RT_frame, 8, 12);
         delay(5000);
-        digitalWrite(triggerIndicatorPin, LOW);
+        matrix.renderBitmap(R_frame, 8, 12);
         Serial.println("Waiting for next LIC trigger...");
       }
       break;
