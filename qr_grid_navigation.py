@@ -62,9 +62,10 @@ GPIO.setup(switch_pin, GPIO.IN)
 # use I2C1 interface on Jetson nano, pins 3 and 5
 i2c_bus = smbus2.SMBus(7)
 
-# set to true if you would like the arm to actuate at each stop
-pca_address=0x40
-frequency=340
+# init servo controller
+servo_address=0x40
+servo_frequency=340
+set_frequency(i2c_bus,servo_address,servo_frequency)
 
 # maximum errors for i control
 angle_error_sum=0
