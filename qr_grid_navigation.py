@@ -23,7 +23,7 @@ centering_i=0
 ratio_limit=0.8
 
 # amount of time spent at each stop, in seconds
-stop_time=10
+stop_time=5
 overtime_flag=False
 exit_flag=False
 
