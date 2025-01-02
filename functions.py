@@ -101,7 +101,7 @@ def read_qr_code(color_image: np.ndarray) -> str:
 
 def set_arm_position(bus,address,frequency,pos_char):
 
-    angle_deg=80
+    angle_deg=75
 
     if pos_char=='a':
 
