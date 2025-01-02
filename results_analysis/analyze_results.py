@@ -4,6 +4,8 @@ from analysis_functions import *
 #test_ID=input("Enter test ID: ")
 test_ID='LIC 2 Dec 16 2024'
 
+minor_motion_enabled=False
+
 grid_title='LIC on table results grid'
 
 #list to store LIC posts
@@ -16,8 +18,15 @@ num_squares=70
 grid_chars=['O']*num_squares
 
 for grid_square in range(num_squares):
-    start_timestamp=get_timestamp_from_post(str(grid_square),'depart',LIC_post_list)
-    end_timestamp=get_timestamp_from_post(str(grid_square+1),'arrive',LIC_post_list)
+    if minor_motion_enabled:
+        start_timestamp=get_timestamp_from_post(str(grid_square),'start_arm',LIC_post_list)
+        end_timestamp=get_timestamp_from_post(str(grid_square),'end_arm',LIC_post_list)
+        if grid_square==65:
+            print(start_timestamp)
+            print(end_timestamp)
+    else:
+        start_timestamp=get_timestamp_from_post(str(grid_square),'depart',LIC_post_list)
+        end_timestamp=get_timestamp_from_post(str(grid_square+1),'arrive',LIC_post_list)
 
     for post in LIC_post_list:
         if start_timestamp != 0 and end_timestamp != 0:
