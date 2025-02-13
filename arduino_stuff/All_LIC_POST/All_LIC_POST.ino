@@ -14,7 +14,7 @@ const char* SSID = "Ynet";
 const char* PASSWORD = "CLTC1234";
 
 // Information about the HTTP server that will receive and store LIC trigger events
-const char* SERVER = "192.168.4.28";  // e.g., "example.com"
+const char* SERVER = "192.168.4.21";  // e.g., "example.com"
 const int PORT = 8080;                // Change to 443 for HTTPS
 const char* PATH = "/LIC_triggers";
 
@@ -97,7 +97,7 @@ void setup() {
   Serial.begin(115200);
 
   // Input pin setup
-  pinMode(buttonPin, INPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
   pinMode(presencePin, INPUT);
 
   //init matrix
@@ -152,7 +152,7 @@ void loop() {
 
     // test mode, use button to trigger POST request
     case 0:
-      if (digitalRead(buttonPin)) {
+      if (!digitalRead(buttonPin)) {
         Serial.println("Detected button press, sending post request");
         sendPostRequest(startEpochSecondsDouble);
         Serial.println("Sent request successfully! Waiting 5 seconds...");
