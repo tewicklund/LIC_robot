@@ -9,7 +9,7 @@ import Jetson.GPIO as GPIO
 
 
 ####--------------ADJUSTABLE VARIABLES--------------####
-test_name="LIC 13 Feb 2025 3"
+test_name="LIC 14 Feb 2025 N 1"
 
 max_time=10
 
