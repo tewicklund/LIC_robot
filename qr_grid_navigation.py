@@ -9,7 +9,7 @@ import Jetson.GPIO as GPIO
 
 
 ####--------------ADJUSTABLE VARIABLES--------------####
-test_name="LIC 2 Dec 16 2024"
+test_name="LIC 13 Feb 2025 3"
 
 max_time=10
 
@@ -23,7 +23,7 @@ centering_i=0
 ratio_limit=0.8
 
 # amount of time spent at each stop, in seconds
-stop_time=10
+stop_time=12
 overtime_flag=False
 exit_flag=False
 
