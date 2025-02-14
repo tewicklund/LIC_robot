@@ -2,7 +2,7 @@ from analysis_functions import *
 
 #ask user for test ID, should be 1st column of results csv
 #test_ID=input("Enter test ID: ")
-test_ID='LIC 14 Feb 2025 N 1'
+test_ID="LIC Robot V1.0"
 
 minor_motion_enabled=True
 
