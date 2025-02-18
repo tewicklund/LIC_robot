@@ -1,12 +1,11 @@
 from analysis_functions import *
 
 #ask user for test ID, should be 1st column of results csv
-#test_ID=input("Enter test ID: ")
-test_ID="LIC Robot V1.0"
+test_ID='LIC Robot V1.0'
 
 minor_motion_enabled=True
 
-grid_title='LIC on table results grid'
+grid_title=input('Enter Figure Title: ')
 
 #list to store LIC posts
 LIC_post_list=csv_to_LIC_post_list(test_ID)

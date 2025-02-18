@@ -3,6 +3,9 @@ from datetime import datetime
 import time
 
 log_file_name="test_results.csv"
+f=open(log_file_name,'w')
+f.write("POST Name,POST Type,Server Timestamp,Client Timestamp,Stop Number,Descriptor")
+f.close()
 
 app = Flask(__name__)
 
