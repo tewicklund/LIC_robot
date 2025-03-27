@@ -29,9 +29,9 @@ exit_flag=False
 
 
 # assign timestamps for speed changing, in seconds
-accel_time=1
-cruise_time=1.5
-decel_time=2
+accel_time=0.75
+cruise_time=1.25
+decel_time=1.75
 go_slow=False
 
 # set speeds used by the robot during straightforward navigation
