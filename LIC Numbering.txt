@@ -1,5 +1,5 @@
-1: Keilton
-2: Acuity
-3: Cooper
-4: EasySense
-5: WIZ20
+1: Keilton (TTL)
+2: Acuity (analog)
+3: Cooper (rgb)
+4: EasySense (rgb)
+5: WIZ20 (TTL)

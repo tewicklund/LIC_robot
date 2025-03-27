@@ -5,10 +5,18 @@ test_ID='LIC Robot V1.0'
 
 minor_motion_enabled=True
 
-grid_title=input('Enter Figure Title: ')
+
+Tk().withdraw()  # Hide the root window
+file_path = filedialog.askopenfilename(
+    title="Select a CSV File",
+    filetypes=[("CSV Files", "*.csv"), ("All Files", "*.*")]
+)
+
+grid_title=file_path.split('/')[-1].removesuffix('.csv')
+path=file_path.removesuffix(grid_title+'.csv')
 
 #list to store LIC posts
-LIC_post_list=csv_to_LIC_post_list(test_ID)
+LIC_post_list=csv_to_LIC_post_list(file_path)
 
 #for post in LIC_post_list:
 #    print(post)
@@ -31,5 +39,5 @@ for grid_square in range(num_squares):
             if post.post_type=='LIC Trigger POST' and start_timestamp<post.server_timestamp and post.server_timestamp<end_timestamp:
                 grid_chars[grid_square]='X'
 
-export_grid_as_png(grid_title,grid_chars)
+export_grid_as_png(grid_title,grid_chars,path)
 

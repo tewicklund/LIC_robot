@@ -4,9 +4,9 @@ import openpyxl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-def export_grid_as_png(title, grid_chars):
+def export_grid_as_png(title, grid_chars,path):
     # Save results grid as png
-    output_path = title + '.png'
+    output_path = path+ title + '.png'
 
     # Output grid image dimensions
     rows, cols = 10, 7
@@ -72,13 +72,9 @@ def get_timestamp_from_post(stop_ID,stop_type,post_list):
             return(post.server_timestamp)
     return 0.0
 
-def csv_to_LIC_post_list(test_ID):
+def csv_to_LIC_post_list(file_path):
     LIC_post_list=[]
-    Tk().withdraw()  # Hide the root window
-    file_path = filedialog.askopenfilename(
-        title="Select a CSV File",
-        filetypes=[("CSV Files", "*.csv"), ("All Files", "*.*")]
-    )
+    test_ID='LIC Robot V1.0'
     try:
         #open results csv
         with open(file_path, mode='r', newline='', encoding='utf-8') as file:
