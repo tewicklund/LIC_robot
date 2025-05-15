@@ -13,6 +13,8 @@ test_name="LIC Robot V1.0"
 
 max_time=10
 
+do_wiggle=True
+
 #pid control variables, set to 0 to disable
 angle_p=0.6
 centering_p=0.06
@@ -254,7 +256,7 @@ try:
                 
                 # perform turn if instruction is 'R' or 'L', go slow on next one
                 if qr_string=='R' or qr_string=='L':
-                    turn_complete=gyro_turn(pipeline,qr_string,i2c_bus,max_time)
+                    turn_complete=gyro_turn(pipeline,qr_string,i2c_bus,max_time,np.pi/2)
                     go_slow=True
 
                     if not turn_complete:
@@ -281,6 +283,21 @@ try:
                         epoch_timestamp=int(time.time())
                         arrive_depart="end_arm"
                         send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+
+                    if do_wiggle and major_motion_on and qr_int != 99:
+                        print('starting wiggle')
+                        epoch_timestamp=int(time.time())
+                        arrive_depart='start_wiggle'
+                        send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+                        time.sleep(2)
+                        gyro_turn(pipeline,'R',i2c_bus,max_time,np.pi/4)
+                        gyro_turn(pipeline,'L',i2c_bus,max_time,np.pi/2)
+                        gyro_turn(pipeline,'R',i2c_bus,max_time,np.pi/4)
+                        time.sleep(2)
+                        epoch_timestamp=int(time.time())
+                        arrive_depart='end_wiggle'
+                        send_POST_request(test_name,epoch_timestamp,qr_string,arrive_depart)
+
 
                     # rest before continuing
                     time.sleep(stop_time/2)

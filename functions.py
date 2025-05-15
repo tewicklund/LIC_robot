@@ -306,7 +306,7 @@ def clamp(variable, min_value, max_value):
             variable=-min_value
     return variable
 
-def gyro_turn(pipeline,direction,i2c_bus,max_time):
+def gyro_turn(pipeline,direction,i2c_bus,max_time,angle_magnitude_radians):
     # timing used for integration
     start_time=time.time()
     time_since_start=0
@@ -326,9 +326,9 @@ def gyro_turn(pipeline,direction,i2c_bus,max_time):
 
     try:
         if direction=='R':
-            target_radians=(np.pi/2)
+            target_radians=(angle_magnitude_radians)
         else:
-            target_radians=-1*(np.pi/2)
+            target_radians=-1*(angle_magnitude_radians)
 
         while abs(radians_turned)<abs(target_radians) and time_since_start<=max_time:
             time_since_start=time.time()-start_time

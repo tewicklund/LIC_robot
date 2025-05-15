@@ -7,7 +7,7 @@
 #include "Arduino_LED_Matrix.h" // Library for LED matrix
 
 // Number to specify UUT, THIS WILL NEED TO BE ADJUSTED WHEN CHANGING UUT
-const int SENSOR_ID = 5;
+const int SENSOR_ID = 4;
 
 // Information about the WiFi network the Arduino needs to join
 const char* SSID = "CLTC Office";
@@ -164,6 +164,7 @@ void loop() {
       break;
 
     // UUT = Keilton LIC
+    // Height = 9ft major, 8ft minor
     case 1:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from Keilton LIC, sending post request");
@@ -177,6 +178,7 @@ void loop() {
       break;
 
     // UUT = Acuity LIC
+    // Height = 7.5 ft
     case 2:
       analogReading = analogRead(A0);
       if (analogReading < 512) {
@@ -193,6 +195,7 @@ void loop() {
       break;
 
     // UUT = Cooper LIC
+    // Height = 8ft
     case 3:
       tcs.getRawData(&r, &g, &b, &c);
       if (b > 160) {
@@ -208,10 +211,11 @@ void loop() {
       }
       break;
 
-    //UUT = EasySense LIC, the one that can't be taken out of its luminaire
+    // UUT = EasySense LIC, the one that can't be taken out of its luminaire
+    // Height = 8 ft
     case 4:
       tcs.getRawData(&r, &g, &b, &c);
-      if (r > 40) {
+      if (r < 10) {
         Serial.print("Detected presence from EasySense LIC (Red = ");
         Serial.print(r);
         Serial.println("),sending post request");
@@ -224,7 +228,8 @@ void loop() {
       }
       break;
 
-    //UUT = WIZ20 LIC
+    // UUT = WIZ20 LIC
+    // Height = 9 ft
     case 5:
       if (digitalRead(presencePin)) {
         Serial.println("Detected presence from WIZ20 LIC, sending post request");
