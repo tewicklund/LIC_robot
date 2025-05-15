@@ -7,7 +7,7 @@
 #include "Arduino_LED_Matrix.h" // Library for LED matrix
 
 // Number to specify UUT, THIS WILL NEED TO BE ADJUSTED WHEN CHANGING UUT
-const int SENSOR_ID = 4;
+const int SENSOR_ID = 5;
 
 // Information about the WiFi network the Arduino needs to join
 const char* SSID = "CLTC Office";
