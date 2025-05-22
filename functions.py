@@ -60,7 +60,7 @@ def get_color_image(pipeline):
 
 def send_POST_request(test_name,epoch_timestamp,stop_number,arrive_depart):
     # Set the URL for the HTTP POST request
-    url = "http://192.168.11.123:8080/robot"  # office ip
+    url = "http://192.168.11.124:8080/robot"  # office ip
 
     # Define the data to send in the POST request
     data = {
