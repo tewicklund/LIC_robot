@@ -14,7 +14,7 @@ const char* SSID = "CLTC Office";
 const char* PASSWORD = "633SPDpena?";
 
 // Information about the HTTP server that will receive and store LIC trigger events
-const char* SERVER = "192.168.11.123";  // office ip
+const char* SERVER = "192.168.11.124";  // office ip
 const int PORT = 8080;                // Change to 443 for HTTPS
 const char* PATH = "/LIC_triggers";
 
